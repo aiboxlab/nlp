@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlpbox"
+version = "0.0.0"
+description = "NLP Library Focused on Classic ML Algorithms"
+readme = "README.md"
+classifiers = [
+    "Python :: 3.10",
+    "Python :: 3.11",
+]
+
