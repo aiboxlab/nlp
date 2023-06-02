@@ -27,3 +27,17 @@ class CoLA:
         with (requests.get(self.url, stream=True, timeout=10) as request,
               zipfile.ZipFile(file=BytesIO(request.content)) as file):
             file.extractall(self.path)
+
+
+class EssayBR:
+    url = 'https://raw.githubusercontent.com/rafaelanchieta/essay/master/essay-br/essay-br.csv'
+    path = get_resource('essaybr')
+
+    def download(self) -> None:
+        if any(self.path.iterdir()):
+            return
+        filename = self.url[self.url.rindex('/')+1:]
+        with requests.get(self.url, stream=True, timeout=10) as request:
+            with (self.path / filename).open('w') as file:
+                for data in request.iter_content(chunk_size=8192):
+                    file.write(data)
