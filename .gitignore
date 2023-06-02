@@ -128,3 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .vscode/
+
+nlpbox/data/resources/*
+!nlpbox/data/resources/__init__.py
