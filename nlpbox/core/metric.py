@@ -26,9 +26,6 @@ class Metric(Protocol):
         Args:
             y_true: valores reais.
             y_pred: valores preditos por algum estimator.
-            **kwargs: argumentos extras que podem ser utilizados
-                por algumas métricas para controlar seu
-                comportamento.
 
         Returns:
             metrics: NumPy array com os valores da métrica.

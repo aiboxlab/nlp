@@ -15,13 +15,21 @@ class Features(Protocol):
     """
 
     def names(self) -> set[str]:
-        pass
+        """Retorna o nome das características
+        presentes nessa instância.
+        """
 
     def as_dict(self) -> dict[str, float]:
-        pass
+        """Retorna os pares <feature, valor> (ordenados
+        de acordo com o nome da característica) para
+        as características presentes nessa instância.
+        """
 
     def as_numpy(self) -> np.ndarray[np.float32]:
-        pass
+        """Retorna os valores das características
+        como uma NumPy array. As features são ordenadas
+        na ordem lexicográfica.
+        """
 
 
 class FeatureExtractor(Protocol):

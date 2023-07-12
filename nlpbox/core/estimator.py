@@ -12,11 +12,26 @@ class Estimator(Protocol):
     estimador.
     """
 
-    def predict(self, X):
-        pass
+    def predict(self, X) -> np.ndarray:
+        """Realiza a predição utilizando os parâmetros
+        atuais do modelo.
+
+        Args:
+            X: array-like com formato (n_samples, n_features).
+
+        Returns:
+            NumPy array com as predições para cada amostra.
+        """
 
     def fit(self, X, y) -> None:
-        pass
+        """Realiza o treinamento do estimador
+        utilizando as features X com os targets
+        y.
+
+        Args:
+            X: array-like com formato (n_samples, n_features).
+            y: array-like com formato (n_samples,).
+        """
 
     @property
     def hyperparameters(self) -> dict:
@@ -26,7 +41,7 @@ class Estimator(Protocol):
         Returns:
             Hiper-parâmetros do estimador.
         """
-    
+
     @property
     def params(self) -> dict:
         """Retorna um dicionário com os parâmetros
@@ -34,7 +49,7 @@ class Estimator(Protocol):
         descrevem totalmente o estado do modelo (e,g.
         pesos de uma rede, superfícies de decisão, estrutura
         da árvore de decisão, etc).
-        
+
         Returns:
             Parâmetros do estimador.
         """

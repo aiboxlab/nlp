@@ -38,11 +38,26 @@ class Pipeline(Protocol):
             para a próxima etapa treinável;
     """
 
-    def predict(self, X):
-        pass
+    def predict(self, X) -> np.ndarray:
+        """Realiza a predição utilizando os parâmetros
+        atuais da pipeline.
 
-    def fit(self, X, y):
-        pass
+        Args:
+            X: array-like de strings com formato (n_samples,).
+
+        Returns:
+            NumPy array com as predições para cada amostra.
+        """
+
+    def fit(self, X, y) -> None:
+        """Realiza o treinamento da pipeline
+        utilizando as entradas X com os targets
+        y.
+
+        Args:
+            X: array-like de strings com formato (n_samples,).
+            y: array-like com formato (n_samples,).
+        """
 
     @property
     def steps(self) -> dict:
@@ -55,20 +70,25 @@ class Pipeline(Protocol):
         """
 
     @property
-    def model(self) -> Estimator:
-        pass
+    def models(self) -> list[Estimator]:
+        """Retorna os estimadores utilizados
+        nessa pipeline.
+
+        Returns:
+            Lista de estimadores.
+        """
 
     def save(self, save_path: Path | str, **kwargs) -> None:
-        """Serializa e salva esse estimador em um arquivo
+        """Serializa e salva essa pipeline em um arquivo
         respeitando seus parâmetros e configurações atuais.
 
         Argumentos passados como kwargs podem ser utilizados
-        para controle na serialização de alguns estimadores.
+        para controle na serialização de algumas pipelines.
 
         Args:
             save_path: Path-like, define o caminho de
-                salvamento do modelo.
+                salvamento da pipeline.
             **kwargs: argumentos extras que podem ser utilizados
-                por alguns estimadores para customização
+                por algumas pipelines para customização
                 da serialização.
         """
