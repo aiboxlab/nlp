@@ -35,12 +35,12 @@ class Pipeline:
                  vectorizer: Vectorizer,
                  estimator: Estimator,
                  postprocessing: Callable[[np.ndarray], np.ndarray] = None):
-        self.vectorizer = vectorizer
-        self._batch_vectorize = np.vectorize(self.vectorizer.extract)
-        self.estimator = estimator
+        self._vectorizer = vectorizer
+        self._estimator = estimator
 
         if postprocessing is None:
-            def postprocessing(x): x
+            def postprocessing(x):
+                return x
 
         self.postprocessing = postprocessing
 
@@ -92,7 +92,7 @@ class Pipeline:
         Returns:
             Vetorizador.
         """
-        return self.vectorizer
+        return self._vectorizer
 
     @property
     def estimator(self) -> Estimator:
@@ -102,7 +102,10 @@ class Pipeline:
         Returns:
             Estimador.
         """
-        return self.estimator
+        return self._estimator
 
     def postprocessing(self, y: np.ndarray) -> np.ndarray:
         return self._postprocessing(y)
+
+    def _batch_vectorize(self, X):
+        return np.array([self.vectorizer.vectorize(x) for x in X])
