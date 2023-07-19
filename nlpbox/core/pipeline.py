@@ -62,7 +62,7 @@ class Pipeline:
         preds = self.estimator.predict(X_)
 
         # Aplicamos o pós processamento
-        preds = self.postprocessing(preds)
+        preds = self._postprocessing(preds)
 
         return preds
 
