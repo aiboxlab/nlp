@@ -6,11 +6,12 @@ from sklearn.ensemble import ExtraTreesClassifier
 
 from nlpbox.core.pipeline import Pipeline
 from nlpbox.estimators.sklearn_estimator import SklearnEstimator
-from nlpbox.vectorizers import TFIDFVectorizer
+from nlpbox.features.cohmetrix import CohMetrixExtractor
+from nlpbox.vectorizers import FeatureExtractorVectorizer
 
 
-class TFIDFExtraTreesClassification(Pipeline):
+class CohMetrixExtraTreesClassification(Pipeline):
     def __init__(self, **kwargs):
         super().__init__(
-            vectorizer=TFIDFVectorizer(),
+            vectorizer=FeatureExtractorVectorizer(CohMetrixExtractor()),
             estimator=SklearnEstimator(ExtraTreesClassifier(**kwargs)))
