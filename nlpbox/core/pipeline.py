@@ -42,7 +42,7 @@ class Pipeline:
             def postprocessing(x):
                 return x
 
-        self.postprocessing = postprocessing
+        self._postprocessing = postprocessing
 
     def predict(self, X) -> np.ndarray:
         """Realiza a predição utilizando os parâmetros
