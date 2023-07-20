@@ -3,11 +3,13 @@
 """
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import dataclasses
+from abc import ABC, abstractmethod
 
 import numpy as np
 import torch
+
+from .vectorizer import Vectorizer
 
 
 class FeatureSet(ABC):
@@ -76,7 +78,7 @@ class FeatureSet(ABC):
         return list(self.as_dict())
 
 
-class FeatureExtractor(ABC):
+class FeatureExtractor(Vectorizer):
     """Representa um extrator de características,
     que possibilita extrair um conjunto de características
     de um texto passado como entrada.
@@ -94,3 +96,7 @@ class FeatureExtractor(ABC):
                 as características e valores para
                 esse texto.
         """
+
+    def _vectorize(self, text: str) -> np.ndarray:
+        feature_set = self.extract(text)
+        return feature_set.as_numpy()
