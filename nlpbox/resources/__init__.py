@@ -8,7 +8,7 @@ from pathlib import Path
 import apart
 
 manager = apart.GoogleCloudArtifactManager(
-    bucket='nlpbox-artifacts'
+    bucket='apa-ml-artifacts'
 )
 
 
