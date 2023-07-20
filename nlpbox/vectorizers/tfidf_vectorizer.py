@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from sklearn.feature_extraction.text import TfidfVectorizer as SklearnTFIDF
 
-from nlpbox.core.vectorizer import TrainableVectorizer
+from nlpbox.core import TrainableVectorizer
 
 
 class TFIDFVectorizer(TrainableVectorizer):
