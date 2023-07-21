@@ -1,6 +1,6 @@
 """
 """
-from typing import Iterable
+from __future__ import annotations
 
 from nlpbox.core import FeatureExtractor
 from nlpbox.features.utils.aggregator import AggregatedFeatureExtractor
@@ -8,8 +8,10 @@ from nlpbox.features.utils.aggregator import AggregatedFeatureExtractor
 from .class_registry import get_class
 
 
-def get_extractor(features: Iterable[str],
-                  configs: Iterable[dict] = None) -> FeatureExtractor:
+def get_extractor(features: List[str],
+                  configs: List[dict] = None) -> FeatureExtractor:
+    assert isinstance(features, list)
+
     if configs is None:
         configs = [dict() for _ in features]
 

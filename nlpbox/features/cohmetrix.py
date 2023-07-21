@@ -6,9 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from cohmetrixBR import features as cohmetrixBR_features
-
 from nlpbox.core.feature_extractor import FeatureExtractor
+from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -107,10 +106,13 @@ class CohMetrixFeatures(DataclassFeatureSet):
     rdl2: float
 
 
+@register('features.cohmetrixBR')
 class CohMetrixExtractor(FeatureExtractor):
     def extract(self, text: str) -> CohMetrixFeatures:
         """Esse método realiza a extração das características
         do CohMetrix BR para o texto recebido como argumento.
         """
+        from cohmetrixBR import features as cohmetrixBR_features
+
         return CohMetrixFeatures(**{f.__name__.lower(): float(f(text))
                                     for f in cohmetrixBR_features.FEATURES})

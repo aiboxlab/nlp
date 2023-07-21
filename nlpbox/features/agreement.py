@@ -7,8 +7,6 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 
-import cogroo4py.cogroo
-import language_tool_python as langtool
 import spacy
 
 from nlpbox.core import FeatureExtractor
@@ -23,19 +21,21 @@ class AgreementFeatures(DataclassFeatureSet):
     nominal_agreement_score: float
 
 
-@register('agreement')
+@register('features.agreementBR')
 class AgreementExtractor(FeatureExtractor):
     def __init__(self,
                  nlp: spacy.Language = None,
-                 cogroo: cogroo4py.cogroo.Cogroo = None,
-                 tool: langtool.LanguageTool = None):
+                 cogroo=None,
+                 tool=None):
         if nlp is None:
             nlp = spacy.load('pt_core_news_md')
 
         if cogroo is None:
+            import cogroo4py.cogroo
             cogroo = cogroo4py.cogroo.Cogroo()
 
         if tool is None:
+            import language_tool_python as langtool
             tool = langtool.LanguageTool("pt-BR")
 
         self._nlp = nlp
