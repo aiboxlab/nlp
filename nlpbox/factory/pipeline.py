@@ -5,13 +5,13 @@ from nlpbox.core import Estimator, Pipeline, Vectorizer
 from .class_registry import get_class
 
 
-
 def get_pipeline(pipeline: str,
                  pipeline_config: dict = dict()) -> Pipeline:
     pipeline = get_class(pipeline)(**pipeline_config)
     assert isinstance(pipeline, Pipeline)
 
     return pipeline
+
 
 def make_pipeline(vectorizer: str,
                   estimator: str,
