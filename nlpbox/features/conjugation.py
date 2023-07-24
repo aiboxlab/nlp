@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import enum
 import json
-import os
 from dataclasses import dataclass
 from typing import Set, Tuple
 
@@ -87,10 +86,10 @@ class ConjugationExtractor(FeatureExtractor):
         self._matcher.add("verb", [[{"POS": "VERB"}]])
 
         root_dir = resources.path('dictionary/verb-conjugation.v1')
-        irregular_path = os.path.join(root_dir, 'conjugation_irregular.json')
-        paradigms_path = os.path.join(root_dir, 'conjugation_desinencias.json')
+        irregular_path = root_dir.joinpath('conjugation_irregular.json')
+        paradigms_path = root_dir.joinpath('conjugation_desinencias.json')
 
-        with open(irregular_path, 'r') as f1, open(paradigms_path, 'r') as f2:
+        with irregular_path.open('r') as f1, paradigms_path.open('r') as f2:
             self._paradigms = {key: set(value)
                                for key, value in json.load(f2).items()}
             self._irregular = set(json.load(f1))

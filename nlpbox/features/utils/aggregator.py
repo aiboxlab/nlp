@@ -32,7 +32,11 @@ class AggregatedFeatureExtractor(FeatureExtractor):
         self._extractors = extractors
 
         assert (n_parallel is None) or (n_parallel > 0)
-        self._n_parallel = n_parallel
+        self._n_parallel = None
+
+    @property
+    def extractors(self) -> list[FeatureExtractor]:
+        return self._extractors
 
     def extract(self, text: str) -> AggregatedFeatures:
         if self._n_parallel is None:

@@ -4,7 +4,6 @@ e nominal.
 """
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass
 
 import spacy
@@ -105,20 +104,24 @@ class AgreementExtractor(FeatureExtractor):
         return errors, matches
 
     def _na_check(self, text: str) -> tuple[int, int]:
-        def _get_n_mistakes(fn, rules):
+        def _get_n_mistakes(fn,
+                            rules,
+                            fn_id):
             all_mistakes = fn()
             mistakes = filter(lambda m: m in rules,
-                              map(lambda m: m.ruleId,
+                              map(fn_id,
                                   all_mistakes))
             mistakes = set(mistakes)
             return len(mistakes)
 
         n_cogroo_mistakes = _get_n_mistakes(
             lambda: self._cogroo.grammar_check(text).mistakes,
-            self._cogroo_rules)
+            self._cogroo_rules,
+            lambda m: m.rule_id)
         n_langtool_mistakes = _get_n_mistakes(
             lambda: self._tool.check(text),
-            self._langtool_rules)
+            self._langtool_rules,
+            lambda m: m.ruleId)
 
         total_mistakes = n_langtool_mistakes + n_cogroo_mistakes
         total_rules = len(self._cogroo_rules) + len(self._langtool_rules)

@@ -6,14 +6,15 @@ from __future__ import annotations
 import typing
 from dataclasses import dataclass
 
-from apa_nlp._resources import get_resource
+from nlpbox import resources
+from nlpbox.core import FeatureExtractor
+from nlpbox.factory import register
+
+from .utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)
-class LiwcFeatures:
-    _words: typing.ClassVar[list[str]] = None
-    _indices: typing.ClassVar[list] = None
-    _indice_to_name: typing.ClassVar[dict] = None
+class LiwcFeatures(DataclassFeatureSet):
     funct: float
     pronoun: float
     ppron: float
@@ -79,30 +80,11 @@ class LiwcFeatures:
     nonfl: float
     filler: float
 
-    @classmethod
-    def extract(cls,
-                text: str,
-                **kwargs) -> LiwcFeatures:
-        if cls._words is None:
-            cls._load_liwc()
 
-        liwc_dict = {v: 0 for k, v in cls._indice_to_name.items()}
-
-        for token in tokens:
-            position = cls._search(token)
-            if position:
-                tam = len(cls._words[position[0]])
-                for i in range(tam):
-                    id_ = cls._words[position[0]][i]
-                    if id_ in cls._indices:
-                        feature_name = cls._indice_to_name[int(id_)]
-                        liwc_dict[feature_name] = liwc_dict[feature_name] + 1
-
-        return LiwcFeatures(**liwc_dict)
-
-    @classmethod
-    def _load_liwc(cls):
-        cls._indice_to_name = {
+@register('features.liwcBR')
+class LiwcExtractor(FeatureExtractor):
+    def __init__(self):
+        self._indice_to_name = {
             1: 'funct', 2: 'pronoun', 3: 'ppron', 4: 'i',
             5: 'we', 6: 'you', 7: 'shehe', 8: 'they', 9: 'ipron',
             10: 'article', 11: 'verb', 12: 'auxverb',
@@ -121,23 +103,38 @@ class LiwcFeatures:
             360: 'death', 462: 'assent', 463: 'nonfl', 464: 'filler'
         }
 
-        cls._words = []
-        words_path = get_resource('dictionary/liwc_words.txt')
+        self._words = []
+        root_dir = resources.path('dictionary/liwc-dictionary.v1')
+        words_path = root_dir.joinpath('LIWC2007_Portugues_win.dic.txt')
         with words_path.open(mode='r',
                              encoding='latin1',
                              errors='ignore') as file:
             lines = file.read().split('\n')
             for line in lines:
                 words = line.split('\t')
-                self.liwc_words.append(words)
+                self._liwc_words.append(words)
 
         with indices_path.open(mode='r',
                                encoding='utf-8',
                                errors='ignore') as file:
             cls._indices = file.read().split('\n')
 
-    @classmethod
-    def _search(cls, token: str) -> list:
+    def extract(self, text: str) -> LiwcFeatures:
+        liwc_dict = {v: 0 for v in self._indice_to_name.values()}
+
+        for token in tokens:
+            position = self._search(token)
+            if position:
+                tam = len(self._words[position[0]])
+                for i in range(tam):
+                    id_ = self._words[position[0]][i]
+                    if id_ in self._indices:
+                        feature_name = self._indice_to_name[int(id_)]
+                        liwc_dict[feature_name] = liwc_dict[feature_name] + 1
+
+        return LiwcFeatures(**{k: float(v) for k, v in liwc_dict.items()})
+
+    def _search(self, token: str) -> list:
         """Função que busca a ocorrência de um
         token na lista de tokens.
 
@@ -147,6 +144,6 @@ class LiwcFeatures:
         Returns:
             list: lista de ocorrências.
         """
-        return [cls._words.index(x)
-                for x in cls._words
+        return [self._words.index(x)
+                for x in self._words
                 if token in x]
