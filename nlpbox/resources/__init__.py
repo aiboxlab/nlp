@@ -8,7 +8,7 @@ from pathlib import Path
 import apart
 
 manager = apart.GoogleCloudArtifactManager(
-    bucket='apa-ml-artifacts'
+    bucket='aibox-nlpbox'
 )
 
 
@@ -23,10 +23,6 @@ def path(artifact: str) -> Path:
     Returns:
         str: caminho local desse artefato.
     """
-    # Atualização do ID do artefato: todos de PLN
-    #   possuem "nlp" como prefixo.
-    artifact = f'nlp/{artifact}'
-
     # Retorna o caminho local desse artefato e
     #   realiza o download caso necessário.
     return Path(manager.get(artifact=artifact))

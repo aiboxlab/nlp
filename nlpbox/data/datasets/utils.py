@@ -16,12 +16,12 @@ def _train_test_clf(df: pd.DataFrame,
 
     def _sample(d):
         # Selecionamos uma seed randômica para obter o sample
-        random_state = seed_generator.integers(0,
-                                               int(1e10),
-                                               size=1).item()
+        random_state = rng.integers(0,
+                                    int(1e6),
+                                    size=1).item()
         # Escolhemos uma parcela aleatória do DataFrame d
         d_ = d.sample(frac=frac_train,
-                      random_state=seed_generator.integers(0,))
+                      random_state=random_state)
         return d_
 
     # Agrupar os dados de acordo com os níveis
@@ -29,7 +29,7 @@ def _train_test_clf(df: pd.DataFrame,
                          group_keys=False)
 
     # Obtemos (100*frac_train)% de amostras de cada grupo
-    df_train = groupby.apply(sample)
+    df_train = groupby.apply(_sample)
 
     # O que sobrou, faz parte do conjunto de testes
     df_test = df[~df['text'].isin(df_train['text'])]
@@ -68,7 +68,7 @@ def _stratified_splits_clf(df: pd.DataFrame,
 
     # Quantidade de que vão "sobrar" para cada classe
     # A quantidade de faltantes por classe sempre vai ser < k
-    samples_leftovers = (count - (samples_level_int * n_folds)).to_dict()
+    samples_leftovers = (count - (samples_classes_int * k)).to_dict()
 
     def _sample(d: pd.DataFrame, rand: int) -> pd.DataFrame:
         nonlocal samples_leftovers
@@ -81,15 +81,15 @@ def _stratified_splits_clf(df: pd.DataFrame,
             samples_leftovers[level] -= 1
             leftover = 1
 
-        return d.sample(n=samples_per_level[level] + leftover,
+        return d.sample(n=samples_per_class[level] + leftover,
                         random_state=rand)
 
     # Criação dos folds (exceto último)
-    for i in range(n_folds - 1):
+    for i in range(k - 1):
         # Selecionamos uma seed randômica para obter o sample
-        rand = seed_generator.integers(0,
-                                       int(1e10),
-                                       size=1).item()
+        rand = rng.integers(0,
+                            int(1e6),
+                            size=1).item()
         fold = groupby.apply(lambda d: _sample(d, rand))
         folds.append(fold)
 

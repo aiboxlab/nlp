@@ -1,5 +1,6 @@
 """Arquivo de inicialização.
 """
+from .dataset import Dataset
 from .estimator import Estimator
 from .feature_extractor import FeatureExtractor, FeatureSet
 from .metric import Metric
