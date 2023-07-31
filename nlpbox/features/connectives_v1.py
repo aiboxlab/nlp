@@ -87,7 +87,8 @@ class ConnectivesExtractorV1(FeatureExtractor):
             feature_name = f'sent_conn_{feature_name.strip()}'
             return feature_name
 
-        resource = resources.path('dictionary/connectives_list.json')
+        resource_dir = resources.path('dictionary/connectives-list.v1')
+        resource = resource_dir.joinpath('connectives.json')
 
         with resource.open('r', encoding='utf-8') as f:
             connectives = json.load(f)
