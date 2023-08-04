@@ -21,6 +21,8 @@ class Dataset(ABC):
             1. text: textos;
             2. target: label;
 
+        O DataFrame pode ter colunas adicionais.
+
         Returns:
             Retorna uma representação desse dataset
                 como um DataFrame.

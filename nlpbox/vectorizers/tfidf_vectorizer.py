@@ -1,4 +1,5 @@
-"""
+"""Esse módulo contém a implementação
+de um vetorizador TF-IDF.
 """
 from __future__ import annotations
 

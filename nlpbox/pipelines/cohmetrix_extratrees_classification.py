@@ -1,4 +1,7 @@
-"""
+"""Esse módulo contém uma pipeline
+de classificação utilizando o
+CohMetrix com um ensemble de Extremely
+Randomized Trees.
 """
 from __future__ import annotations
 

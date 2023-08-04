@@ -1,10 +1,12 @@
-"""
+"""Esse módulo contém o dataset
+considerando as redações do Ensino Fundamental
+do projeto do MEC.
 """
 from __future__ import annotations
 
 import json
-from typing import ClassVar
 from enum import Enum
+from typing import ClassVar
 
 import pandas as pd
 
@@ -14,7 +16,7 @@ from nlpbox.core import Dataset
 from . import utils
 
 
-class CorpusMecEf(Dataset):
+class DatasetMecEf(Dataset):
     _COMPETENCES: ClassVar[set[str]] = {
         'cohesion',
         'thematic_coherence',
@@ -70,13 +72,25 @@ class CorpusMecEf(Dataset):
     def cv_splits(self, k: int,
                   stratified: bool,
                   seed: int) -> list[pd.DataFrame]:
-        return utils._stratified_splits_clf(df=self._df,
-                                            k=k,
-                                            seed=seed)
+        """Obtém os splits para validação cruzada. Todos
+        os splits são estratificados.
+
+        Args:
+            k (int): quantidade de splits/folds.
+            stratified (bool): desconsiderado, sempre estratificado.
+            seed (int): seed randômica para geração dos folds.
+
+        Returns:
+            list[pd.DataFrame]
+        """
+        del stratified
+        return utils.stratified_splits_clf(df=self._df,
+                                           k=k,
+                                           seed=seed)
 
     def train_test_split(self,
                          frac_train: float,
                          seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-        return utils._train_test_clf(df=self._df,
-                                     frac_train=frac_train,
-                                     seed=seed)
+        return utils.train_test_clf(df=self._df,
+                                    frac_train=frac_train,
+                                    seed=seed)

@@ -8,13 +8,26 @@ import pandas as pd
 import numpy as np
 
 
-def _train_test_clf(df: pd.DataFrame,
-                    frac_train: float,
-                    seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+def train_test_clf(df: pd.DataFrame,
+                   frac_train: float,
+                   seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Retorna uma tupla com os DataFrames de treino
+    e teste para o dataset de classificação recebido. Ambos splits
+    são estratitifcados com relação a distribuição das classes.
+
+    Args:
+        df (pd.DataFrame): dataset.
+        frac_train (float): porcentagem de amostras para treino.
+        seed (int): seed randômica para geração dos splits.
+
+    Returns:
+        df_train, df_test
+    """
     # Criação de um gerador auxiliar
     rng = np.random.default_rng(seed)
 
     def _sample(d):
+        # Retorna um sub-dataframe
         # Selecionamos uma seed randômica para obter o sample
         random_state = rng.integers(0,
                                     int(1e6),
@@ -38,9 +51,20 @@ def _train_test_clf(df: pd.DataFrame,
     return df_train, df_test
 
 
-def _stratified_splits_clf(df: pd.DataFrame,
-                           k: int,
-                           seed: int) -> list[pd.DataFrame]:
+def stratified_splits_clf(df: pd.DataFrame,
+                          k: int,
+                          seed: int) -> list[pd.DataFrame]:
+    """Retorna `k` splits estratitifcados para o dataset
+    recebido.
+
+    Args:
+        df (pd.DataFrame): dataset.
+        k (int): quantidade de splits.
+        seed (int): seed randômica.
+
+    Returns:
+        list[pd.DataFrame]
+    """
     # Criação de um gerador auxiliar
     rng = np.random.default_rng(seed)
 

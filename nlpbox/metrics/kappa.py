@@ -10,6 +10,8 @@ from nlpbox.core import Metric
 
 
 class CohensKappaScore(Metric):
+    """Métrica para cálculo do Cohen's Kappa.
+    """
 
     def __init__(self, weights: str = None) -> None:
         self._w = weights
@@ -23,9 +25,23 @@ class CohensKappaScore(Metric):
 
 
 class NeighborCohensKappaScore(Metric):
+    """Métrica para o cálculo do Cohen's Kappa
+    onde classes vizinhas são consideradas iguais
+    para fins de cálculo.
+    """
+
     def __init__(self,
                  neighbor_limit: int = 1,
                  weights: str = None) -> None:
+        """Construtor.
+
+        Args:
+            neighbor_limit (int): diferença máxima entre
+                duas classes para elas serem consideradas
+                vizinhas.
+            weights (str): se devemos calcular a métrica
+                ponderada.
+        """
         assert neighbor_limit >= 1
         self._w = weights
         self._neighbor_limit = neighbor_limit

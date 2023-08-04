@@ -7,6 +7,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 
 class Estimator(ABC):
@@ -15,7 +16,7 @@ class Estimator(ABC):
     """
 
     @abstractmethod
-    def predict(self, X) -> np.ndarray:
+    def predict(self, X: ArrayLike) -> np.ndarray:
         """Realiza a predição utilizando os parâmetros
         atuais do modelo.
 
@@ -27,7 +28,7 @@ class Estimator(ABC):
         """
 
     @abstractmethod
-    def fit(self, X, y) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike) -> None:
         """Realiza o treinamento do estimador
         utilizando as features X com os targets
         y.

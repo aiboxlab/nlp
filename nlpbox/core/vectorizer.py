@@ -65,5 +65,17 @@ class Vectorizer(ABC):
 
 
 class TrainableVectorizer(Vectorizer):
-    def fit(self, X, y=None) -> None:
+    """Representação de um vetorizador
+    treinável (e.g., TF-IDF, BERT).
+    """
+
+    def fit(self, X: ArrayLike, y: ArrayLike | None = None) -> None:
+        """Método para treinamento do vetorizador. O valor de `y`
+        não é utilizado, só é mantido por consistência da interface
+        `fit(X, y)`.
+
+        Args:
+            X: array-like de Strings com formato (n_samples,).
+            y: desconsiderado.
+        """
         pass

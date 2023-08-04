@@ -6,9 +6,10 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from .estimator import Estimator
-from .vectorizer import Vectorizer, TrainableVectorizer
+from .vectorizer import TrainableVectorizer, Vectorizer
 
 
 class Pipeline:
@@ -44,7 +45,7 @@ class Pipeline:
 
         self._postprocessing = postprocessing
 
-    def predict(self, X) -> np.ndarray:
+    def predict(self, X: ArrayLike) -> np.ndarray:
         """Realiza a predição utilizando os parâmetros
         atuais da pipeline.
 
@@ -66,7 +67,7 @@ class Pipeline:
 
         return preds
 
-    def fit(self, X, y) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike) -> None:
         """Realiza o treinamento da pipeline
         utilizando as entradas X com os targets
         y.

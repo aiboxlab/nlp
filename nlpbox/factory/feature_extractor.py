@@ -1,4 +1,6 @@
-"""
+"""Esse método contém funções utilitárias
+para construção e obtenção de extratores
+de características através de nomes.
 """
 from __future__ import annotations
 
@@ -8,8 +10,19 @@ from nlpbox.features.utils.aggregator import AggregatedFeatureExtractor
 from .class_registry import get_class
 
 
-def get_extractor(features: List[str],
-                  configs: List[dict] = None) -> FeatureExtractor:
+def get_extractor(features: list[str],
+                  configs: list[dict] = None) -> FeatureExtractor:
+    """Obtém um extrator de características para
+    todas as características na lista `features`.
+
+    Args:
+        features (list[str]): lista com as características.
+        configs (list[dict], opcional): parâmetros para serem passados
+            aos construtores dos extratores de características.
+
+    Returns:
+        Extrator de características.
+    """
     assert isinstance(features, list)
 
     if configs is None:
