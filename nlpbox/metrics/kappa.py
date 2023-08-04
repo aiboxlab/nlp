@@ -8,6 +8,8 @@ import sklearn.metrics
 
 from nlpbox.core import Metric
 
+from . import utils
+
 
 class CohensKappaScore(Metric):
     """Métrica para cálculo do Cohen's Kappa.
@@ -65,6 +67,7 @@ class NeighborCohensKappaScore(Metric):
         return value
 
 
+@utils.to_float32_array
 def _get_kappa_score(y_true: np.ndarray,
                      y_pred: np.ndarray,
                      weights) -> np.ndarray[np.float32]:
