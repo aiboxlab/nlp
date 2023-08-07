@@ -27,10 +27,6 @@ def to_float32_array(fn: Callable) -> Callable:
         if not isinstance(out, np.ndarray):
             out = np.array(out, dtype=np.float32)
 
-        if out.shape == ():
-            out = np.expand_dims(out, 0)
-
-        assert len(out.shape) == 1
         return out.astype(np.float32)
 
     return wrapper
