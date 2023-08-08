@@ -11,8 +11,11 @@ import spacy
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
 from nlpbox.factory import register
+from nlpbox.lazy_loading import lazy_import
 
 from .utils import DataclassFeatureSet
+
+langtool = lazy_import('language_tool_python')
 
 
 @dataclass(frozen=True)
@@ -31,7 +34,6 @@ class OrthographyExtractor(FeatureExtractor):
 
     def __init__(self, tool: langtool.LanguageTool = None):
         if tool is None:
-            import language_tool_python as langtool
             tool = langtool.LanguageTool('pt-BR')
 
         def cleaner(text: str):

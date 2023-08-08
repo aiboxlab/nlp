@@ -10,8 +10,12 @@ import spacy
 
 from nlpbox.core import FeatureExtractor
 from nlpbox.factory import register
+from nlpbox.lazy_loading import lazy_import
 
 from .utils import DataclassFeatureSet
+
+cogroo4py = lazy_import('cogroo4py.cogroo')
+langtool = lazy_import('language_tool_python')
 
 
 @dataclass(frozen=True)
@@ -30,11 +34,9 @@ class AgreementExtractor(FeatureExtractor):
             nlp = spacy.load('pt_core_news_md')
 
         if cogroo is None:
-            import cogroo4py.cogroo
-            cogroo = cogroo4py.cogroo.Cogroo()
+            cogroo = cogroo4py.Cogroo()
 
         if tool is None:
-            import language_tool_python as langtool
             tool = langtool.LanguageTool("pt-BR")
 
         self._nlp = nlp

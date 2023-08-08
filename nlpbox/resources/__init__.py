@@ -5,11 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import apart
+from nlpbox.lazy_loading import lazy_import
 
-manager = apart.GoogleCloudArtifactManager(
-    bucket='aibox-nlpbox'
-)
+apart = lazy_import('apart')
+_manager = None
 
 
 def path(artifact: str) -> Path:
@@ -23,6 +22,10 @@ def path(artifact: str) -> Path:
     Returns:
         str: caminho local desse artefato.
     """
+    if _manager is None:
+        _manager = apart.GoogleCloudArtifactManager(
+            bucket='aibox-nlpbox')
+
     # Retorna o caminho local desse artefato e
     #   realiza o download caso necessário.
     return Path(manager.get(artifact=artifact))

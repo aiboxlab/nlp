@@ -8,8 +8,11 @@ from typing import NamedTuple
 
 from nlpbox.core.feature_extractor import FeatureExtractor
 from nlpbox.factory import register
+from nlpbox.lazy_loading import lazy_import
 
 from .utils import DataclassFeatureSet
+
+cohmetrixBR_features = lazy_import('cohmetrixBR.features')
 
 
 @dataclass(frozen=True)
@@ -112,7 +115,5 @@ class CohMetrixExtractor(FeatureExtractor):
         """Esse método realiza a extração das características
         do CohMetrix BR para o texto recebido como argumento.
         """
-        from cohmetrixBR import features as cohmetrixBR_features
-
         return CohMetrixFeatures(**{f.__name__.lower(): float(f(text))
                                     for f in cohmetrixBR_features.FEATURES})
