@@ -3,9 +3,8 @@ utilitárias para criação de Datasets.
 """
 from __future__ import annotations
 
-import pandas as pd
-
 import numpy as np
+import pandas as pd
 
 
 def train_test_clf(df: pd.DataFrame,
@@ -23,6 +22,9 @@ def train_test_clf(df: pd.DataFrame,
     Returns:
         df_train, df_test
     """
+    # Garantindo pré-condições
+    _assert_preconditions(df)
+
     # Criação de um gerador auxiliar
     rng = np.random.default_rng(seed)
 
@@ -45,7 +47,11 @@ def train_test_clf(df: pd.DataFrame,
     df_train = groupby.apply(_sample)
 
     # O que sobrou, faz parte do conjunto de testes
-    df_test = df[~df['text'].isin(df_train['text'])]
+    df_test = df[~df.text.isin(df_train.text)]
+
+    # Garantindo que o conjunto de textos
+    #   se manteve.
+    _assert_same_texts([df_train, df_test], df)
 
     # Retornamos train e test
     return df_train, df_test
@@ -65,6 +71,9 @@ def stratified_splits_clf(df: pd.DataFrame,
     Returns:
         list[pd.DataFrame]
     """
+    # Garantindo pré-condições
+    _assert_preconditions(df)
+
     # Criação de um gerador auxiliar
     rng = np.random.default_rng(seed)
 
@@ -125,4 +134,28 @@ def stratified_splits_clf(df: pd.DataFrame,
     # O que sobrou do DataFrame faz parte do último fold
     folds.append(df_)
 
+    # Garantindo que o conjunto de textos
+    #   se manteve.
+    _assert_same_texts(folds, df)
+
     return folds
+
+
+def _assert_preconditions(df: pd.DataFrame):
+    assert not df.text.duplicated().any()
+    assert not df.text.isnull().any()
+    assert not df.target.isnull().any()
+
+
+def _assert_same_texts(objs: list[pd.DataFrame],
+                       original_df: pd.DataFrame):
+    # Garantindo que o somatório de todos folds
+    #   é igual ao original
+    assert sum(map(len, objs)) == len(original_df)
+
+    # Garantindo que o conjunto de textos
+    #   é igual ao original
+    concat = pd.concat(objs)
+    concat = concat.sort_values(by='text')
+    df_ = original_df.sort_values(by='text')
+    assert (concat.text == df_.text).all()

@@ -33,7 +33,8 @@ class DatasetMecEf(Dataset):
         competência deve ser utilizada pelo dataset.
 
         Args:
-            target_competence (str): competência.
+            target_competence (str): competência ('cohesion',
+                'thematic_coherence', 'formal_register', 'text_typology').
         """
         root_dir = resources.path('datasets/corpus-mec-ef.v1')
         json_path = root_dir.joinpath('dataset.json')
@@ -47,6 +48,7 @@ class DatasetMecEf(Dataset):
         }
 
         data.update({k: [] for k in self._COMPETENCES})
+        assert target_competence in self._COMPETENCES
 
         for entry in json_data:
             data[self._KEY_TEXT].append(entry[self._KEY_TEXT])
