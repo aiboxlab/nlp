@@ -4,6 +4,7 @@ léxica.
 from __future__ import annotations
 
 import re
+import typing
 from collections import Counter
 from dataclasses import dataclass
 
@@ -13,9 +14,14 @@ import unidecode
 from lexical_diversity import lex_div as ld
 from spacy.tokens import Doc, Span
 
+from nlpbox import resources
+from nlpbox.core import FeatureExtractor
+
+from .utils import DataclassFeatureSet
+
 
 @dataclass(frozen=True)
-class LexicalDiversityFeatures:
+class LexicalDiversityFeatures(DataclassFeatureSet):
     ratio_verb: float
     ratio_noun: float
     ratio_propn: float
@@ -32,20 +38,20 @@ class LexicalDiversityFeatures:
     lexical_diversity_mtld: float
     lexical_diversity: float
 
-    @classmethod
-    def extract(cls,
-                text: str,
-                doc: Doc | None = None,
-                tokens: list[str] | None = None,
-                **kwargs) -> LexicalDiversityFeatures:
-        if doc is None:
-            doc = spacy.load("pt_core_news_md")(text)
 
-        if tokens is None:
-            tokens = [t.text.lower()
-                      for sent in doc.sents
-                      for t in sent
-                      if t.pos_ not in {'PUNCT', 'SYM'}]
+class LexicalDiversityExtractor(FeatureExtractor):
+    def __init__(self, nlp: spacy.Language = None):
+        if nlp is None:
+            nlp = spacy.load('pt_core_news_md')
+
+        self._nlp = nlp
+
+    def extract(self, text: str) -> LexicalDiversityFeatures:
+        doc = self._nlp(text)
+        tokens = [t.lower_
+                  for sent in doc.sents
+                  for t in sent
+                  if t.pos_ not in {'PUNCT', 'SYM'}]
 
         yule_k = 0
         hapax_legomena = 0
@@ -86,8 +92,8 @@ class LexicalDiversityFeatures:
             hapax_legomena = len(
                 [t for t in content_tokens if content_tokens.count(t) == 1])
             guiraud_index = len(set(content_tokens)) / len(content_tokens)
-            pos_dissimilarity = cls._compute_pos_dissimilarity(doc)
-            lexical_density = cls._compute_lexical_density(doc)
+            pos_dissimilarity = self._compute_pos_dissimilarity(doc)
+            lexical_density = self._compute_lexical_density(doc)
 
             try:
                 lexical_diversity_mtld = TRUNAJOD.ttr.lexical_diversity_mtld(
@@ -95,8 +101,8 @@ class LexicalDiversityFeatures:
             except ZeroDivisionError:
                 lexical_diversity_mtld = 0
 
-            lexical_diversity = cls._compute_lexical_diversity(doc)
-            dict_ratio_pos = cls._compute_pos_dist(doc)
+            lexical_diversity = self._compute_lexical_diversity(doc)
+            dict_ratio_pos = self._compute_pos_dist(doc)
 
         dict_features = {
             'yule_k': yule_k,
@@ -127,8 +133,8 @@ class LexicalDiversityFeatures:
         cont_sents = 0
 
         for sent in doc.sents:
-            sent_pos_dist.append(
-                LexicalDiversityFeatures._pos_distribution(sent))
+            pos_dist = LexicalDiversityExtractor._pos_distribution(sent)
+            sent_pos_dist.append(pos_dist)
             cont_sents += 1
 
         dissimilarity = 0
@@ -161,10 +167,9 @@ class LexicalDiversityFeatures:
         Returns:
             float: densidade léxica.
         """
-
-        return LexicalDiversityFeatures._pos_ratio(
-            doc,
-            'VERB|AUX|ADJ|NOUN|PROPN|ADV')
+        target = 'VERB|AUX|ADJ|NOUN|PROPN|ADV'
+        return LexicalDiversityExtractor._pos_ratio(doc,
+                                                    target)
 
     @staticmethod
     def _pos_distribution(sentence: Span) -> dict:

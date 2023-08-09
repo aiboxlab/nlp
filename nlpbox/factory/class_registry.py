@@ -21,9 +21,10 @@ _registry_features = {
     'overlapBR': 'overlap.OverlapExtractor',
     'regencyBR': 'regency.RegencyExtractor',
     'semanticCohesionTransBR': ('semantic_cohesion_transformers.'
-                                'SemantichExtractorTransformers',)
+                                'SemantichExtractorTransformers'),
     'tfidfSimilarity': 'tfidf_similarity.TFIDFSimilarityExtractor',
     'wordSegmentationBR': 'word_segmentation.WordSegmentationExtractor',
+    'lexicalDiversityBR': 'lexical_diversity.LexicalDiversityExtractor',
 }
 
 _registry_vectorizers = {
