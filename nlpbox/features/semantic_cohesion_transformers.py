@@ -35,15 +35,22 @@ class SemanticFeaturesTransformers(DataclassFeatureSet):
 
 class SemanticExtractorTransformers(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None,
+                 model: SentenceTransformer = None,
+                 dims: int = None,
                  device: str = 'cuda'):
         if nlp is None:
             nlp = spacy.load('pt_core_news_md')
 
-        self._nlp = nlp
+        if model is None:
+            model_name = 'ricardo-filho/bert-base-portuguese-cased-nli-assin-2'
+            model = SentenceTransformer(model_name, device=device)
+            dims = 768
 
-        model_name = 'ricardo-filho/bert-base-portuguese-cased-nli-assin-2'
-        self._model = SentenceTransformer(model_name, device=device)
-        self._dims = 768
+        self._nlp = nlp
+        self._model = model
+
+        assert dims is not None
+        self._dims = dims
 
     def extract(self, text: str) -> SemanticFeaturesTransformers:
         doc = self._nlp(text)
