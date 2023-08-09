@@ -22,7 +22,6 @@ class OrtographyFeatures(DataclassFeatureSet):
     ortography_score: float
 
 
-
 class OrthographyExtractor(FeatureExtractor):
     """ Classe que permite calcular uma nota/score para o aspecto
     ortografia. Exemplo de uso:

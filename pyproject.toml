@@ -12,20 +12,30 @@ classifiers = [
     "Python :: 3.11",
 ]
 dependencies = [
-    "apart==1.3.1",
-    "scikit-learn==1.2.2",
-    "catboost==1.2",
-    "pyspellchecker==0.7.2",
-    "spacy==3.2.6",
-    "transformers==4.31.0",
-    "sentence-transformers==2.2.2",
-    "cogroo4py==0.5.1",
-    "language-tool-python==2.7.1",
-    "python-Levenshtein==0.21.1",
-    "polyfuzz==0.4.0",
-    "lexical-diversity==0.1.1",
-    "fuzzywuzzy==0.18.0",
-    "fuzzysearch==0.7.3",
-    "gensim==4.3.1",
-    "cohmetrixBR==0.0.7"
+    "apart~=1.3.1",
+    "scikit-learn~=1.2.2",
+    "torch~=2.0.1",
+    "numpy~=1.24.4",
+    "pandas~=2.0.3",
+]
+
+[project.optional-dependencies]
+BR = [
+    "pyspellchecker~=0.7.2",
+    "spacy~=3.2.6",
+    "transformers~=4.31.0",
+    "sentence-transformers~=2.2.2",
+    "cogroo4py~=0.5.1",
+    "language-tool-python~=2.7.1",
+    "python-Levenshtein~=0.21.1",
+    "polyfuzz~=0.4.0",
+    "lexical-diversity~=0.1.1",
+    "fuzzywuzzy~=0.18.0",
+    "fuzzysearch~=0.7.3",
+    "gensim~=4.3.1",
+    "cohmetrixBR~=0.0.7",
+    "py-rouge~=1.1",
+    "TRUNAJOD~=0.1.1",
+    "unidecode~=1.3.6",
+    "scipy~=1.10.1"
 ]
