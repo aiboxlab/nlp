@@ -8,7 +8,6 @@ from dataclasses import dataclass
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -81,7 +80,6 @@ class LiwcFeatures(DataclassFeatureSet):
     filler: float
 
 
-@register('features.liwcBR')
 class LiwcExtractor(FeatureExtractor):
     def __init__(self):
         self._indice_to_name = {

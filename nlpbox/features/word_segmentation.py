@@ -13,7 +13,6 @@ from spellchecker import SpellChecker
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -67,7 +66,6 @@ class UspSpellChecker(SpellChecker):
                          case_sensitive=case_sensitive)
 
 
-@register('features.word_segmentationBR')
 class WordSegmentationExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:

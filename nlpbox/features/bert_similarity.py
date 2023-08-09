@@ -12,7 +12,6 @@ from sentence_transformers.util import cos_sim
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -22,8 +21,7 @@ class BERTSimilarityFeatures(DataclassFeatureSet):
     bert_similarity_cosine: float
 
 
-@register('features.bert_similarityBR')
-class BERTSimilarityExtractor:
+class BERTSimilarityExtractor(FeatureExtractor):
     def __init__(self,
                  reference_text: str,
                  bert_model: SentenceTransformer = None,

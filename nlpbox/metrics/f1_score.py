@@ -11,7 +11,7 @@ from nlpbox.core import Metric
 from . import utils
 
 
-class Precision(Metric):
+class F1Score(Metric):
     """Métrica para cálculo do F1-Score.
     """
 

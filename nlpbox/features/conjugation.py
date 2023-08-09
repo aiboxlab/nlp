@@ -13,7 +13,6 @@ from spacy import matcher
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -74,7 +73,6 @@ class Conjugation(enum.Enum):
             return None
 
 
-@register('features.conjugationBR')
 class ConjugationExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.language.Language | None = None):
 

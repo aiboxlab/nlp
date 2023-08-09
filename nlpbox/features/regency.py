@@ -11,7 +11,6 @@ import spacy
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -22,7 +21,6 @@ class RegencyFeatures(DataclassFeatureSet):
     nominal_regency_score: float
 
 
-@register('features.regencyBR')
 class RegencyExtractor(FeatureExtractor):
     def __init__(self,
                  nlp: spacy.Language = None):

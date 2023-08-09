@@ -10,7 +10,6 @@ import spacy
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 from nlpbox.lazy_loading import lazy_import
 
 from .utils import DataclassFeatureSet
@@ -23,7 +22,7 @@ class OrtographyFeatures(DataclassFeatureSet):
     ortography_score: float
 
 
-@register('features.orthographyBR')
+
 class OrthographyExtractor(FeatureExtractor):
     """ Classe que permite calcular uma nota/score para o aspecto
     ortografia. Exemplo de uso:

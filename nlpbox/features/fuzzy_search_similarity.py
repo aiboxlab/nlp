@@ -13,7 +13,6 @@ from fuzzywuzzy import fuzz
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -30,8 +29,7 @@ class FuzzySearchSimilarityFeatures(DataclassFeatureSet):
     fuzz_wratio: float
 
 
-@register('features.fuzzysearch_similarity')
-class FuzzySearchSimilarityExtractor:
+class FuzzySearchSimilarityExtractor(FeatureExtractor):
     def __init__(self, reference_text: str):
 
         def _n_near_matches(t, p) -> float:

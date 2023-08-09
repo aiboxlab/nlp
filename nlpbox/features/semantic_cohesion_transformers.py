@@ -15,7 +15,6 @@ from sentence_transformers import SentenceTransformer
 from spacy.tokens import Doc
 
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -34,7 +33,6 @@ class SemanticFeaturesTransformers(DataclassFeatureSet):
     lsa_span_std_embedding: float
 
 
-@register('features.semantic_cohesion_transformersBR')
 class SemanticExtractorTransformers(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None,
                  device: str = 'cuda'):

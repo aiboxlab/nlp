@@ -11,7 +11,6 @@ import spacy
 from polyfuzz.models import TFIDF, RapidFuzz
 
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -26,7 +25,6 @@ class TFIDFSimilarityFeatures(DataclassFeatureSet):
     tf_idf_ngram_all: float
 
 
-@register('features.tfidf_similarity')
 class TFIDFSimilarityExtractor(FeatureExtractor):
     """ Esse classe implementa um extrator de características
     de similaridade baseado no TF-IDF.

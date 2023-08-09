@@ -10,7 +10,6 @@ from gensim.models import KeyedVectors
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 
 from .utils import DataclassFeatureSet
 
@@ -23,7 +22,6 @@ class NILCSimilarityFeatures(DataclassFeatureSet):
     similarity_word_movers_cbow: float
 
 
-@register('features.nilc_similarityBR')
 class NILCSimilarityExtractor(FeatureExtractor):
     def __init__(self,
                  reference_text: str,

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 import spacy
 
 from nlpbox.core import FeatureExtractor
-from nlpbox.factory import register
 from nlpbox.lazy_loading import lazy_import
 
 from .utils import DataclassFeatureSet
@@ -24,7 +23,6 @@ class AgreementFeatures(DataclassFeatureSet):
     nominal_agreement_score: float
 
 
-@register('features.agreementBR')
 class AgreementExtractor(FeatureExtractor):
     def __init__(self,
                  nlp: spacy.Language = None,
