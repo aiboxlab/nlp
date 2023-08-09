@@ -13,9 +13,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 from spacy.tokens import Doc
 from TRUNAJOD.entity_grid import EntityGrid, get_local_coherence
 
+from nlpbox.core import FeatureExtractor
+
+from .utils import DataclassFeatureSet, sentencizers
+
 
 @dataclass(frozen=True)
-class OverlapFeatures:
+class OverlapFeatures(DataclassFeatureSet):
     local_coh_pu: float
     local_coh_pw: float
     local_coh_pacc: float
@@ -25,22 +29,17 @@ class OverlapFeatures:
     overlap_unigrams_sents: float
     cosine_sim_tfids_sents: float
 
-    @classmethod
-    def extract(cls,
-                text: str,
-                doc: spacy.tokens.Doc | None = None,
-                spacy_pipeline: spacy.Language | None = None,
-                sentences: list | None = None,
-                **kwargs) -> OverlapFeatures:
 
-        if doc is None:
-            if spacy_pipeline is None:
-                spacy_pipeline = spacy.load("pt_core_news_md")
+class OverlapExtractor(FeatureExtractor):
+    def __init__(self, nlp: spacy.Language = None):
+        if nlp is None:
+            nlp = spacy.load('pt_core_news_md')
 
-            doc = spacy_pipeline(text)
+        self._nlp = nlp
 
-        if sentences is None:
-            sentences = [s.text for s in doc.sents if len(s.text.strip()) > 0]
+    def extract(self, text: str) -> OverlapFeatures:
+        doc = self._nlp(text)
+        sentences = sentencizers.spacy_sentencizer(text, self._nlp)
 
         local_coherence = [0 for _ in range(6)]
 
@@ -55,8 +54,8 @@ class OverlapFeatures:
         cosine_sim_tfids_sents = 0
 
         if len(sentences) > 1:
-            overlap_unigrams_sents = cls._adjacent_sents_rouge(sentences)
-            cosine_sim_tfids_sents = cls._adjacent_sents_cos_sim(sentences)
+            overlap_unigrams_sents = self._adjacent_sents_rouge(sentences)
+            cosine_sim_tfids_sents = self._adjacent_sents_cos_sim(sentences)
 
         return OverlapFeatures(local_coh_pu=local_coherence[0],
                                local_coh_pw=local_coherence[1],

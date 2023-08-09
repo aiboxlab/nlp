@@ -14,7 +14,6 @@ import unidecode
 from lexical_diversity import lex_div as ld
 from spacy.tokens import Doc, Span
 
-from nlpbox import resources
 from nlpbox.core import FeatureExtractor
 
 from .utils import DataclassFeatureSet
