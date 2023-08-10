@@ -17,11 +17,11 @@ _registry_features = {
                         'FuzzySearchSimilarityExtractor'),
     'liwcBR': 'liwc.LiwcExtractor',
     'nilcSimilarityBR': 'nilc_similarity.NILCSimilarityExtractor',
-    'ortographyBR': 'ortography.OrthographyExtractor',
+    'orthographyBR': 'orthography.OrthographyExtractor',
     'overlapBR': 'overlap.OverlapExtractor',
     'regencyBR': 'regency.RegencyExtractor',
     'semanticCohesionTransBR': ('semantic_cohesion_transformers.'
-                                'SemantichExtractorTransformers'),
+                                'SemanticExtractorTransformers'),
     'tfidfSimilarity': 'tfidf_similarity.TFIDFSimilarityExtractor',
     'wordSegmentationBR': 'word_segmentation.WordSegmentationExtractor',
     'lexicalDiversityBR': 'lexical_diversity.LexicalDiversityExtractor',
