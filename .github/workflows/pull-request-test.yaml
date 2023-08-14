@@ -1,0 +1,42 @@
+# Esse Workflow é responsável pela execução dos testes unitários da biblioteca.
+
+name: Tests with pytest
+
+on:
+  pull_request:
+    paths:
+      - 'nlpbox/**'
+      - 'tests/**'
+      - '.github/**'
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        python: ["3.10"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to source branch
+        uses: actions/checkout@v3
+
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }} 
+
+      - name: Authenticate to Google Cloud
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Install dependencies and prepare environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install keyring keyrings.google-artifactregistry-auth
+          python -m pip install pytest pytest-timeout pytest-custom_exit_code
+          python -m pip install -e .[BR] --extra-index-url ${{ secrets.ARTIFACT_REGISTRY_URL }}/simple/
+
+  
+      - name: Run tests with pytest
+        run: pytest --timeout=300 --suppress-no-test-exit-code
