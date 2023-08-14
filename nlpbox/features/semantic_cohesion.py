@@ -338,7 +338,7 @@ class SemanticExtractor(FeatureExtractor):
         word_vec = []
         for word in tokens:
             if len(word) > 2:
-                vec = compute_word2vec(word, model)
+                vec = SemanticExtractor.compute_word2vec(word, model)
                 word_vec.append(vec)
 
         if len(word_vec) < 1:
