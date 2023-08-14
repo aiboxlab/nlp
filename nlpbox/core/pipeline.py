@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
+from tqdm.auto import tqdm
 from numpy.typing import ArrayLike
 
 from .estimator import Estimator
@@ -109,4 +110,8 @@ class Pipeline:
         return self._postprocessing(y)
 
     def _batch_vectorize(self, X):
-        return np.array([self.vectorizer.vectorize(x) for x in X])
+        return np.array([self.vectorizer.vectorize(x)
+                         for x in tqdm(X,
+                                       ascii=False,
+                                       desc='Vetorização',
+                                       leave=False)])
