@@ -1,2 +1,4 @@
 # nlpbox
-NLP Library Focused on Classic ML Algorithms
+
+Uma biblioteca de Processamento de Linguagem Natural para o Português Brasileiro.
+
