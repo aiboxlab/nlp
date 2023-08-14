@@ -24,10 +24,18 @@ jobs:
         with:
           python-version: ${{ matrix.python }} 
 
+      - name: Authenticate to Google Cloud
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
       - name: Install dependencies and prepare environment
         run: |
           python -m pip install --upgrade pip
+          python -m pip install keyring keyrings.google-artifactregistry-auth
           python -m pip install pytest pytest-timeout pytest-custom_exit_code
+          pip install apart --index-url ${{ secrets.ARTIFACT_REGISTRY_URL }}/simple/
           python -m pip install -e .
   
       - name: Run tests with pytest
