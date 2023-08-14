@@ -33,7 +33,9 @@ class AgreementExtractor(FeatureExtractor):
 
         if cogroo is None:
             cogroo = cogroo4py.Cogroo()
-
+            # TODO: adicionar uma forma de desabilitar
+            #   os logs do CoGrOO (provavelmente só
+            #   só redirecionar para NULL usando jpype)
         if tool is None:
             tool = langtool.LanguageTool("pt-BR")
 
@@ -107,7 +109,11 @@ class AgreementExtractor(FeatureExtractor):
         def _get_n_mistakes(fn,
                             rules,
                             fn_id):
-            all_mistakes = fn()
+            try:
+                all_mistakes = fn()
+            except Exception:
+                return 0
+
             mistakes = filter(lambda m: m in rules,
                               map(fn_id,
                                   all_mistakes))
