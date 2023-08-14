@@ -68,6 +68,5 @@ class Recall(Metric):
 
         if self._avg is not None:
             prefix = self._avg + ' '
-            prefix[0] = prefix[0].upper()
 
-        return prefix + 'Recall'
+        return prefix.capitalize() + 'Recall'

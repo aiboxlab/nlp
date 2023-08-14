@@ -35,10 +35,9 @@ class CohensKappaScore(Metric):
         prefix = ''
 
         if self._w is not None:
-            prefix = self._avg + ' '
-            prefix[0] = prefix[0].upper()
+            prefix = self._w + ' '
 
-        return prefix + 'Kappa'
+        return prefix.capitalize() + 'Kappa'
 
 
 class NeighborCohensKappaScore(Metric):
@@ -77,10 +76,9 @@ class NeighborCohensKappaScore(Metric):
         prefix = ''
 
         if self._w is not None:
-            prefix = self._avg + ' '
-            prefix[0] = prefix[0].upper()
+            prefix = self._w + ' '
 
-        return prefix + 'Neighbor Kappa'
+        return prefix.capitalize() + 'Neighbor Kappa'
 
     def _get_target_if_neighbor(self,
                                 target: int,

@@ -54,7 +54,7 @@ class Metric(ABC):
             str: nome da classe seguido pelo
                 nome da métrica.
         """
-        return f"{self.__class__.name}: {self.name()}"
+        return f"{self.__class__.__name__}: {self.name()}"
 
     def __eq__(self, other):
         """Função de equalidade.
