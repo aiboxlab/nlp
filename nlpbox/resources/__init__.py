@@ -22,10 +22,12 @@ def path(artifact: str) -> Path:
     Returns:
         str: caminho local desse artefato.
     """
+    global _manager
+
     if _manager is None:
         _manager = apart.GoogleCloudArtifactManager(
             bucket='aibox-nlpbox')
 
     # Retorna o caminho local desse artefato e
     #   realiza o download caso necessário.
-    return Path(manager.get(artifact=artifact))
+    return Path(_manager.get(artifact=artifact))
