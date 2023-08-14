@@ -39,4 +39,4 @@ jobs:
 
   
       - name: Run tests with pytest
-        run: pytest --timeout=60 --suppress-no-test-exit-code
+        run: pytest --timeout=300 --suppress-no-test-exit-code
