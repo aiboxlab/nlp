@@ -62,3 +62,12 @@ class Recall(Metric):
                                             average=self._avg,
                                             labels=labels,
                                             zero_division=self._zero_div)
+
+    def name(self) -> str:
+        prefix = 'Class '
+
+        if self._avg is not None:
+            prefix = self._avg + ' '
+            prefix[0] = prefix[0].upper()
+
+        return prefix + 'Recall'

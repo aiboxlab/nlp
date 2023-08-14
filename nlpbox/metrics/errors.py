@@ -21,6 +21,9 @@ class MAE(Metric):
                 y_pred: np.ndarray) -> np.ndarray[np.float32]:
         return np.mean(np.abs(y_pred - y_true))
 
+    def name(self) -> str:
+        return 'MAE'
+
 
 class MSE(Metric):
     """Mean Squared Error (MAE).
@@ -32,6 +35,9 @@ class MSE(Metric):
                 y_pred: np.ndarray) -> np.ndarray[np.float32]:
         return np.mean((y_true - y_pred) ** 2)
 
+    def name(self) -> str:
+        return 'MSE'
+
 
 class RMSE(Metric):
     """Root Mean Squared Error (MAE).
@@ -42,6 +48,9 @@ class RMSE(Metric):
                 y_true: np.ndarray,
                 y_pred: np.ndarray) -> np.ndarray[np.float32]:
         return np.sqrt(MSE().compute(y_true, y_pred))
+
+    def name(self) -> str:
+        return 'RMSE'
 
 
 class R2(Metric):
@@ -57,3 +66,6 @@ class R2(Metric):
         ss_res = ((y_true - y_pred) ** 2).sum()
 
         return 1 - (ss_res / ss_tot)
+
+    def name(self):
+        return 'R2'

@@ -16,6 +16,12 @@ class CohensKappaScore(Metric):
     """
 
     def __init__(self, weights: str = None) -> None:
+        """Construtor.
+
+        Args:
+            weights (str): 'quadratic', 'linear' ou None. Indica
+                se devemos calcular a métrica ponderada (default=None).
+        """
         self._w = weights
 
     def compute(self,
@@ -24,6 +30,15 @@ class CohensKappaScore(Metric):
         return _get_kappa_score(y_true,
                                 y_pred,
                                 weights=self._w)
+
+    def name(self) -> str:
+        prefix = ''
+
+        if self._w is not None:
+            prefix = self._avg + ' '
+            prefix[0] = prefix[0].upper()
+
+        return prefix + 'Kappa'
 
 
 class NeighborCohensKappaScore(Metric):
@@ -40,9 +55,9 @@ class NeighborCohensKappaScore(Metric):
         Args:
             neighbor_limit (int): diferença máxima entre
                 duas classes para elas serem consideradas
-                vizinhas.
-            weights (str): se devemos calcular a métrica
-                ponderada.
+                vizinhas (default=1).
+            weights (str): 'quadratic', 'linear' ou None. Indica
+                se devemos calcular a métrica ponderada (default=None).
         """
         assert neighbor_limit >= 1
         self._w = weights
@@ -57,6 +72,15 @@ class NeighborCohensKappaScore(Metric):
         return _get_kappa_score(y_true,
                                 y_pred_neighbor,
                                 weights=self._w)
+
+    def name(self) -> str:
+        prefix = ''
+
+        if self._w is not None:
+            prefix = self._avg + ' '
+            prefix[0] = prefix[0].upper()
+
+        return prefix + 'Neighbor Kappa'
 
     def _get_target_if_neighbor(self,
                                 target: int,
