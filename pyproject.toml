@@ -20,6 +20,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+trees = [
+    "lightgbm~=4.0.0",
+    "catboost~=1.2"
+]
+
 BR = [
     "pyspellchecker~=0.7.2",
     "spacy~=3.2.6",
