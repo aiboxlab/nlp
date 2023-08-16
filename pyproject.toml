@@ -22,7 +22,8 @@ dependencies = [
 [project.optional-dependencies]
 trees = [
     "lightgbm~=4.0.0",
-    "catboost~=1.2"
+    "catboost~=1.2",
+    "xgboost~=1.7.6"
 ]
 
 BR = [
