@@ -3,14 +3,29 @@ para experimentos simples.
 """
 from __future__ import annotations
 
+import logging
+import time
+from dataclasses import dataclass
+
 import numpy as np
+import pandas as pd
 
 from nlpbox.core import (Dataset, Experiment, ExperimentConfiguration,
-                         ExperimentResult, Metric, Pipeline)
+                         ExperimentResult, FeatureExtractor, Metric, Pipeline)
+from nlpbox.experiments.cache.mixed_feature_cache import MixedFeatureCache
+from nlpbox.features.utils.aggregator import AggregatedFeatureExtractor
+from nlpbox.features.utils.cache import CachedExtractor
 from nlpbox.lazy_loading import lazy_import
 
 pandas_types = lazy_import('pandas.api.types')
-feature_agg = lazy_import('nlpbox.features.utils.aggregator')
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SimpleExperimentExtras:
+    df_features: pd.DataFrame
+    run_duration: float
 
 
 class SimpleExperiment(Experiment):
@@ -22,7 +37,8 @@ class SimpleExperiment(Experiment):
                  pipelines_names: list[str] | None = None,
                  seed: int = 8990,
                  keep_all_pipelines: bool = False,
-                 problem: str | None = None):
+                 problem: str | None = None,
+                 features_df: pd.DataFrame | None = None):
         """Classe para experimentos simples, onde
         as pipelines testadas são escolhidas pelo
         usuário e hold-out evaluation (80/20) é
@@ -43,6 +59,10 @@ class SimpleExperiment(Experiment):
                 devem ser guardadas (default=False).
             problem (str): 'classification', 'regression' ou
                 None. Caso None, inferir do dataset (default=None).
+            features_df (pd.DataFrame): DataFrame com características
+                pré-extraídas ou None (default=None). O DataFrame precisa
+                ter uma coluna 'text' e todas as demais colunas são
+                relativas à uma característica existente na biblioteca.
         """
         if problem is None:
             dtype = dataset.to_frame().target.dtype
@@ -53,6 +73,12 @@ class SimpleExperiment(Experiment):
         if pipelines_names is None:
             pipelines_names = list(map(self._generate_name, pipelines))
 
+        initial_cache = dict()
+        if features_df is not None:
+            keys = features_df.text.to_list()
+            values = features_df.drop(columns='text').to_dict(orient='records')
+            initial_cache = dict(zip(keys, values))
+
         assert len(pipelines) == len(pipelines_names)
         self._pipelines: list[tuple[str, Pipeline]] = list(zip(pipelines_names,
                                                                pipelines))
@@ -62,6 +88,8 @@ class SimpleExperiment(Experiment):
         self._metrics = metrics
         self._best_criteria = criteria_best
         self._problem = problem
+        self._feature_cache = MixedFeatureCache(target_features=None,
+                                                initial_cache=initial_cache)
         self._validate()
 
     def run(self) -> ExperimentResult:
@@ -72,6 +100,7 @@ class SimpleExperiment(Experiment):
                 essa classe não retorna nada na chave
                 "extras".
         """
+        logger.info('Setting up experiment...')
         best_pipeline = None
         best_name = None
         best_metrics = None
@@ -80,11 +109,14 @@ class SimpleExperiment(Experiment):
         pipeline_history = None
         rng = np.random.default_rng(self._seed)
 
+        logger.info('Obtaining train and test split...')
         seed_splits = rng.integers(low=0, high=9999, endpoint=True)
         train, test = self._dataset.train_test_split(frac_train=0.8,
                                                      seed=seed_splits)
         X_train, y_train = train.text.to_numpy(), train.target.to_numpy()
         X_test, y_test = test.text.to_numpy(), test.target.to_numpy()
+        logger.info('Train has %d samples, Test has %d samples.',
+                    len(train), len(test))
 
         def _update_best(pipeline,
                          metrics,
@@ -99,12 +131,39 @@ class SimpleExperiment(Experiment):
             best_name = pipeline_name
             best_test_predictions = predictions
 
+        logger.info('Run started.')
+        run_start = time.perf_counter()
+        i = 0
+
         for p in self._pipelines:
             name, pipeline = p
+            i += 1
+            logger.info('Started pipeline "%s" (%d/%d)',
+                        name, i, len(self._pipelines))
 
-            # TODO: adicionar um replace nos
-            #   feature extractors para ter
-            #   cache durante treinamento.
+            # Caso seja um extrator de características,
+            #   atualizamos para utilizar uma versão cacheada.
+            if isinstance(pipeline.vectorizer, FeatureExtractor):
+                # Colentado informações sobre quais features são
+                #   extraídas pelo vetorizador
+                sample_features = pipeline.vectorizer.extract(
+                    'Texto de exemplo.')
+
+                # Atualizar a memória para retornar
+                #   apenas essas características.
+                self._feature_cache.target_features = set(
+                    sample_features.as_dict().keys())
+
+                # Instanciando um novo extrator com cache.
+                cached_extractor = CachedExtractor(pipeline.vectorizer,
+                                                   self._feature_cache)
+
+                # Atualizando a variável local para apontar para uma
+                #   nova pipeline que **compartilha** o mesmo estimador,
+                #   vetorizador e pós-processamento que a originak.
+                pipeline = Pipeline(vectorizer=cached_extractor,
+                                    estimator=pipeline.estimator,
+                                    postprocessing=pipeline.postprocessing)
 
             # Treinamento da pipeline
             pipeline.fit(X_train, y_train)
@@ -133,14 +192,46 @@ class SimpleExperiment(Experiment):
                     pipeline_history = dict()
                 pipeline_history[name] = pipeline
 
-        return ExperimentResult(best_pipeline=best_pipeline,
-                                best_pipeline_name=best_name,
-                                best_metrics=best_metrics,
-                                best_test_predictions=None,
-                                train_df=train,
-                                test_df=test,
-                                metrics_history=metrics_history,
-                                pipeline_history=pipeline_history)
+        run_duration = time.perf_counter() - run_start
+        logger.info('Run finished in %.2f seconds.\n'
+                    'Best pipeline: %s',
+                    run_duration,
+                    best_name)
+
+        # Construindo os dados de features que foram
+        #   cacheados.
+        features_data = dict(text=[])
+        memory_dict = self._feature_cache.as_dict()
+        for i, (k, v) in enumerate(memory_dict.items()):
+            v = v.as_dict()
+
+            if i == 0:
+                features_data['text'] = [k]
+                for k1, v1 in v.items():
+                    features_data[k1] = [v1]
+            else:
+                features_data['text'].append(k)
+                for k1, v1 in v.items():
+                    features_data[k1].append(v1)
+
+        # Construindo DataFrame
+        df_features = pd.DataFrame(features_data)
+        assert df_features.notna().all().all()
+
+        # Criando o objeto usado em "extras"
+        extras = SimpleExperimentExtras(df_features=df_features,
+                                        run_duration=run_duration)
+
+        return ExperimentResult(
+            best_pipeline=best_pipeline,
+            best_pipeline_name=best_name,
+            best_metrics=best_metrics,
+            best_pipeline_test_predictions=best_test_predictions,
+            train_df=train,
+            test_df=test,
+            metrics_history=metrics_history,
+            pipeline_history=pipeline_history,
+            extras=extras)
 
     def config(self) -> ExperimentConfiguration:
         return ExperimentConfiguration(
@@ -159,7 +250,7 @@ class SimpleExperiment(Experiment):
         assert len(names) == len(set(names))
 
         # Não podem existir métricas duplicadas
-        metrics_names = list(m.name() for m in metrics)
+        metrics_names = list(m.name() for m in self._metrics)
         assert len(metrics_names) == len(set(metrics_names))
 
     def _generate_name(self, p: Pipeline) -> str:
@@ -171,7 +262,7 @@ class SimpleExperiment(Experiment):
 
         # Se for um agregado de features, obtemos o nome
         #   individual de cada um
-        if isinstance(p.vectorizer, feature_agg.AggregatedFeatureExtractor):
+        if isinstance(p.vectorizer, AggregatedFeatureExtractor):
             vectorizer_name = '_'.join(v.__class__.__name__
                                        for v in p.vectorizer.extractors)
 

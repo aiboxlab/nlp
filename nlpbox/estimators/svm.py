@@ -3,6 +3,7 @@ de um SVM.
 """
 from __future__ import annotations
 
+import numpy as np
 from sklearn.svm import SVC as _SVC
 
 from nlpbox.core import Estimator

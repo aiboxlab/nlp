@@ -63,10 +63,10 @@ class F1Score(Metric):
                                         labels=labels,
                                         zero_division=self._zero_div)
 
-        def name(self) -> str:
-            prefix = 'Class '
+    def name(self) -> str:
+        prefix = 'Class '
 
-            if self._avg is not None:
-                prefix = self._avg + ' '
+        if self._avg is not None:
+            prefix = self._avg + ' '
 
-            return prefix.capitalize() + 'F1-score'
+        return prefix.capitalize() + 'F1-score'
