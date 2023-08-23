@@ -16,7 +16,7 @@ from .utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)
-class SequentialCohesionFeatures:
+class SequentialCohesionFeatures(DataclassFeatureSet):
     local_coh_pu: float
     local_coh_pw: float
     local_coh_pacc: float
