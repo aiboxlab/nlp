@@ -36,7 +36,7 @@ class ExtraTreesRegressor(Estimator):
 
     @property
     def hyperparameters(self) -> dict:
-        return self._etree
+        return self._hyperparams
 
     @property
     def params(self) -> dict:

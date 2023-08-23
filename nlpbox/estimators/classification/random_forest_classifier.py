@@ -1,16 +1,15 @@
 """Esse módulo contém a implementação
-de um ensemble de Extremely Randomized
-Trees.
+do Random Forest.
 """
 from __future__ import annotations
 
 import numpy as np
-from sklearn.ensemble import ExtraTreesClassifier as _ExtraTreesClassifier
+from sklearn.ensemble import RandomForestClassifier as _RFClassifier
 
 from nlpbox.core import Estimator
 
 
-class ExtraTreesClassifier(Estimator):
+class RandomForestClassifier(Estimator):
     def __init__(self,
                  n_estimators: int = 100,
                  criterion: str = 'gini',
@@ -25,16 +24,16 @@ class ExtraTreesClassifier(Estimator):
                                  class_weight=class_weight,
                                  random_state=random_state)
 
-        self._etree = _ExtraTreesClassifier(verbose=0,
-                                            warm_start=False,
-                                            **self._hyperparams)
+        self._rf = _RFClassifier(verbose=0,
+                                 warm_start=False,
+                                 **self._hyperparams)
 
     def predict(self, X) -> np.ndarray:
-        preds = self._etree.predict(X)
+        preds = self._rf.predict(X)
         return np.array(preds)
 
     def fit(self, X, y):
-        self._etree.fit(X, y)
+        self._rf.fit(X, y)
 
     @property
     def hyperparameters(self) -> dict:
@@ -42,7 +41,7 @@ class ExtraTreesClassifier(Estimator):
 
     @property
     def params(self) -> dict:
-        params = self._etree.get_params()
+        params = self._rf.get_params()
 
         return {k: v for k, v in params.items()
                 if k not in self.hyperparameters}
