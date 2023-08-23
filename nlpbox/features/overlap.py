@@ -30,8 +30,8 @@ class OverlapExtractor(FeatureExtractor):
         self._nlp = nlp
 
     def extract(self, text: str) -> OverlapFeatures:
-        doc = self._nlp(text)
         sentences = sentencizers.spacy_sentencizer(text, self._nlp)
+        sentences = list(map(lambda s: s.text, sentences))
 
         overlap_unigrams_sents = 0
         cosine_sim_tfids_sents = 0
@@ -44,7 +44,7 @@ class OverlapExtractor(FeatureExtractor):
                                cosine_sim_tfids_sents=cosine_sim_tfids_sents)
 
     @staticmethod
-    def _adjacent_sents_rouge(sentences: list) -> float:
+    def _adjacent_sents_rouge(sentences: list[str]) -> float:
         """ Método que computa a sobreposição de unigramas usando a
         medida do ROUGE-1 entre frases adjacentes.
 
@@ -87,7 +87,7 @@ class OverlapExtractor(FeatureExtractor):
         return mean_r1
 
     @staticmethod
-    def _adjacent_sents_cos_sim(sentences: list) -> float:
+    def _adjacent_sents_cos_sim(sentences: list[str]) -> float:
         """Método que computa a similaridade do cosseno usando a representação
         TF-IDF entre frases adjacentes.
 
