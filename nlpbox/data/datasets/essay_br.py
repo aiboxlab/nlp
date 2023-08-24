@@ -98,7 +98,21 @@ class DatasetEssayBR(Dataset):
 
     def train_test_split(self,
                          frac_train: float,
+                         stratified: bool,
                          seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Obtém os conjuntos de treino e teste desse Dataset como
+        DataFrames.
+
+        Args:
+            frac_train (float): fração de amostras para treinamento.
+            stratified (bool): desconsiderado, sempre estratificado.
+            seed (int): seed randômica para geração dos folds.
+
+        Returns:
+            (df_train, df_test): tupla com os conjuntos de treino
+                e teste para esse dataset.
+        """
+        del stratified
         return utils.train_test_clf(df=self._df,
                                     frac_train=frac_train,
                                     seed=seed)

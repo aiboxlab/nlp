@@ -57,6 +57,39 @@ def train_test_clf(df: pd.DataFrame,
     return df_train, df_test
 
 
+def train_test(df: pd.DataFrame,
+               frac_train: float,
+               seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Retorna uma tupla com os DataFrames de treino
+    e teste para o dataset de classificação recebido.
+
+    Args:
+        df (pd.DataFrame): dataset.
+        frac_train (float): porcentagem de amostras para treino.
+        seed (int): seed randômica para geração dos splits.
+
+    Returns:
+        df_train, df_test
+    """
+    # Garantindo pré-condições
+    _assert_preconditions(df)
+
+    # Obtemos (100*frac_train)% de amostras de cada grupo
+    df_train = df.sample(frac=frac_train,
+                         replace=False,
+                         random_state=seed)
+
+    # O que sobrou, faz parte do conjunto de testes
+    df_test = df[~df.text.isin(df_train.text)]
+
+    # Garantindo que o conjunto de textos
+    #   se manteve.
+    _assert_same_texts([df_train, df_test], df)
+
+    # Retornamos train e test
+    return df_train, df_test
+
+
 def stratified_splits_clf(df: pd.DataFrame,
                           k: int,
                           seed: int) -> list[pd.DataFrame]:
@@ -130,6 +163,61 @@ def stratified_splits_clf(df: pd.DataFrame,
         df_ = df_[~df_[col_text].isin(fold[col_text])]
         groupby = df_.groupby(col_classes,
                               group_keys=False)
+
+    # O que sobrou do DataFrame faz parte do último fold
+    folds.append(df_)
+
+    # Garantindo que o conjunto de textos
+    #   se manteve.
+    _assert_same_texts(folds, df)
+
+    return folds
+
+
+def splits(df: pd.DataFrame,
+           k: int,
+           seed: int) -> list[pd.DataFrame]:
+    """Retorna `k` splits para o dataset
+    recebido.
+
+    Args:
+        df (pd.DataFrame): dataset.
+        k (int): quantidade de splits.
+        seed (int): seed randômica.
+
+    Returns:
+        list[pd.DataFrame]
+    """
+    # Garantindo pré-condições
+    _assert_preconditions(df)
+
+    # Criação de um gerador auxiliar
+    rng = np.random.default_rng(seed)
+
+    # Lista para armazenar os folds
+    folds = []
+
+    # Fração de amostras por fold
+    frac_per_fold = 1 / k
+
+    # Auxiliares
+    col_text = 'text'
+    col_classes = 'target'
+    df_ = df
+
+    # Criação dos folds (exceto último)
+    for i in range(k - 1):
+        # Selecionamos uma seed randômica para obter o sample
+        rand = rng.integers(0,
+                            int(1e6),
+                            size=1).item()
+        fold = df_.sample(frac=frac_per_fold,
+                          replace=False,
+                          random_state=rand)
+        folds.append(fold)
+
+        # Remoção das amostras desse fold do DataFrame original
+        df_ = df_[~df_[col_text].isin(fold[col_text])]
 
     # O que sobrou do DataFrame faz parte do último fold
     folds.append(df_)
