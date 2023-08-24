@@ -38,7 +38,8 @@ class SimpleExperiment(Experiment):
                  seed: int = 8990,
                  keep_all_pipelines: bool = False,
                  problem: str | None = None,
-                 features_df: pd.DataFrame | None = None):
+                 features_df: pd.DataFrame | None = None,
+                 stratified_ds: bool = True):
         """Classe para experimentos simples, onde
         as pipelines testadas são escolhidas pelo
         usuário e hold-out evaluation (80/20) é
@@ -63,6 +64,8 @@ class SimpleExperiment(Experiment):
                 pré-extraídas ou None (default=None). O DataFrame precisa
                 ter uma coluna 'text' e todas as demais colunas são
                 relativas à uma característica existente na biblioteca.
+            stratified_ds (bool): se devemos utilizar splits de train
+                e test estratificados (default=True).
         """
         if problem is None:
             dtype = dataset.to_frame().target.dtype
@@ -90,6 +93,7 @@ class SimpleExperiment(Experiment):
         self._problem = problem
         self._feature_cache = MixedFeatureCache(target_features=None,
                                                 initial_cache=initial_cache)
+        self._stratified = stratified_ds
         self._validate()
 
     def run(self) -> ExperimentResult:
@@ -111,8 +115,10 @@ class SimpleExperiment(Experiment):
 
         logger.info('Obtaining train and test split...')
         seed_splits = rng.integers(low=0, high=9999, endpoint=True)
-        train, test = self._dataset.train_test_split(frac_train=0.8,
-                                                     seed=seed_splits)
+        train, test = self._dataset.train_test_split(
+            frac_train=0.8,
+            seed=seed_splits,
+            stratified=self._stratified)
         X_train, y_train = train.text.to_numpy(), train.target.to_numpy()
         X_test, y_test = test.text.to_numpy(), test.target.to_numpy()
         logger.info('Train has %d samples, Test has %d samples.',
