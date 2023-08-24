@@ -82,9 +82,22 @@ class SimpleExperiment(Experiment):
             values = features_df.drop(columns='text').to_dict(orient='records')
             initial_cache = dict(zip(keys, values))
 
+        def _pipeline_priority(p) -> int:
+            _, pipeline = p
+            vectorizer = pipeline.vectorizer
+
+            if isinstance(vectorizer, AggregatedFeatureExtractor):
+                return len(vectorizer.extractors)
+
+            return 1
+
+        # Instanciando e fazendo sort das pipelines
         assert len(pipelines) == len(pipelines_names)
-        self._pipelines: list[tuple[str, Pipeline]] = list(zip(pipelines_names,
-                                                               pipelines))
+        self._pipelines = list(zip(pipelines_names, pipelines))
+        self._pipelines = sorted(self._pipelines,
+                                 key=_pipeline_priority,
+                                 reverse=True)
+
         self._seed = seed
         self._keep_all_pipelines = keep_all_pipelines
         self._dataset = dataset
