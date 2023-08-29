@@ -44,7 +44,7 @@ _registry_metrics = {
 }
 
 _registry_estimators = {
-    'svm': 'svm.SVM'
+    'svm': 'classification.svm.SVM'
 }
 
 _registry_datasets = {
