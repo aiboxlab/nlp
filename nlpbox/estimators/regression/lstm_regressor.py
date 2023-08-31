@@ -13,7 +13,7 @@ class LSTMClassifier(LSTMEstimator):
     def __init__(self,
                  hidden_size: int = 20,
                  num_layers: int = 2,
-                 epochs: int = 100,
+                 epochs: int = 10,
                  bias: bool = True,
                  dropout_prob: float = 0,
                  bidirectional: bool = False,
