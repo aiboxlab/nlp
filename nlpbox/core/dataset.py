@@ -39,8 +39,8 @@ class Dataset(ABC):
 
         Args:
             k (int): quantidade de splits.
-            stratified: se cada split deve ser estratificado.
-            seed: seed randômica para geração dos splits.
+            stratified (bool): se cada split deve ser estratificado.
+            seed (int): seed randômica para geração dos splits.
 
         Returns:
             Lista com `k` DataFrames.
@@ -49,12 +49,14 @@ class Dataset(ABC):
     @abstractmethod
     def train_test_split(self,
                          frac_train: float,
+                         stratified: bool,
                          seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Obtém os conjuntos de treino e teste desse Dataset como
         DataFrames.
 
         Args:
             frac_train (float): fração de amostras para treinamento.
+            stratified (bool): se cada split deve ser estratificado.
             seed (int): seed randômica para geração dos cojuntos.
 
         Returns:
