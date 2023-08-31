@@ -45,5 +45,6 @@ BR = [
     "TRUNAJOD~=0.1.1",
     "unidecode~=1.3.6",
     "scipy~=1.10.1",
-    "kenlm~=0.1"
+    "kenlm~=0.1",
+    "gensim~=4.3.2"
 ]
