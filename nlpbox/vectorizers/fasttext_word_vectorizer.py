@@ -16,7 +16,7 @@ from nlpbox import resources
 
 class FasttextWordVectorizer(Vectorizer):
     def __init__(self,
-                 language: str,
+                 language: str = 'pt',
                  dims: int = 50):
         """Construtor de um word2vec
         utilizando os modelos pré-treinados
