@@ -32,6 +32,28 @@
 
 ## Quick Start
 
+A biblioteca `nlpbox` se baseia em 3 entidades básicas:
+
+* **Dataset**
+  * Um dataset representa um conjunto de pares de **textos** e **targets** (classes, ou valores), que devem ser utilizados para resolver um problema de classificação ou regressão.
+* **Metric**
+  * Uma métrica permite as saídas de um dado estimador com os valores ground-truth do dataset.
+  * Por exemplo, Precisão, Revocação e F1-score são métricas para avaliação.
+  * Também existem outras métricas como o Kappa e Kappa Vizinho.
+* **Pipeline**
+  * Representam um conjunto de 3 componentes: 
+    1. **Estratégia de Vetorização**
+       * Converte um texto para sua representação numérica.
+       * Alguns exemplos são extratores de características, extração de Embeddings (BERT, FastText, etc), ou TF-IDF.
+    2. **Estimador**
+       * Representam um algoritmo para classificação/regressão.
+       * Alguns exemplos são SVM, SVR, Árvores de Decisão, Redes Neurais.
+    3. **Pós-processamento**
+       * Estratégia aplicada após a predição pelo estimador. 
+       * Pode ser utilizada para garantir os limites da saída, ou conversão de regressão para classificação.
+
+Um **Experimento** permite comparar múltiplas **Pipelines** com as **Métricas** escolhidas em um dado **Dataset**. Para construir um experimento, é possível utilizar as classes presentes em `nlpbox.experiments` ou utilizar os padrões factory/builder presentes em `nlpbox.factory`. Um exemplo básico pode ser encontrado abaixo:
+
 ```python
 from nlpbox.factory.experiment import SimpleExperimentBuilder
 
@@ -85,14 +107,39 @@ experiment = builder.build()
 result = experiment.run()
 
 # === Inspecionando os resultados ===
+result.best_pipeline_name
+# svm+textual_simplicity
+
+result.best_metrics_history
+# {
+#   "svm+textual_simplicity": {
+#     "Weighted Precision": 0.33119142,
+#     "Weighted Recall": 0.5754923,
+#     "Weighted F1-score": 0.42042914,
+#     "Kappa": 0.0,
+#     "Neighbor Kappa": 0.0
+#   },
+#   "svm+readability": {
+#     "Weighted Precision": 0.33119142,
+#     "Weighted Recall": 0.5754923,
+#     "Weighted F1-score": 0.42042914,
+#     "Kappa": 0.0,
+#     "Neighbor Kappa": 0.0
+#   }
+# }
 ```
+
+Para mais exemplos, acesse a [documentação](examples).
+
 
 ## Instalação
 
 Primeiro, realiza a instalação da biblioteca via `pip` ou através do `git clone`:
 
+### 1. Instalando com o pip
+
 ```bash
-# Configura ambiente virtual
+# Configurar ambiente virtual
 # ...
 
 # Instalar através do pip
@@ -102,7 +149,12 @@ $ pip install aibox-nlpbox
 $ pip install aibox-nlpbox[BR]
 $ pip install aibox-nlpbox[trees]
 $ pip install aibox-nlpbox[embeddings]
+
+# Ou, instalar todas:
+$ pip install aibox-nlpbox[all]
 ```
+
+### 2. Instalando localmente
 
 ```bash
 # Clonar repositório
@@ -117,10 +169,14 @@ $ cd nlpbox
 # Instalar através do pip
 $ pip install -e .
 
-# Adicionalmente, instalar dependências opcionais
+# Adicionalmente, instalar dependências
+#   desejadas opcionais
 $ pip install .[BR]
 $ pip install .[trees]
 $ pip install .[embeddings]
+
+# Também é possível baixar todas as opcionais:
+$ pip install .[all]
 ```
 
 ## License

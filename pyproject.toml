@@ -52,3 +52,9 @@ BR = [
     "kenlm~=0.1",
     "gensim~=4.3.2"
 ]
+
+all = [
+    "nlpbox[BR]",
+    "nlpbox[trees]",
+    "nlpbox[embeddings]"
+]
