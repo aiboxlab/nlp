@@ -178,8 +178,7 @@ class CatBoostRegressor(Estimator):
                 diffusion_temperature=None,
                 posterior_sampling=None,
                 boost_from_average=None,
-                fixed_binary_splits=None
-        )
+                fixed_binary_splits=None)
 
         self._catboost_regressor = _CatBoostRegressor(**self._hyperparams)
 
@@ -188,7 +187,7 @@ class CatBoostRegressor(Estimator):
         return np.array(preds)
     
     def fit(self, X: ArrayLike, y: ArrayLike):
-        self._catboost_regressor.fit(X, y)
+        self._catboost_regressor.fit(X, y, silent=True)
 
     @property
     def hyperparameters(self) -> dict:

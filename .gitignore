@@ -137,3 +137,6 @@ nlpbox/data/resources/*
 
 # Catboost info directory
 catboost_info
+
+# CSV
+*.csv

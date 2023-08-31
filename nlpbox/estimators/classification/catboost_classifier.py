@@ -98,8 +98,7 @@ class CatBoostClassifier(Estimator):
                  dictionaries=None,
                  feature_calcers=None,
                  text_processing=None,
-                 fixed_binary_splits=None
-                 ):
+                 fixed_binary_splits=None):
         self._hyperparams = dict(
             iterations=iterations,
             learning_rate=learning_rate,
@@ -196,7 +195,7 @@ class CatBoostClassifier(Estimator):
         return np.array(preds)
     
     def fit(self, X: ArrayLike, y: ArrayLike):
-        self._catboost_classifier.fit(X, y)
+        self._catboost_classifier.fit(X, y, silent=True)
     
     @property
     def hyperparameters(self) -> dict:

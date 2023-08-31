@@ -3,13 +3,18 @@ para construção e obtenção de experimentos
 """
 from __future__ import annotations
 
+import logging
 from typing import Callable
+
+import numpy as np
 
 from nlpbox.core import Dataset, Experiment, Metric, Pipeline
 from nlpbox.experiments.simple_experiment import SimpleExperiment
 
 from .class_registry import get_class
 from .feature_extractor import get_extractor
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleExperimentBuilder:
@@ -19,6 +24,7 @@ class SimpleExperimentBuilder:
         self._pipelines: dict[str, Pipeline] = dict()
         self._metrics: list[Metric] = []
         self._seed = None
+        self._rng = None
         self._problem = None
 
     def add_feature_pipeline(self,
@@ -41,6 +47,10 @@ class SimpleExperimentBuilder:
         Returns:
             SimpleExperimentBuilder: self.
         """
+        if self._seed is None:
+            logger.info('Inicialize a seed randômica primeiro.')
+            return
+
         features = self._maybe_convert_to_list(features)
         estimators = self._maybe_convert_to_list(estimators)
         names = self._maybe_convert_to_list(names)
@@ -64,7 +74,9 @@ class SimpleExperimentBuilder:
                                  estimators,
                                  estimators_configs,
                                  postprocessing):
-            estimator = get_class(e)(**c)
+            seed = self._estimator_seed()
+            estimator = get_class(e)(**c,
+                                     random_state=seed)
             self._pipelines[name] = Pipeline(extractor,
                                              estimator,
                                              p)
@@ -93,6 +105,10 @@ class SimpleExperimentBuilder:
         Returns:
             SimpleExperimentBuilder: _description_
         """
+        if self._seed is None:
+            logger.info('Inicialize a seed randômica primeiro.')
+            return
+
         estimators = self._maybe_convert_to_list(estimators)
         names = self._maybe_convert_to_list(names)
 
@@ -110,7 +126,9 @@ class SimpleExperimentBuilder:
                                  estimators,
                                  estimators_configs,
                                  postprocessing):
-            estimator = get_class(e)(**c)
+            seed = self._estimator_seed()
+            estimator = get_class(e)(**c,
+                                     random_state=seed)
             self._pipelines[name] = Pipeline(vectorizer,
                                              estimator,
                                              p)
@@ -167,7 +185,7 @@ class SimpleExperimentBuilder:
         """
         self._ds = get_class(ds)(**ds_config)
         return self
-    
+
     def seed(self, seed: int) -> SimpleExperimentBuilder:
         """Define a seed para o experimento.
 
@@ -178,6 +196,12 @@ class SimpleExperimentBuilder:
             SimpleExperimentBuilder: self.
         """
         self._seed = seed
+
+        # Inicializando RNG para criar Random States
+        #   dos estimadores.
+        self._rng = np.random.default_rng(self._seed + 1)
+
+        return self
 
     def classification(self) -> SimpleExperimentBuilder:
         """Define que esse é um experimento
@@ -212,7 +236,7 @@ class SimpleExperimentBuilder:
         self._ds = ds
         return self
 
-    def build(self) -> Experiment:
+    def build(self, **kwargs) -> Experiment:
         """Constrói o experimento com as informações
         coletadas.
 
@@ -229,10 +253,14 @@ class SimpleExperimentBuilder:
                                 metrics=self._metrics,
                                 seed=self._seed,
                                 keep_all_pipelines=False,
-                                problem='classification')
+                                problem=self._problem,
+                                **kwargs)
 
     def _maybe_convert_to_list(self, obj) -> list:
         if not isinstance(obj, list):
             return [obj]
 
         return obj
+
+    def _estimator_seed(self) -> int:
+        return self._rng.integers(0, 99999)

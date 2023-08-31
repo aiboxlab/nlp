@@ -26,6 +26,7 @@ class LSTMClassifier(LSTMEstimator):
                                        'adagrad',
                                        'sgd'] = 'adamw',
                  regression_ensure_bounds=False,
+                 random_state: int = None,
                  device: str = None):
         super().__init__(hidden_size=hidden_size,
                          num_layers=num_layers,
