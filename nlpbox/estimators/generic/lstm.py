@@ -43,6 +43,7 @@ class LSTMEstimator(Estimator):
                                        'adagrad',
                                        'sgd'] = 'adamw',
                  regression_ensure_bounds: bool = False,
+                 random_state: int = None,
                  train_batch_size: int = 256,
                  device: str = None):
         # Armazenando dispositivo

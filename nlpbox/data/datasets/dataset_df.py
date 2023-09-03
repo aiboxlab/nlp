@@ -4,14 +4,9 @@ Datasets.
 """
 from __future__ import annotations
 
-import json
-from enum import Enum
-from typing import ClassVar
-
 import pandas as pd
 from pandas.api import types
 
-from nlpbox import resources
 from nlpbox.core import Dataset
 
 from . import utils
@@ -62,7 +57,7 @@ class DatasetDF(Dataset):
         assert not has_na_text, 'Não devem existir textos NULL.'
         assert not has_duplicates, 'Não devem existir textos duplicados.'
         assert not has_na_target, 'Não devem existir targets NULL.'
-        assert is_numeric, 'Coluna "target" deve ser númerica.'
+        assert is_numeric, 'Coluna "target" deve ser numérica.'
 
     @property
     def df(self) -> pd.DataFrame:

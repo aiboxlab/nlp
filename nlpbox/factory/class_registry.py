@@ -8,27 +8,38 @@ import importlib
 
 _registry_features = {
     'agreementBR': 'agreement.AgreementExtractor',
-    'cohmetrixBR': 'cohmetrix.CohMetrixExtractor',
     'bertSimilarityBR': 'bert_similarity.BERTSimilarityExtractor',
+    'cohmetrixBR': 'cohmetrix.CohMetrixExtractor',
     'conjugationBR': 'conjugation.ConjugationExtractor',
     'connectivesV1BR': 'connectives_v1.ConnectivesExtractorV1',
     'connectivesV2BR': 'connectives_v2.ConnectivesExtractorV2',
+    'descriptiveBR': 'descriptive.DescriptiveExtractor',
     'fuzzySimilarity': ('fuzzy_search_similarity.'
                         'FuzzySearchSimilarityExtractor'),
+    'lexicalDiversityBR': 'lexical_diversity.LexicalDiversityExtractor',
     'liwcBR': 'liwc.LiwcExtractor',
     'nilcSimilarityBR': 'nilc_similarity.NILCSimilarityExtractor',
     'orthographyBR': 'orthography.OrthographyExtractor',
     'overlapBR': 'overlap.OverlapExtractor',
+    'readabilityBR': 'readability.ReadabilityExtractor',
     'regencyBR': 'regency.RegencyExtractor',
-    'semanticCohesionTransBR': ('semantic_cohesion_transformers.'
-                                'SemanticExtractorTransformers'),
+    'semanticCohesionTransformersBR': ('semantic_cohesion_transformers.'
+                                       'SemanticExtractorTransformers'),
+    'semanticCohesionBR': 'semantic_cohesion.SemanticExtractor',
+    'sequentialCohesionBR': ('sequential_cohesion.Sequential'
+                             'CohesionExtractor'),
+    'syntacticComplexityBR': ('syntactic_complexity.'
+                              'SyntacticComplexityExtractor'),
+    'textualSimplicityBR': 'textual_simplicity.TextualSimplicityExtractor',
     'tfidfSimilarity': 'tfidf_similarity.TFIDFSimilarityExtractor',
     'wordSegmentationBR': 'word_segmentation.WordSegmentationExtractor',
-    'lexicalDiversityBR': 'lexical_diversity.LexicalDiversityExtractor',
 }
 
 _registry_vectorizers = {
-    'tfidfVectorizer': 'tfidf_vectorizer.TFIDFVectorizer'
+    'tfidfVectorizer': 'tfidf_vectorizer.TFIDFVectorizer',
+    'bertVectorizer': 'bert_vectorizer.BertVectorizer',
+    'fasttextWordVectorizer': ('fasttext_word_vectorizer'
+                               '.FasttextWordVectorizer'),
 }
 
 _registry_metrics = {
@@ -44,7 +55,20 @@ _registry_metrics = {
 }
 
 _registry_estimators = {
-    'svm': 'classification.svm.SVM'
+    'svm': 'classification.svm.SVM',
+    'catboostClf': 'classification.catboost_classifier.CatBoostClassifier',
+    'catboosetReg': 'regression.catboost_regressor.CatBoostRegressor',
+    'etreesClf': 'classification.extra_trees_classifier.ExtraTreesClassifier',
+    'etreesReg': 'regression.extra_trees_regressor.ExtraTreesRegressor',
+    'lgbmClf': 'classification.lgbm_classifier.LGBMClassifier',
+    'lgbmReg': 'regression.lgbm_regressor.LGBMRegressor',
+    'lstmClf': 'classification.lstm_classifier.LSTMClassifier',
+    'lstmReg': 'regression.lstm_regressor.LSTMClassifier',
+    'rfClf': 'classification.random_forest_classifier.RandomForestClassifier',
+    'rfReg': 'regression.random_forest_regressor.RandomForestRegressor',
+    'xgbClf': 'classification.xgboost_classifier.XGBoostClassifier',
+    'xgbReg': 'regression.xgboost_regressor.XGBoostRegressor',
+
 }
 
 _registry_datasets = {

@@ -1,9 +1,14 @@
 """Arquivo de inicialização.
 """
+from platformdirs import user_data_dir
 import os
 from pathlib import Path
+import logging
 
-from platformdirs import user_data_dir
+# Configurando logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 # Obtendo diretório de dados da biblioteca
 DATA_DIR = os.environ.get('NLPBOX_DATA',
@@ -15,3 +20,4 @@ DATA_DIR = Path(DATA_DIR).resolve().absolute()
 del os
 del Path
 del user_data_dir
+del logger

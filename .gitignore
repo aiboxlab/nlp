@@ -135,5 +135,9 @@ dmypy.json
 nlpbox/data/resources/*
 !nlpbox/data/resources/__init__.py
 
-# Catboost directory
+
+# Catboost info directory
 catboost_info
+
+# CSV
+*.csv
