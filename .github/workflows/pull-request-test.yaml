@@ -35,7 +35,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install keyring keyrings.google-artifactregistry-auth
           python -m pip install pytest pytest-timeout pytest-custom_exit_code
-          python -m pip install -e .[BR] --extra-index-url ${{ secrets.ARTIFACT_REGISTRY_URL }}/simple/
+          python -m pip install -e .[all] --extra-index-url ${{ secrets.ARTIFACT_REGISTRY_URL }}/simple/
 
   
       - name: Run tests with pytest
