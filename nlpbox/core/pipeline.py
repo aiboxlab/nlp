@@ -110,8 +110,8 @@ class Pipeline:
         return self._postprocessing(y)
 
     def _batch_vectorize(self, X):
-        return np.array([self.vectorizer.vectorize(x)
-                         for x in tqdm(X,
-                                       ascii=False,
-                                       desc='Vetorização',
-                                       leave=False)])
+        return [self.vectorizer.vectorize(x)
+                for x in tqdm(X,
+                              ascii=False,
+                              desc='Vetorização',
+                              leave=False)]

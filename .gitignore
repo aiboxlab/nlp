@@ -129,5 +129,15 @@ dmypy.json
 .pyre/
 .vscode/
 
+#asdf version manager
+.tool-versions
+
 nlpbox/data/resources/*
 !nlpbox/data/resources/__init__.py
+
+
+# Catboost info directory
+catboost_info
+
+# CSV
+*.csv
