@@ -32,6 +32,9 @@ _registry_features = {
                               'SyntacticComplexityExtractor'),
     'textualSimplicityBR': 'textual_simplicity.TextualSimplicityExtractor',
     'tfidfSimilarity': 'tfidf_similarity.TFIDFSimilarityExtractor',
+    'wordMorphosyntacticInformationBR': ('word_morphosyntactic_information.'
+                                         'WordMorphosyntacticInformation'
+                                         'Extractor'),
     'wordSegmentationBR': 'word_segmentation.WordSegmentationExtractor',
 }
 
