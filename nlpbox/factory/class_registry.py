@@ -22,6 +22,8 @@ _registry_features = {
     'orthographyBR': 'orthography.OrthographyExtractor',
     'overlapBR': 'overlap.OverlapExtractor',
     'readabilityBR': 'readability.ReadabilityExtractor',
+    'referentialCohesionBR': ('referential_cohesion.'
+                              'ReferentialCohesionExtractor'),
     'regencyBR': 'regency.RegencyExtractor',
     'semanticCohesionTransformersBR': ('semantic_cohesion_transformers.'
                                        'SemanticExtractorTransformers'),
