@@ -29,7 +29,7 @@ class ReferentialCohesion(DataclassFeatureSet):
 
 class ReferentialCohesionExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None,
-                 stemmer: nltk.stem.snowball | None = None,
+                 stemmer: SnowballStemmer | None = None,
                  device: str = 'cuda'):
         if nlp is None:
             nlp = spacy.load('pt_core_news_md')
@@ -70,11 +70,10 @@ class ReferentialCohesionExtractor(FeatureExtractor):
 
         return ReferentialCohesion(**features)
 
-    def _compute_adj_arg_ovl(doc) -> float:
-        """
-            Método que computa a quantidade média de referentes (substantivos e pronomes) que se repetem nos pares de
-            sentenças adjacentes do texto.
-            :return:
+    def _compute_adj_arg_ovl(self, doc) -> float:
+        """Método que computa a quantidade média de referentes
+        (substantivos e pronomes) que se repetem nos pares de
+        sentenças adjacentes do texto.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -84,7 +83,8 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         referents_pos = {'NOUN', 'PROPN', 'PRON'}
         for key, sentence in enumerate(sentences):
             tokens_dict[key] = set([token.text for token in sentence
-                                    if not token.is_punct and token.pos_ in referents_pos])
+                                    if not token.is_punct
+                                    and token.pos_ in referents_pos])
         count_repetitions = 0
         total_sents_pairs = len(tokens_dict) - 1
         for i in range(total_sents_pairs):
@@ -94,11 +94,9 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return count_repetitions / total_sents_pairs
 
     def _compute_adj_cw_ovl(self, doc) -> float:
-        """
-            Método que computa a quantidade média de palavras de conteúdo (substantivos, verbos, adjetivos e advérbios)
-            que se repetem nos pares de sentenças adjacentes do texto.
-            :param doc:
-            :return:
+        """Método que computa a quantidade média de palavras
+        de conteúdo (substantivos, verbos, adjetivos e advérbios)
+        que se repetem nos pares de sentenças adjacentes do texto.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -108,7 +106,8 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         content_words_pos = {'NOUN', 'PROPN', 'ADJ', 'ADV', 'VERB'}
         for key, sentence in enumerate(sentences):
             tokens_dict[key] = [token.text for token in sentence
-                                if not token.is_punct and token.pos_ in content_words_pos]
+                                if not token.is_punct
+                                and token.pos_ in content_words_pos]
         count_repetitions = 0
         total_sents_pairs = len(tokens_dict) - 1
         for i in range(total_sents_pairs):
@@ -118,11 +117,10 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return count_repetitions / total_sents_pairs
 
     def _compute_adj_stem_ovl(self, doc) -> float:
-        """
-            Método que computa a quantidade média de radicais de palavras de conteúdo (substantivos, verbos, adjetivos e
-            advérbios) que se repetem nos pares de sentenças adjacentes do texto.
-            :param doc:
-            :return:
+        """Método que computa a quantidade média de radicais de
+        palavras de conteúdo (substantivos, verbos, adjetivos e
+        advérbios) que se repetem nos pares de sentenças adjacentes
+        do texto.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -131,8 +129,10 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         tokens_dict = {}
         content_words_pos = {'NOUN', 'PROPN', 'ADJ', 'ADV', 'VERB'}
         for key, sentence in enumerate(sentences):
-            tokens = [
-                token.text for token in sentence if not token.is_punct and token.pos_ in content_words_pos]
+            tokens = [token.text
+                      for token in sentence
+                      if not token.is_punct
+                      and token.pos_ in content_words_pos]
             radicals = [self._stemmer.stem(token) for token in tokens]
             tokens_dict[key] = radicals
         count_repetitions = 0
@@ -144,11 +144,9 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return count_repetitions / total_sents_pairs
 
     def _compute_arg_ovl(self, doc) -> float:
-        """
-            Método que computa a quantidade média de referentes (substantivos ou pronomes) que se repetem nos pares de
-            sentenças do texto.
-            :param doc:
-            :return:
+        """Método que computa a quantidade média de referentes
+        (substantivos ou pronomes) que se repetem nos pares de
+        sentenças do texto.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -157,8 +155,10 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         tokens_dict = {}
         referents_pos = {'NOUN', 'PROPN', 'PRON'}
         for key, sentence in enumerate(sentences):
-            tokens_dict[key] = [
-                token.text for token in sentence if not token.is_punct and token.pos_ in referents_pos]
+            tokens_dict[key] = [token.text
+                                for token in sentence
+                                if not token.is_punct
+                                and token.pos_ in referents_pos]
         count_repetitions = 0
         total_sentences = len(sentences)
         total_sents_pairs = math.factorial(
@@ -171,10 +171,8 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return count_repetitions / total_sents_pairs
 
     def _compute_adjacent_refs(self, doc) -> float:
-        """
-            Método que computa a média de candidatos a referente, na sentença anterior, por pronome anafórico
-            :param doc:
-            :return:
+        """Método que computa a média de candidatos a referente,
+        na sentença anterior, por pronome anafórico
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -182,10 +180,16 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         all_pronouns = {}
         referents_pos = {'NOUN', 'PROPN'}
         for key, sentence in enumerate(sentences):
-            all_referents[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence if
-                                  not token.is_punct and token.pos_ in referents_pos]
-            all_pronouns[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                 if not token.is_punct and token.pos_ == 'PRON']
+            all_referents[key] = [[token.morph.get('Gender'),
+                                   token.morph.get('Number')]
+                                  for token in sentence
+                                  if not token.is_punct
+                                  and token.pos_ in referents_pos]
+            all_pronouns[key] = [[token.morph.get('Gender'),
+                                  token.morph.get('Number')]
+                                 for token in sentence
+                                 if not token.is_punct
+                                 and token.pos_ == 'PRON']
         total_candidates = 0
         anaphoric_pron = len(all_pronouns) - 1
         if anaphoric_pron == 0:
@@ -198,10 +202,8 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return total_candidates / anaphoric_pron
 
     def _compute_anaphoric_refs(self, doc) -> float:
-        """
-            Método que computa a média de candidatos a referente, em até 5 sentenças anteriores, por pronome anafórico.
-            :param doc:
-            :return:
+        """Método que computa a média de candidatos a referente,
+        em até 5 sentenças anteriores, por pronome anafórico.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -210,12 +212,20 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         all_pronouns = []
         referents_pos = {'NOUN', 'PROPN'}
         for key, sentence in enumerate(sentences):
-            referents_sentences[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                        if not token.is_punct and token.pos_ in referents_pos]
-            pronouns_sentences[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                       if not token.is_punct and token.pos_ == 'PRON']
-            pronouns_sent = [
-                token.text for token in sentence if not token.is_punct and token.pos_ == 'PRON']
+            referents_sentences[key] = [[token.morph.get('Gender'),
+                                         token.morph.get('Number')]
+                                        for token in sentence
+                                        if not token.is_punct
+                                        and token.pos_ in referents_pos]
+            pronouns_sentences[key] = [[token.morph.get('Gender'),
+                                        token.morph.get('Number')]
+                                       for token in sentence
+                                       if not token.is_punct
+                                       and token.pos_ == 'PRON']
+            pronouns_sent = [token.text
+                             for token in sentence
+                             if not token.is_punct
+                             and token.pos_ == 'PRON']
             all_pronouns.extend(pronouns_sent)
         if len(all_pronouns) == 0:
             return 0
@@ -231,19 +241,19 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return total_candidates / len(all_pronouns)
 
     def _compute_stem_ovl(self, doc) -> float:
-        """
-            Método que computa a quantidade média de radicais de palavras de conteúdo (substantivos, verbos, adjetivos
-            e advérbios) que se repetem nos pares de sentenças do texto.
-            :param doc:
-            :return:
+        """Método que computa a quantidade média de
+        radicais de palavras de conteúdo (substantivos, verbos, adjetivos
+        e advérbios) que se repetem nos pares de sentenças do texto.
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
         tokens_sentences = []
         content_words_pos = {'NOUN', 'PROPN', 'ADJ', 'ADV', 'VERB'}
         for sentence in sentences:
-            words = [
-                token.text for token in sentence if not token.is_punct and token.pos_ in content_words_pos]
+            words = [token.text
+                     for token in sentence
+                     if not token.is_punct
+                     and token.pos_ in content_words_pos]
             stems = [self._stemmer.stem(token) for token in words]
             if len(stems) > 0:
                 tokens_sentences.append(stems)
@@ -265,11 +275,9 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return total_overlaps / total_pairs
 
     def _compute_coreference_pronoun_ratio(self, doc) -> float:
-        """
-            Método que computa a média de candidatos a referente, na sentença anterior, por pronome anafórico
-            do caso reto (ele, ela, eles e elas).
-            :param doc:
-            :return:
+        """Método que computa a média de candidatos a referente,
+        na sentença anterior, por pronome anafórico
+        do caso reto (ele, ela, eles e elas).
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -281,11 +289,17 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         straight_pronouns = ['ele', 'ela', 'eles', 'elas']
         all_straight_pronouns = []
         for key, sentence in enumerate(sentences):
-            all_referents[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                  if not token.is_punct and token.pos_ in referents_pos]
-            all_pronouns[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                 if not token.is_punct and token.pos_ == 'PRON' and
-                                 token.text.lower() in straight_pronouns]
+            all_referents[key] = [[token.morph.get('Gender'),
+                                   token.morph.get('Number')]
+                                  for token in sentence
+                                  if not token.is_punct
+                                  and token.pos_ in referents_pos]
+            all_pronouns[key] = [[token.morph.get('Gender'),
+                                  token.morph.get('Number')]
+                                 for token in sentence
+                                 if not token.is_punct
+                                 and token.pos_ == 'PRON'
+                                 and token.lower_ in straight_pronouns]
             all_straight_pronouns.extend(all_pronouns[key])
         total_candidates = 0
         anaphoric_pron = len(all_straight_pronouns)
@@ -299,11 +313,10 @@ class ReferentialCohesionExtractor(FeatureExtractor):
         return total_candidates / anaphoric_pron
 
     def _compute_demonstrative_pronoun_ratio(self, doc) -> float:
-        """
-            Método que computa a média de candidatos a referente, na sentença anterior, por
-            pronome demonstrativo anafórico ('esse', 'essa', 'esses', 'essas', 'desse', 'dessa', 'desses', 'dessas').
-            :param doc:
-            :return:
+        """Método que computa a média de candidatos a referente,
+        na sentença anterior, por pronome demonstrativo
+        anafórico ('esse', 'essa', 'esses', 'essas', 'desse',
+        'dessa', 'desses', 'dessas').
         """
         assert doc is not None, 'Error DOC is None'
         sentences = [sent for sent in doc.sents]
@@ -316,10 +329,16 @@ class ReferentialCohesionExtractor(FeatureExtractor):
                         'desse', 'dessa', 'desses', 'dessas']
         founded_dem_pronouns = []
         for key, sentence in enumerate(sentences):
-            referents_sentences[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                        if not token.is_punct and token.pos_ in referents_pos]
-            dem_pronouns_sentences[key] = [[token.morph.get('Gender'), token.morph.get('Number')] for token in sentence
-                                           if not token.is_punct and token.text.lower() in dem_pronouns]
+            referents_sentences[key] = [[token.morph.get('Gender'),
+                                         token.morph.get('Number')]
+                                        for token in sentence
+                                        if not token.is_punct
+                                        and token.pos_ in referents_pos]
+            dem_pronouns_sentences[key] = [[token.morph.get('Gender'),
+                                            token.morph.get('Number')]
+                                           for token in sentence
+                                           if not token.is_punct
+                                           and token.lower_ in dem_pronouns]
             founded_dem_pronouns.extend(dem_pronouns_sentences[key])
         total_founded_dem_pronouns = len(founded_dem_pronouns)
         if total_founded_dem_pronouns == 0:
