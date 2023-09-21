@@ -24,15 +24,18 @@ class LGBMClassifier(Estimator):
                                  class_weight=class_weight,
                                  random_state=random_state)
 
-        self._lgbm = _LGBMClassifier(verbose=-1,
-                                     objective='multiclass',
-                                     **self._hyperparams)
+        self._lgbm = None
 
     def predict(self, X) -> np.ndarray:
         preds = self._lgbm.predict(X)
         return np.array(preds)
 
     def fit(self, X, y):
+        n = np.unique(y).size
+        objective = 'multiclass' if n > 2 else 'binary'
+        self._lgbm = _LGBMClassifier(verbose=-1,
+                                     objective=objective,
+                                     **self._hyperparams)
         self._lgbm.fit(X, y)
 
     @property
