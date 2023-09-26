@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import typing
 
-import numpy as np
 import torch
 import torch.optim as optim
 from numpy.typing import ArrayLike
@@ -30,6 +29,7 @@ class LSTMEstimator(Estimator):
                  num_layers: int,
                  kind: typing.Literal['classifier',
                                       'regressor'],
+                 random_state: int | None = None,
                  epochs: int = 100,
                  bias: bool = True,
                  dropout_prob: float = 0,
@@ -43,9 +43,12 @@ class LSTMEstimator(Estimator):
                                        'adagrad',
                                        'sgd'] = 'adamw',
                  regression_ensure_bounds: bool = False,
-                 random_state: int = None,
                  train_batch_size: int = 256,
                  device: str = None):
+        # Atualmente, a implementação não utiliza
+        #   o Random State.
+        super().__init__(random_state=random_state)
+
         # Armazenando dispositivo
         self._device = device
 
@@ -62,6 +65,7 @@ class LSTMEstimator(Estimator):
             'epochs': epochs,
             'optimizer': optim,
             'learning_rate': learning_rate,
+            'regression_ensure_bounds': regression_ensure_bounds
         }
 
         self._hyperparams.update({
@@ -81,32 +85,35 @@ class LSTMEstimator(Estimator):
         else:
             self._criterion = nn.MSELoss()
 
-        # Inicializando o modelo
+        # Variáveis relacionadas com o modelo
         self._model = None
-        self._kind = kind
         self._encoder = None
+        self._kind = kind
         self._batch_size = train_batch_size
+        self._ensure_bounds = regression_ensure_bounds
+        self._max_y, self._min_y = None, None
 
-    def fit(self, X: ArrayLike, y: ArrayLike) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike, **kwargs) -> None:
+        del kwargs
+
         # Atualizando formato do batch para
         #   (batch_size, max_seq_len, n_features)
         X = self._maybe_padded_sequence(X)
 
-        # Extraindo o valor da última dimensão
-        feature_size = X.size(dim=2)
-        n_samples = X.size(dim=0)
-
-        # Talvez converter "y" para um intervalo [0, N]
-        y = self._maybe_convert_label(y,
-                                      direction='from')
-        y = torch.tensor(y, device=self._device)
-
         assert len(X.size()) == 3, ('Vetor tem que ser '
                                     '(batch, sequence, features)')
 
+        # Extraindo o valor da última dimensão
+        feature_size = X.size(dim=2)
+
+        # Talvez converter "y" para um intervalo [0, N]
+        y = self._maybe_convert_label(y, direction='from')
+        y = torch.tensor(y, device=self._device)
+        self._max_y = y.max()
+        self._min_y = y.min()
+
         # Criando o modelo
-        self._create_model(input_size=feature_size,
-                           y=y)
+        self._create_model(input_size=feature_size, y=y)
 
         # Criando dataset
         ds = torch.utils.data.TensorDataset(X, y)
@@ -141,12 +148,17 @@ class LSTMEstimator(Estimator):
                 # Removendo do escopo do for
                 del outputs, loss
 
-    def predict(self, X: ArrayLike) -> None:
+    def predict(self, X: ArrayLike, **kwargs) -> None:
+        del kwargs
+
         # Convertendo as características para um tensor
         X = self._maybe_padded_sequence(X)
 
         # Obtendo saídas do modelo
         preds = self._model(X)
+
+        # Possivelmente convertendo
+        #   para classificação/regressão
         preds = self._maybe_update_preds(preds)
 
         # Convertendo para NumPy
@@ -154,13 +166,24 @@ class LSTMEstimator(Estimator):
 
         # Possivelmente converter para os labels
         #   vistos durante treino
-        return self._maybe_convert_label(preds, direction='to')
+        preds = self._maybe_convert_label(preds,
+                                          direction='to')
+
+        # Retornar predições
+        return preds
 
     def _maybe_update_preds(self, preds: torch.Tensor) -> torch.Tensor:
-        # Se for classificação, devemos obter
-        #   o máximo da saída linear.
         if self._kind == 'classifier':
+            # Se for classificação, devemos obter
+            #   o máximo da saída linear.
             _, preds = torch.max(preds, dim=1)
+        elif self._ensure_bounds:
+            # Do contrário, se for regressão
+            #   e devemos garantir limites
+            #   realizamos o clip.
+            preds = torch.clip(preds,
+                               min=self._min_y,
+                               max=self._max_y)
 
         return preds
 

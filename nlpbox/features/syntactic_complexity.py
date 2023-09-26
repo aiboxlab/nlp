@@ -42,9 +42,10 @@ class SyntacticComplexityExtractor(FeatureExtractor):
 
         self._nlp = nlp
 
-    def extract(self, text: str) -> dict:
-        doc = self._nlp(text)
+    def extract(self, text: str, **kwargs) -> dict:
+        del kwargs
 
+        doc = self._nlp(text)
         adverbs_before_main_verb_ratio = self._adverbs_before_main_verb_ratio(
             doc)
         infinite_subordinate_clauses = self._infinite_subordinate_clauses(

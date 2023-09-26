@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import numpy as np
 from lightgbm import LGBMClassifier as _LGBMClassifier
+from numpy.typing import ArrayLike
 
 from nlpbox.core import Estimator
 
@@ -16,21 +17,26 @@ class LGBMClassifier(Estimator):
                  boosting_type: str = 'gbdt',
                  importance_type: str = 'split',
                  class_weight: str | dict = None,
-                 random_state: int = None):
+                 random_state: int | None = None):
+        super().__init__(random_state=random_state)
         self._hyperparams = dict(n_estimators=n_estimators,
                                  learning_rate=learning_rate,
                                  boosting_type=boosting_type,
                                  importance_type=importance_type,
                                  class_weight=class_weight,
-                                 random_state=random_state)
+                                 random_state=self.random_state)
 
         self._lgbm = None
 
-    def predict(self, X) -> np.ndarray:
+    def predict(self, X: ArrayLike, **kwargs) -> np.ndarray:
+        del kwargs
+
         preds = self._lgbm.predict(X)
         return np.array(preds)
 
-    def fit(self, X, y):
+    def fit(self, X: ArrayLike, y: ArrayLike, **kwargs):
+        del kwargs
+
         n = np.unique(y).size
         objective = 'multiclass' if n > 2 else 'binary'
         self._lgbm = _LGBMClassifier(verbose=-1,

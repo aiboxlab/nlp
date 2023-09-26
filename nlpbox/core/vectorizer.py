@@ -9,27 +9,28 @@ from numpy.typing import ArrayLike
 
 class Vectorizer(ABC):
     """Um vetorizador consegue converter
-    textos (str) para uma representação númerica
+    textos (str) para uma representação numérica
     de um vetor/tensor.
     """
 
     def vectorize(self,
                   text: str,
                   vector_type: str = 'numpy',
-                  device: str | None = None) -> np.ndarray | torch.Tensor:
+                  device: str | None = None,
+                  **kwargs) -> np.ndarray | torch.Tensor:
         """Método para vetorização de um texto.
 
         Args:
             text (str): texto de entrada.
             vector_type (str, optional): tipo do vetor de saída ('numpy'
                 ou 'torch').
-            device: dispositvo para armazenamento do tensor Torch.
+            device: dispositivo para armazenamento do tensor Torch.
 
         Returns:
 
         """
         # Obtendo representação vetorial
-        text_vector = self._vectorize(text)
+        text_vector = self._vectorize(text, **kwargs)
         is_np = isinstance(text_vector, np.ndarray)
         is_torch = isinstance(text_vector, torch.Tensor)
 
@@ -51,16 +52,16 @@ class Vectorizer(ABC):
         return text_vector
 
     @abstractmethod
-    def _vectorize(self, text: str) -> ArrayLike:
+    def _vectorize(self, text: str, **kwargs) -> ArrayLike:
         """Método privado para vetorização do texto
         e retorno de um array-like qualquer (e.g., lista,
-        tupla, np.ndarray, torch.Tensor, etc).
+        tupla, ndarray, torch.Tensor, etc).
 
         Args:
             text (str): texto que deve ser vetorizado.
 
         Returns:
-            Array-like da representação númerica do texto.
+            Array-like da representação numérica do texto.
         """
 
 
@@ -69,7 +70,10 @@ class TrainableVectorizer(Vectorizer):
     treinável (e.g., TF-IDF, BERT).
     """
 
-    def fit(self, X: ArrayLike, y: ArrayLike | None = None) -> None:
+    def fit(self,
+            X: ArrayLike,
+            y: ArrayLike | None = None,
+            **kwargs) -> None:
         """Método para treinamento do vetorizador. O valor de `y`
         não é utilizado, só é mantido por consistência da interface
         `fit(X, y)`.

@@ -45,7 +45,9 @@ class BERTSimilarityExtractor(FeatureExtractor):
         self._ref_embdedings = self._model.encode([self._ref_text.lower()],
                                                   convert_to_tensor=True)
 
-    def extract(self, text: str) -> BERTSimilarityFeatures:
+    def extract(self, text: str, **kwargs) -> BERTSimilarityFeatures:
+        del kwargs
+
         embeddings = self._model.encode([text.lower()], convert_to_tensor=True)
         similarity = cos_sim(embeddings, self._ref_embdedings).item()
         return BERTSimilarityFeatures(bert_similarity_cosine=similarity)

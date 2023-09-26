@@ -111,7 +111,9 @@ class TextualSimplicityExtractor(FeatureExtractor):
         list_concrete.extend(list_biderman)
         self._simple_words = set(list_biderman)
 
-    def extract(self, text: str) -> dict:
+    def extract(self, text: str, **kwargs) -> dict:
+        del kwargs
+
         doc = self._nlp(text)
         dialog_pron_ratio = self._compute_dialog_pron_ratio(doc)
         easy_conj_ratio, hard_conj_ratio = self._compute_conj_ratio(doc)

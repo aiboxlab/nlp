@@ -92,7 +92,9 @@ class ConjugationExtractor(FeatureExtractor):
                                for key, value in json.load(f2).items()}
             self._irregular = set(json.load(f1))
 
-    def extract(self, text: str) -> ConjugationFeatures:
+    def extract(self, text: str, **kwargs) -> ConjugationFeatures:
+        del kwargs
+
         errors, hits, frequency = self._check(text)
         total_verbs = hits + errors
         score = 0.0

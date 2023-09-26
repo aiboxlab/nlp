@@ -45,7 +45,9 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
         self._nlp = nlp
 
-    def extract(self, text: str) -> LexicalDiversityFeatures:
+    def extract(self, text: str, **kwargs) -> LexicalDiversityFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         tokens = [t.lower_
                   for sent in doc.sents

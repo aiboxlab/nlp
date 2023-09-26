@@ -109,9 +109,11 @@ class CohMetrixFeatures(DataclassFeatureSet):
 
 
 class CohMetrixExtractor(FeatureExtractor):
-    def extract(self, text: str) -> CohMetrixFeatures:
+    def extract(self, text: str, **kwargs) -> CohMetrixFeatures:
         """Esse método realiza a extração das características
         do CohMetrix BR para o texto recebido como argumento.
         """
+        del kwargs
+
         return CohMetrixFeatures(**{f.__name__.lower(): float(f(text))
                                     for f in cohmetrixBR.FEATURES})

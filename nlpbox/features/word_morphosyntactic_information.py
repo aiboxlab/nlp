@@ -65,7 +65,9 @@ class WordMorphosyntacticInformationExtractor(FeatureExtractor):
             nlp = spacy.load('pt_core_news_md')
         self._nlp = nlp
 
-    def extract(self, text: str) -> WordMorphosyntacticInformationFeatures:
+    def extract(self, text: str, **kwargs) -> WordMorphosyntacticInformationFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         features = {}
 

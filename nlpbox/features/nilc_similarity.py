@@ -46,7 +46,9 @@ class NILCSimilarityExtractor(FeatureExtractor):
         self._ref_doc = self._nlp(value)
         self._ref_tokens = [t.text for t in self._ref_doc]
 
-    def extract(self, text: str) -> NILCSimilarityFeatures:
+    def extract(self, text: str, **kwargs) -> NILCSimilarityFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         text_tokens = [t.text for t in doc]
 

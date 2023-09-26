@@ -33,7 +33,7 @@ class RegencyExtractor(FeatureExtractor):
         verbs_path = root_dir.joinpath('verb_pattern.txt')
         regencies_path = root_dir.joinpath('vregence_dict.json')
 
-        with open(verbs_path) as f1, open(regencies_path) as f2:
+        with verbs_path.open() as f1, regencies_path.open() as f2:
             self._verbs = set(map(lambda line: str(line).replace('\n', ''),
                                   f1.readlines()))
             self._verb_regencies = {key: set(value)
@@ -42,7 +42,7 @@ class RegencyExtractor(FeatureExtractor):
         root_dir = resources.path('dictionary/nominal-regency.v1')
         regencies_path = root_dir.joinpath('nominal_regency_dict.json')
 
-        with open(regencies_path) as f:
+        with regencies_path.open() as f:
             self._name_regencies = {key: set(value)
                                     for key, value in json.load(f).items()}
             self._names = set(self._name_regencies.keys())
@@ -66,7 +66,7 @@ class RegencyExtractor(FeatureExtractor):
     @staticmethod
     def _check_regency(doc: spacy.tokens.Doc,
                        word_set,
-                       regencies) -> Tuple[int, int]:
+                       regencies) -> tuple[int, int]:
         errors = 0
         matches = 0
 
@@ -91,5 +91,5 @@ class RegencyExtractor(FeatureExtractor):
         return errors, matches
 
     @staticmethod
-    def _has_regency(t: tokens.Token, target) -> bool:
+    def _has_regency(t: spacy.tokens.Token, target) -> bool:
         return t.lemma_.lower() in target

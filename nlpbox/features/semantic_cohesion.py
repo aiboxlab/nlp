@@ -49,7 +49,9 @@ class SemanticExtractor(FeatureExtractor):
         self._kenlm_model = kenlm.Model(str(kenlm_model_path))
         self._nlp = nlp
 
-    def extract(self, text: str) -> SemanticFeatures:
+    def extract(self, text: str, **kwargs) -> SemanticFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent for sent in doc.sents]
         sentences_tokens = []

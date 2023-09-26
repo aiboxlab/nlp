@@ -57,7 +57,7 @@ class Dataset(ABC):
         Args:
             frac_train (float): fração de amostras para treinamento.
             stratified (bool): se cada split deve ser estratificado.
-            seed (int): seed randômica para geração dos cojuntos.
+            seed (int): seed randômica para geração dos conjuntos.
 
         Returns:
             (df_train, df_test): tupla com os conjuntos de treino

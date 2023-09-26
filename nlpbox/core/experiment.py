@@ -3,7 +3,6 @@ da interface para um experimento.
 """
 from __future__ import annotations
 
-import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -11,14 +10,12 @@ import numpy as np
 import pandas as pd
 
 from .dataset import Dataset
-from .metric import Metric
 from .pipeline import Pipeline
 
 
 @dataclass(frozen=True)
 class ExperimentResult:
     best_pipeline: Pipeline
-    best_pipeline_name: str
     best_metrics: dict[str, np.ndarray]
     best_pipeline_test_predictions: np.ndarray
     train_df: pd.DataFrame

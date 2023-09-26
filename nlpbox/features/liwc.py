@@ -3,8 +3,9 @@ LIWC.
 """
 from __future__ import annotations
 
-import typing
 from dataclasses import dataclass
+
+import spacy
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
@@ -81,7 +82,11 @@ class LiwcFeatures(DataclassFeatureSet):
 
 
 class LiwcExtractor(FeatureExtractor):
-    def __init__(self):
+    def __init__(self, nlp: spacy.Language = None):
+        if nlp is None:
+            nlp = spacy.load('pt_core_news_md')
+
+        self._nlp = nlp
         self._indice_to_name = {
             1: 'funct', 2: 'pronoun', 3: 'ppron', 4: 'i',
             5: 'we', 6: 'you', 7: 'shehe', 8: 'they', 9: 'ipron',
@@ -110,14 +115,20 @@ class LiwcExtractor(FeatureExtractor):
             lines = file.read().split('\n')
             for line in lines:
                 words = line.split('\t')
-                self._liwc_words.append(words)
+                self._words.append(words)
 
+        indices_path = root_dir.joinpath('indices.txt')
         with indices_path.open(mode='r',
                                encoding='utf-8',
                                errors='ignore') as file:
-            cls._indices = file.read().split('\n')
+            self._indices = file.read().split('\n')
 
-    def extract(self, text: str) -> LiwcFeatures:
+    def extract(self, text: str, **kwargs) -> LiwcFeatures:
+        del kwargs
+
+        doc = self._nlp(text)
+        tokens = [t for t in doc
+                  if t.pos_ not in {'PUNCT', 'SYM'}]
         liwc_dict = {v: 0 for v in self._indice_to_name.values()}
 
         for token in tokens:

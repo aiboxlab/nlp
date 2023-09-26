@@ -29,7 +29,9 @@ class SyntacticPatternsDensityExtractor(FeatureExtractor):
 
         self._nlp = nlp
 
-    def extract(self,  text: str) -> SyntacticPatternsDensityFeatures:
+    def extract(self,  text: str, **kwargs) -> SyntacticPatternsDensityFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
         features = {

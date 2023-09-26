@@ -38,7 +38,9 @@ class ReadabilityExtractor(FeatureExtractor):
         self._nlp = nlp
         self._dict = pyphen.Pyphen(lang='pt-BR')
 
-    def extract(self, text: str) -> ReadabilityFeatures:
+    def extract(self, text: str, **kwargs) -> ReadabilityFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
 

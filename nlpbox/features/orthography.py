@@ -56,7 +56,9 @@ class OrthographyExtractor(FeatureExtractor):
             "Palavras raras: Capitalização de nomes geográficos"
         }
 
-    def extract(self, text: str) -> OrtographyFeatures:
+    def extract(self, text: str, **kwargs) -> OrtographyFeatures:
+        del kwargs
+
         # Limpeza do texto (pontuação, whitespace, etc)
         text = self._cleaner(text)
 
@@ -72,7 +74,7 @@ class OrthographyExtractor(FeatureExtractor):
 
         return OrtographyFeatures(ortography_score=score)
 
-    def _check(self, text: str) -> List[Dict[str, str]]:
+    def _check(self, text: str) -> list[dict[str, str]]:
         # Realizar uma checagem no texto utilizando o LanguageTool
         matches = self._tool.check(text)
 

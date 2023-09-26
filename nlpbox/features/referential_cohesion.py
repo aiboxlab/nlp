@@ -29,8 +29,7 @@ class ReferentialCohesion(DataclassFeatureSet):
 
 class ReferentialCohesionExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None,
-                 stemmer: SnowballStemmer | None = None,
-                 device: str = 'cuda'):
+                 stemmer: SnowballStemmer | None = None):
         if nlp is None:
             nlp = spacy.load('pt_core_news_md')
         self._nlp = nlp
@@ -39,7 +38,9 @@ class ReferentialCohesionExtractor(FeatureExtractor):
             stemmer = stemmer = SnowballStemmer(language='portuguese')
         self._stemmer = stemmer
 
-    def extract(self, text: str) -> ReferentialCohesion:
+    def extract(self, text: str, **kwargs) -> ReferentialCohesion:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
         features = {

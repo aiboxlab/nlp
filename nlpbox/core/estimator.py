@@ -4,7 +4,6 @@ para estimadores.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from pathlib import Path
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -15,8 +14,14 @@ class Estimator(ABC):
     estimador.
     """
 
+    def __init__(self, random_state: int | None = None) -> None:
+        if random_state is None:
+            random_state = np.random.random_integers(0, 99999)
+
+        self._seed = random_state
+
     @abstractmethod
-    def predict(self, X: ArrayLike) -> np.ndarray:
+    def predict(self, X: ArrayLike, **kwargs) -> np.ndarray:
         """Realiza a predição utilizando os parâmetros
         atuais do modelo.
 
@@ -28,7 +33,7 @@ class Estimator(ABC):
         """
 
     @abstractmethod
-    def fit(self, X: ArrayLike, y: ArrayLike) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike, **kwargs) -> None:
         """Realiza o treinamento do estimador
         utilizando as features X com os targets
         y.
@@ -60,3 +65,13 @@ class Estimator(ABC):
         Returns:
             Parâmetros do estimador.
         """
+
+    @property
+    def random_state(self) -> int:
+        """Seed randômica utilizada pelo
+        estimador.
+
+        Returns:
+            Seed.
+        """
+        return self._seed

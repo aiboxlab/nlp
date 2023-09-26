@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import numpy as np
 import spacy
 from spacy.tokens.doc import Doc
 from TRUNAJOD.entity_grid import EntityGrid, get_local_coherence
@@ -33,7 +32,9 @@ class SequentialCohesionExtractor(FeatureExtractor):
 
         self._nlp = nlp
 
-    def extract(self, text: str) -> SequentialCohesionFeatures:
+    def extract(self, text: str, **kwargs) -> SequentialCohesionFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         local_coherence = self._compute_local_coherence(doc)
         jaccard_adj_sentences = self._compute_jaccard_adj_sentences(doc)

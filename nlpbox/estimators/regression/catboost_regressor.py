@@ -4,196 +4,41 @@ do catboost.
 from __future__ import annotations
 
 import numpy as np
-from numpy.typing import ArrayLike
 from catboost import CatBoostRegressor as _CatBoostRegressor
-
+from numpy.typing import ArrayLike
 
 from nlpbox.core.estimator import Estimator
 
 
 class CatBoostRegressor(Estimator):
     def __init__(self,
-                 iterations=None,
-                 learning_rate=None,
-                 depth=None,
-                 l2_leaf_reg=None,
-                 model_size_reg=None,
-                 rsm=None,
-                 loss_function='RMSE',
-                 border_count=None,
-                 feature_border_type=None,
-                 per_float_feature_quantization=None,
-                 input_borders=None,
-                 output_borders=None,
-                 fold_permutation_block=None,
-                 od_pval=None,
-                 od_wait=None,
-                 od_type=None,
-                 nan_mode=None,
-                 counter_calc_method=None,
-                 leaf_estimation_iterations=None,
-                 leaf_estimation_method=None,
-                 thread_count=None,
-                 random_seed=None,
-                 use_best_model=None,
-                 best_model_min_trees=None,
-                 metric_period=None,
-                 ctr_leaf_count_limit=None,
-                 store_all_simple_ctr=None,
-                 max_ctr_complexity=None,
-                 has_time=None,
-                 allow_const_label=None,
-                 one_hot_max_size=None,
-                 random_strength=None,
-                 ignored_features=None,
-                 custom_metric=None,
-                 eval_metric=None,
-                 bagging_temperature=None,
-                 fold_len_multiplier=None,
-                 final_ctr_computation_mode=None,
-                 approx_on_full_history=None,
-                 boosting_type=None,
-                 simple_ctr=None,
-                 combinations_ctr=None,
-                 per_feature_ctr=None,
-                 ctr_target_border_count=None,
-                 task_type=None,
-                 bootstrap_type=None,
-                 subsample=None,
-                 sampling_unit=None,
-                 dev_score_calc_obj_block_size=None,
-                 max_depth=None,
-                 n_estimators=None,
-                 num_boost_round=None,
-                 num_trees=None,
-                 colsample_bylevel=None,
-                 random_state=None,
-                 reg_lambda=None,
-                 objective=None,
-                 eta=None,
-                 max_bin=None,
-                 data_partition=None,
-                 metadata=None,
-                 early_stopping_rounds=None,
-                 cat_features=None,
-                 grow_policy=None,
-                 min_data_in_leaf=None,
-                 min_child_samples=None,
-                 max_leaves=None,
-                 num_leaves=None,
-                 score_function=None,
-                 leaf_estimation_backtracking=None,
-                 ctr_history_unit=None,
-                 monotone_constraints=None,
-                 feature_weights=None,
-                 penalties_coefficient=None,
-                 first_feature_use_penalties=None,
-                 model_shrink_rate=None,
-                 model_shrink_mode=None,
-                 langevin=None,
-                 diffusion_temperature=None,
-                 posterior_sampling=None,
-                 boost_from_average=None,
-                 fixed_binary_splits=None
-                 ):
-        self._hyperparams = dict(
-                iterations=None,
-                learning_rate=None,
-                depth=None,
-                l2_leaf_reg=None,
-                model_size_reg=None,
-                rsm=None,
-                loss_function='RMSE',
-                border_count=None,
-                feature_border_type=None,
-                per_float_feature_quantization=None,
-                output_borders=None,
-                fold_permutation_block=None,
-                input_borders=None,
-                od_pval=None,
-                od_wait=None,
-                od_type=None,
-                nan_mode=None,
-                counter_calc_method=None,
-                leaf_estimation_iterations=None,
-                leaf_estimation_method=None,
-                thread_count=None,
-                random_seed=None,
-                use_best_model=None,
-                best_model_min_trees=None,
-                metric_period=None,
-                ctr_leaf_count_limit=None,
-                store_all_simple_ctr=None,
-                max_ctr_complexity=None,
-                has_time=None,
-                allow_const_label=None,
-                one_hot_max_size=None,
-                random_strength=None,
-                ignored_features=None,
-                custom_metric=None,
-                eval_metric=None,
-                bagging_temperature=None,
-                fold_len_multiplier=None,
-                final_ctr_computation_mode=None,
-                approx_on_full_history=None,
-                boosting_type=None,
-                simple_ctr=None,
-                combinations_ctr=None,
-                per_feature_ctr=None,
-                ctr_target_border_count=None,
-                task_type=None,
-                bootstrap_type=None,
-                subsample=None,
-                sampling_unit=None,
-                dev_score_calc_obj_block_size=None,
-                max_depth=None,
-                n_estimators=None,
-                num_boost_round=None,
-                num_trees=None,
-                colsample_bylevel=None,
-                random_state=None,
-                reg_lambda=None,
-                objective=None,
-                eta=None,
-                max_bin=None,
-                data_partition=None,
-                metadata=None,
-                early_stopping_rounds=None,
-                cat_features=None,
-                grow_policy=None,
-                min_data_in_leaf=None,
-                min_child_samples=None,
-                max_leaves=None,
-                num_leaves=None,
-                score_function=None,
-                leaf_estimation_backtracking=None,
-                ctr_history_unit=None,
-                monotone_constraints=None,
-                feature_weights=None,
-                penalties_coefficient=None,
-                first_feature_use_penalties=None,
-                model_shrink_rate=None,
-                model_shrink_mode=None,
-                langevin=None,
-                diffusion_temperature=None,
-                posterior_sampling=None,
-                boost_from_average=None,
-                fixed_binary_splits=None)
-
+                 n_estimators: int = 100,
+                 learning_rate: float = 0.01,
+                 random_state: int | None = None):
+        super().__init__(random_state=random_state)
+        self._hyperparams = dict(n_estimators=n_estimators,
+                                 learning_rate=learning_rate,
+                                 random_state=self.random_state,
+                                 loss_function='RMSE')
         self._catboost_regressor = _CatBoostRegressor(**self._hyperparams)
 
-    def predict(self, X: ArrayLike) -> np.ndarray:
+    def predict(self, X: ArrayLike, **kwargs) -> np.ndarray:
+        del kwargs
+
         preds = self._catboost_regressor.predict(X)
         return np.array(preds)
-    
-    def fit(self, X: ArrayLike, y: ArrayLike):
+
+    def fit(self, X: ArrayLike, y: ArrayLike, **kwargs):
+        del kwargs
+
         self._catboost_regressor.fit(X, y, silent=True)
 
     @property
     def hyperparameters(self) -> dict:
         return self.hyperparameters
-    
+
     @property
     def params(self) -> dict:
         params = self._catboost_regressor.get_all_params()
-        return {k: v for k, v in params.items() if k not in self.hyperparameters}
+        return {k: v for k, v in params.items()
+                if k not in self.hyperparameters}

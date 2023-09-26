@@ -64,7 +64,9 @@ class AgreementExtractor(FeatureExtractor):
                                 'CUJA_CUJO_MASCULINO_FEMININO',
                                 'GENERAL_NUMBER_AGREEMENT_ERRORS'}
 
-    def extract(self, text: str) -> AgreementFeatures:
+    def extract(self, text: str, **kwargs) -> AgreementFeatures:
+        del kwargs
+
         va_score = 0.0
         na_score = 0.0
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 import functools
 import operator
 from dataclasses import dataclass
+from typing import Iterable, Literal
 
 import spacy
 from spacy import tokens
@@ -76,7 +77,9 @@ class WordSegmentationExtractor(FeatureExtractor):
         self._nlp = nlp
         self._hypo_seg = NorvigHypoSegmentaton(self._dict)
 
-    def extract(self, text: str) -> WordSegmentationFeatures:
+    def extract(self, text: str, **kwargs) -> WordSegmentationFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         score_hyper = 0.0
         score_hypo = 0.0

@@ -52,7 +52,9 @@ class SemanticExtractorTransformers(FeatureExtractor):
         assert dims is not None
         self._dims = dims
 
-    def extract(self, text: str) -> SemanticFeaturesTransformers:
+    def extract(self, text: str, **kwargs) -> SemanticFeaturesTransformers:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
         features = {
