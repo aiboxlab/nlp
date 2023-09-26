@@ -57,7 +57,7 @@ class TFIDFSimilarityExtractor(FeatureExtractor):
     def reference_text(self, value: str) -> str:
         self._ref_text = value
 
-    def extract(self, text: str) -> TFIDFSimilarityFeatures:
+    def extract(self, text: str, **kwargs) -> TFIDFSimilarityFeatures:
         """Método que calcula características de similaridade utilizando
         a biblioteca fuzzysearch.
 
@@ -68,6 +68,8 @@ class TFIDFSimilarityExtractor(FeatureExtractor):
         Returns:
             dict[str, float]: características de similaridade entre os textos.
         """
+        del kwargs
+
         self._model.match([text], [self._ref_text])
         matches = self._model.get_matches()
 

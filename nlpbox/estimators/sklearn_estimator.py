@@ -23,11 +23,15 @@ class SklearnEstimator(Estimator):
         """
         self._estimator = estimator
 
-    def predict(self, X: ArrayLike) -> np.ndarray:
+    def predict(self, X: ArrayLike, **kwargs) -> np.ndarray:
+        del kwargs
+
         preds = self._estimator.predict(X)
         return np.array(preds)
 
-    def fit(self, X: ArrayLike, y: ArrayLike):
+    def fit(self, X: ArrayLike, y: ArrayLike, **kwargs):
+        del kwargs
+
         self._estimator.fit(X, y)
 
     @property

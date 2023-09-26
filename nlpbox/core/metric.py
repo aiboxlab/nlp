@@ -57,7 +57,7 @@ class Metric(ABC):
         return f"{self.__class__.__name__}: {self.name()}"
 
     def __eq__(self, other):
-        """Função de equalidade.
+        """Função de igualdade.
         Duas métricas são iguais se possuem
         o mesmo nome.
 

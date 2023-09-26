@@ -21,7 +21,7 @@ class SimpleExperimentBuilder:
     def __init__(self) -> None:
         self._ds: Dataset = None
         self._criteria: Metric = None
-        self._pipelines: dict[str, Pipeline] = dict()
+        self._pipelines: list[Pipeline] = []
         self._metrics: list[Metric] = []
         self._seed = None
         self._rng = None
@@ -75,11 +75,11 @@ class SimpleExperimentBuilder:
                                  estimators_configs,
                                  postprocessing):
             seed = self._estimator_seed()
-            estimator = get_class(e)(**c,
-                                     random_state=seed)
-            self._pipelines[name] = Pipeline(extractor,
-                                             estimator,
-                                             p)
+            estimator = get_class(e)(**c, random_state=seed)
+            self._pipelines.append(Pipeline(vectorizer=extractor,
+                                            estimator=estimator,
+                                            postprocessing=p,
+                                            name=name))
 
         return self
 
@@ -95,15 +95,15 @@ class SimpleExperimentBuilder:
         com o mesmo vetorizador mas com cada estimador.
 
         Args:
-            vectorizer (str): _description_
-            estimators (str | list[str]): _description_
-            names (str | list[str]): _description_
-            postprocessing (Callable | list[Callable], optional): _description_. Defaults to None.
-            vectorizer_config (dict, optional): _description_. Defaults to dict().
-            estimators_configs (dict | list[dict], optional): _description_. Defaults to None.
+            vectorizer (str): vetorizador ou lista de vetorizadores.
+            estimators (str | list[str]): estimador ou lista de estimadores.
+            names (str | list[str]): nome(s) do estimador(es).
+            postprocessing (Callable | list[Callable], optional): pós-processamentos.
+            vectorizer_config (dict, optional): configuração do vetorizador.
+            estimators_configs (dict | list[dict], optional): configuração(ões) do estimador(es).
 
         Returns:
-            SimpleExperimentBuilder: _description_
+            SimpleExperimentBuilder: self.
         """
         if self._seed is None:
             logger.info('Inicialize a seed randômica primeiro.')
@@ -122,17 +122,17 @@ class SimpleExperimentBuilder:
 
         assert len(estimators) == len(names)
         vectorizer = get_class(vectorizer)(**vectorizer_config)
+
         for name, e, c, p in zip(names,
                                  estimators,
                                  estimators_configs,
                                  postprocessing):
             seed = self._estimator_seed()
-            estimator = get_class(e)(**c,
-                                     random_state=seed)
-            self._pipelines[name] = Pipeline(vectorizer,
-                                             estimator,
-                                             p)
-
+            estimator = get_class(e)(**c, random_state=seed)
+            self._pipelines.append(Pipeline(vectorizer=vectorizer,
+                                            estimator=estimator,
+                                            postprocessing=p,
+                                            name=name))
         return self
 
     def add_metric(self,
@@ -197,8 +197,10 @@ class SimpleExperimentBuilder:
         """
         self._seed = seed
 
-        # Inicializando RNG para criar Random States
-        #   dos estimadores.
+        # Inicializando RNG para criar as seeds
+        #   dos estimadores. Por garantia,
+        #   utilizamos uma seed diferente da passada
+        #   para o experimento.
         self._rng = np.random.default_rng(self._seed + 1)
 
         return self
@@ -243,11 +245,8 @@ class SimpleExperimentBuilder:
         Returns:
             Experiment: experimento.
         """
-        pipelines = list(self._pipelines.values())
-        names = list(self._pipelines.keys())
 
-        return SimpleExperiment(pipelines=pipelines,
-                                pipelines_names=names,
+        return SimpleExperiment(pipelines=self._pipelines,
                                 dataset=self._ds,
                                 criteria_best=self._criteria,
                                 metrics=self._metrics,

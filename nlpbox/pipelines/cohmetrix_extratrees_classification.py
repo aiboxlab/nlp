@@ -5,15 +5,18 @@ Randomized Trees.
 """
 from __future__ import annotations
 
-from sklearn.ensemble import ExtraTreesClassifier
-
 from nlpbox.core.pipeline import Pipeline
-from nlpbox.estimators.sklearn_estimator import SklearnEstimator
+from nlpbox.estimators.classification.extra_trees_classifier import \
+    ExtraTreesClassifier
 from nlpbox.features.cohmetrix import CohMetrixExtractor
 
 
 class CohMetrixExtraTreesClassification(Pipeline):
-    def __init__(self, **kwargs):
+    def __init__(self,
+                 random_state: int | None = None,
+                 etree_config: dict() = None):
         super().__init__(
             vectorizer=CohMetrixExtractor(),
-            estimator=SklearnEstimator(ExtraTreesClassifier(**kwargs)))
+            estimator=ExtraTreesClassifier(**etree_config,
+                                           random_state=random_state),
+            name=f'cohmetrix_etree_clf_seed{random_state}')

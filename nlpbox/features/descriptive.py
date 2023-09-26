@@ -37,7 +37,9 @@ class DescriptiveExtractor(FeatureExtractor):
         self._nlp = nlp
         self._dict_pyphen = Pyphen(lang='pt-BR')
 
-    def extract(self, text: str) -> DescriptiveFeatures:
+    def extract(self, text: str, **kwargs) -> DescriptiveFeatures:
+        del kwargs
+
         doc = self._nlp(text)
         sentences = [sent for sent in doc.sents]
         words = [word.text for word in doc if not word.is_punct]

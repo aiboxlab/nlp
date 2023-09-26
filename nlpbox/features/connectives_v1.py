@@ -7,6 +7,7 @@ import json
 from dataclasses import dataclass
 
 import spacy
+from unidecode import unidecode
 
 from nlpbox import resources
 from nlpbox.core import FeatureExtractor
@@ -56,7 +57,9 @@ class ConnectivesExtractorV1(FeatureExtractor):
         self._load_connectives()
         self._nlp = nlp
 
-    def extract(self, text: str) -> ConnectivesFeaturesV1:
+    def extract(self, text: str, **kwargs) -> ConnectivesFeaturesV1:
+        del kwargs
+
         sentences = sentencizers.spacy_sentencizer(text, self._nlp)
 
         overall_freq = 0.0

@@ -53,7 +53,9 @@ class ConnectivesExtractorV2(FeatureExtractor):
         }
         self._nlp = nlp
 
-    def extract(self, text: str) -> ConnectivesFeaturesV2:
+    def extract(self, text: str, **kwargs) -> ConnectivesFeaturesV2:
+        del kwargs
+
         sentences = sentencizers.spacy_sentencizer(text, self._nlp)
         connectives_metrics = {k: 0.0 for k in self._connectives}
         connectives_metrics['all_conn_ratio'] = 0.0

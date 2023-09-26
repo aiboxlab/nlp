@@ -29,7 +29,9 @@ class OverlapExtractor(FeatureExtractor):
 
         self._nlp = nlp
 
-    def extract(self, text: str) -> OverlapFeatures:
+    def extract(self, text: str, **kwargs) -> OverlapFeatures:
+        del kwargs
+
         sentences = sentencizers.spacy_sentencizer(text, self._nlp)
         sentences = list(map(lambda s: s.text, sentences))
 

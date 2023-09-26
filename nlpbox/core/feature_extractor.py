@@ -3,7 +3,6 @@
 """
 from __future__ import annotations
 
-import dataclasses
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -42,16 +41,13 @@ class FeatureSet(ABC):
         return np.array(list(self.as_dict().values()),
                         dtype=np.float32)
 
-    def as_tensor(self,
-                  kind: str = 'torch',
-                  device: str | None = None) -> torch.Tensor:
+    def as_tensor(self, device: str | None = None) -> torch.Tensor:
         """Retorna as características como um
         tensor. Os valores de cada índice são
         correspondentes às características na ordem
         de `names()`.
 
         Args:
-            kind (str): tipo do tensor ('torch').
             device (str, opcional): dispositivo de armazenamento.
 
         Returns:
@@ -85,7 +81,7 @@ class FeatureExtractor(Vectorizer):
     """
 
     @abstractmethod
-    def extract(self, text: str) -> FeatureSet:
+    def extract(self, text: str, **kwargs) -> FeatureSet:
         """
 
         Args:
@@ -97,6 +93,6 @@ class FeatureExtractor(Vectorizer):
                 esse texto.
         """
 
-    def _vectorize(self, text: str) -> np.ndarray:
-        feature_set = self.extract(text)
+    def _vectorize(self, text: str, **kwargs) -> np.ndarray:
+        feature_set = self.extract(text, **kwargs)
         return feature_set.as_numpy()

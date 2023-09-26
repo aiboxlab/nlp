@@ -34,7 +34,6 @@ class SimpleExperiment(Experiment):
                  dataset: Dataset,
                  metrics: list[Metric],
                  criteria_best: Metric,
-                 pipelines_names: list[str] | None = None,
                  seed: int = 8990,
                  keep_all_pipelines: bool = False,
                  problem: str | None = None,
@@ -53,8 +52,6 @@ class SimpleExperiment(Experiment):
                 calculadas.
             criteria_best (Metric): métrica que é utilizada
                 para escolher a melhor pipeline.
-            pipelines_names (list[str]): nome das pipelines ou None.
-                Caso None, definir nomes automaticamente (default=None).
             seed (int): seed randômica utilizada (default=8990).
             keep_all_pipelines (bool): se todas pipelines
                 devem ser guardadas (default=False).
@@ -73,18 +70,14 @@ class SimpleExperiment(Experiment):
             problem = 'classification' if pandas_types.is_integer_dtype(
                 dtype) else 'regression'
 
-        if pipelines_names is None:
-            pipelines_names = list(map(self._generate_name, pipelines))
-
         initial_cache = dict()
         if features_df is not None:
             keys = features_df.text.to_list()
             values = features_df.drop(columns='text').to_dict(orient='records')
             initial_cache = dict(zip(keys, values))
 
-        def _pipeline_priority(p) -> int:
-            _, pipeline = p
-            vectorizer = pipeline.vectorizer
+        def _pipeline_priority(p: Pipeline) -> int:
+            vectorizer = p.vectorizer
 
             if isinstance(vectorizer, AggregatedFeatureExtractor):
                 return len(vectorizer.extractors)
@@ -92,12 +85,12 @@ class SimpleExperiment(Experiment):
             return 1
 
         # Instanciando e fazendo sort das pipelines
-        assert len(pipelines) == len(pipelines_names)
-        self._pipelines = list(zip(pipelines_names, pipelines))
+        self._pipelines = pipelines
         self._pipelines = sorted(self._pipelines,
                                  key=_pipeline_priority,
                                  reverse=True)
 
+        # Variáveis auxiliares
         self._seed = seed
         self._keep_all_pipelines = keep_all_pipelines
         self._dataset = dataset
@@ -118,8 +111,7 @@ class SimpleExperiment(Experiment):
                 "extras".
         """
         logger.info('Setting up experiment...')
-        best_pipeline = None
-        best_name = None
+        best_pipeline: Pipeline = None
         best_metrics = None
         best_test_predictions = None
         metrics_history = dict()
@@ -139,31 +131,27 @@ class SimpleExperiment(Experiment):
 
         def _update_best(pipeline,
                          metrics,
-                         pipeline_name,
                          predictions):
             nonlocal best_pipeline
             nonlocal best_metrics
-            nonlocal best_name
             nonlocal best_test_predictions
             best_pipeline = pipeline
             best_metrics = metrics
-            best_name = pipeline_name
             best_test_predictions = predictions
 
         logger.info('Run started.')
         run_start = time.perf_counter()
         i = 0
 
-        for p in self._pipelines:
-            name, pipeline = p
+        for pipeline in self._pipelines:
             i += 1
             logger.info('Started pipeline "%s" (%d/%d)',
-                        name, i, len(self._pipelines))
+                        pipeline.name, i, len(self._pipelines))
 
             # Caso seja um extrator de características,
             #   atualizamos para utilizar uma versão cacheada.
             if isinstance(pipeline.vectorizer, FeatureExtractor):
-                # Colentado informações sobre quais features são
+                # Coletando informações sobre quais features são
                 #   extraídas pelo vetorizador
                 sample_features = pipeline.vectorizer.extract(
                     'Texto de exemplo.')
@@ -179,10 +167,11 @@ class SimpleExperiment(Experiment):
 
                 # Atualizando a variável local para apontar para uma
                 #   nova pipeline que **compartilha** o mesmo estimador,
-                #   vetorizador e pós-processamento que a originak.
+                #   vetorizador e pós-processamento que a original.
                 pipeline = Pipeline(vectorizer=cached_extractor,
                                     estimator=pipeline.estimator,
-                                    postprocessing=pipeline.postprocessing)
+                                    postprocessing=pipeline.postprocessing,
+                                    name=pipeline.name)
 
             # Treinamento da pipeline
             pipeline.fit(X_train, y_train)
@@ -200,22 +189,21 @@ class SimpleExperiment(Experiment):
             if best_pipeline is None or r[c] > best_metrics[c]:
                 _update_best(pipeline,
                              r,
-                             name,
                              preds)
 
             # Armazenando no histórico
-            metrics_history[name] = r
+            metrics_history[pipeline.name] = r
 
             if self._keep_all_pipelines:
                 if pipeline_history is None:
                     pipeline_history = dict()
-                pipeline_history[name] = pipeline
+                pipeline_history[pipeline.name] = pipeline
 
         run_duration = time.perf_counter() - run_start
         logger.info('Run finished in %.2f seconds.\n'
                     'Best pipeline: %s',
                     run_duration,
-                    best_name)
+                    best_pipeline.name)
 
         # Construindo os dados de features que foram
         #   cacheados.
@@ -243,7 +231,6 @@ class SimpleExperiment(Experiment):
 
         return ExperimentResult(
             best_pipeline=best_pipeline,
-            best_pipeline_name=best_name,
             best_metrics=best_metrics,
             best_pipeline_test_predictions=best_test_predictions,
             train_df=train,
@@ -265,31 +252,9 @@ class SimpleExperiment(Experiment):
         componentes da classe.
         """
         # Não podem existir pipelines duplicadas
-        names = [name for name, _ in self._pipelines]
+        names = [p.name for p in self._pipelines]
         assert len(names) == len(set(names))
 
         # Não podem existir métricas duplicadas
         metrics_names = list(m.name() for m in self._metrics)
         assert len(metrics_names) == len(set(metrics_names))
-
-    def _generate_name(self, p: Pipeline) -> str:
-        # Obtendo nome da classe do estimador
-        estimator_name = p.estimator.__class__.__name__
-
-        # Obtendo nome da classe do vetorizador
-        vectorizer_name = p.vectorizer.__class__.__name__
-
-        # Se for um agregado de features, obtemos o nome
-        #   individual de cada um
-        if isinstance(p.vectorizer, AggregatedFeatureExtractor):
-            vectorizer_name = '_'.join(v.__class__.__name__
-                                       for v in p.vectorizer.extractors)
-
-        # Obtemos os parâmetros do estimador
-        estimator_params = '_'.join(str(v) for v in
-                                    p.estimator.hyperparameters.values()
-                                    if not isinstance(v, dict))
-
-        # Construímos o nome final da pipeline
-        name = '_'.join([vectorizer_name, estimator_name, estimator_params])
-        return name

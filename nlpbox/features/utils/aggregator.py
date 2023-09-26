@@ -27,28 +27,15 @@ class AggregatedFeatures(FeatureSet):
 
 
 class AggregatedFeatureExtractor(FeatureExtractor):
-    def __init__(self, *extractors,
-                 n_parallel: int = None) -> None:
+    def __init__(self, *extractors) -> None:
         self._extractors = extractors
-
-        assert (n_parallel is None) or (n_parallel > 0)
-        self._n_parallel = None
 
     @property
     def extractors(self) -> list[FeatureExtractor]:
         return self._extractors
 
-    def extract(self, text: str) -> AggregatedFeatures:
-        if self._n_parallel is None:
-            features = [e.extract(text) for e in self._extractors]
-        else:
-            with Pool(self._n_parallel) as pool:
-                features = pool.map(_apply_extraction,
-                                    [(e, text) for e in self._extractors])
+    def extract(self, text: str, **kwargs) -> AggregatedFeatures:
+        del kwargs
 
+        features = [e.extract(text) for e in self._extractors]
         return AggregatedFeatures(*features)
-
-
-def _apply_extraction(data) -> FeatureSet:
-    e, t = data
-    return e.extract(t)

@@ -58,7 +58,9 @@ class FuzzySearchSimilarityExtractor(FeatureExtractor):
     def reference_text(self, value: str):
         self._ref_text = value
 
-    def extract(self, text: str) -> FuzzySearchSimilarityFeatures:
+    def extract(self, text: str, **kwargs) -> FuzzySearchSimilarityFeatures:
+        del kwargs
+
         return FuzzySearchSimilarityFeatures(**{
             k: float(f(text, self._ref_text))
             for k, f in self._features.items()
