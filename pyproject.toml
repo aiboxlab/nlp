@@ -48,3 +48,6 @@ all = ["aibox-nlp[BR]", "aibox-nlp[trees]", "aibox-nlp[embeddings]"]
 where = ["src"]
 include = ["aibox*"]
 namespaces = true
+
+[tool.setuptools.package-data]
+"aibox.nlp.factory" = ["*.json"]

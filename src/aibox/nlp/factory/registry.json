@@ -1,0 +1,63 @@
+{
+    "features": {
+        "agreementBR": "agreement.AgreementExtractor",
+        "bertSimilarityBR": "bert_similarity.BERTSimilarityExtractor",
+        "cohmetrixBR": "cohmetrix.CohMetrixExtractor",
+        "conjugationBR": "conjugation.ConjugationExtractor",
+        "connectivesV1BR": "connectives_v1.ConnectivesExtractorV1",
+        "connectivesV2BR": "connectives_v2.ConnectivesExtractorV2",
+        "descriptiveBR": "descriptive.DescriptiveExtractor",
+        "fuzzySimilarity": "fuzzy_search_similarity.FuzzySearchSimilarityExtractor",
+        "lexicalDiversityBR": "lexical_diversity.LexicalDiversityExtractor",
+        "liwcBR": "liwc.LiwcExtractor",
+        "nilcSimilarityBR": "nilc_similarity.NILCSimilarityExtractor",
+        "orthographyBR": "orthography.OrthographyExtractor",
+        "overlapBR": "overlap.OverlapExtractor",
+        "readabilityBR": "readability.ReadabilityExtractor",
+        "referentialCohesionBR": "referential_cohesion.ReferentialCohesionExtractor",
+        "regencyBR": "regency.RegencyExtractor",
+        "semanticCohesionTransformersBR": "semantic_cohesion_transformers.SemanticExtractorTransformers",
+        "semanticCohesionBR": "semantic_cohesion.SemanticExtractor",
+        "sequentialCohesionBR": "sequential_cohesion.SequentialCohesionExtractor",
+        "syntacticComplexityBR": "syntactic_complexity.SyntacticComplexityExtractor",
+        "textualSimplicityBR": "textual_simplicity.TextualSimplicityExtractor",
+        "tfidfSimilarity": "tfidf_similarity.TFIDFSimilarityExtractor",
+        "wordMorphosyntacticInformationBR": "word_morphosyntactic_information.WordMorphosyntacticInformationExtractor",
+        "wordSegmentationBR": "word_segmentation.WordSegmentationExtractor"
+    },
+    "vectorizers": {
+        "tfidfVectorizer": "tfidf_vectorizer.TFIDFVectorizer",
+        "bertVectorizer": "bert_vectorizer.BertVectorizer",
+        "fasttextWordVectorizer": "fasttext_word_vectorizer.FasttextWordVectorizer"
+    },
+    "metrics": {
+        "R2": "errors.R2",
+        "MAE": "errors.MAE",
+        "MSE": "errors.MSE",
+        "RMSE": "errors.RMSE",
+        "kappa": "kappa.CohensKappaScore",
+        "neighborKappa": "kappa.NeighborCohensKappaScore",
+        "precision": "precision.Precision",
+        "recall": "recall.Recall",
+        "f1": "f1_score.F1Score"
+    },
+    "estimators": {
+        "svm": "classification.svm.SVM",
+        "catboostClf": "classification.catboost_classifier.CatBoostClassifier",
+        "catboosetReg": "regression.catboost_regressor.CatBoostRegressor",
+        "etreesClf": "classification.extra_trees_classifier.ExtraTreesClassifier",
+        "etreesReg": "regression.extra_trees_regressor.ExtraTreesRegressor",
+        "lgbmClf": "classification.lgbm_classifier.LGBMClassifier",
+        "lgbmReg": "regression.lgbm_regressor.LGBMRegressor",
+        "lstmClf": "classification.lstm_classifier.LSTMClassifier",
+        "lstmReg": "regression.lstm_regressor.LSTMClassifier",
+        "rfClf": "classification.random_forest_classifier.RandomForestClassifier",
+        "rfReg": "regression.random_forest_regressor.RandomForestRegressor",
+        "xgbClf": "classification.xgboost_classifier.XGBoostClassifier",
+        "xgbReg": "regression.xgboost_regressor.XGBoostRegressor"
+    },
+    "datasets": {
+        "essayBR": "essay_br.DatasetEssayBR",
+        "efBR": "mec_ef.DatasetMecEf"
+    }
+}

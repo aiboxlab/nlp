@@ -40,7 +40,7 @@ def test_no_duplicated_features():
             # Alguns módulos não devem ser checados
             continue
 
-        # Importanto módulo
+        # Importando módulo
         module = importlib.import_module(f'aibox.nlp.features.{name}')
 
         # Coletando todas as classes presentes nesse módulo
