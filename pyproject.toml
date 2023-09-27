@@ -42,7 +42,7 @@ BR = [
     "gensim~=4.3.2",
     "nltk~=3.8.1",
 ]
-all = ["nlpbox[BR]", "nlpbox[trees]", "nlpbox[embeddings]"]
+all = ["aibox-nlp[BR]", "aibox-nlp[trees]", "aibox-nlp[embeddings]"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
