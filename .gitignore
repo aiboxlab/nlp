@@ -133,7 +133,9 @@ dmypy.json
 .tool-versions
 
 nlpbox/data/resources/*
+aibox-nlp/data/resources/*
 !nlpbox/data/resources/__init__.py
+!aibox-nlp/data/resources/__init__.py
 
 
 # Catboost info directory

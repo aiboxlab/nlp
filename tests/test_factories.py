@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from nlpbox.core import (Dataset, Estimator, FeatureExtractor, Metric,
-                         Vectorizer)
-from nlpbox.factory import class_registry
+from aibox.nlp.core import (Dataset, Estimator, FeatureExtractor, Metric,
+                            Vectorizer)
+from aibox.nlp.factory import class_registry
 
 _REGISTRIES = [class_registry._registry_datasets,
                class_registry._registry_estimators,
