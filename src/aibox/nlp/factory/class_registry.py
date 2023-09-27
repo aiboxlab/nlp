@@ -7,8 +7,14 @@ from __future__ import annotations
 import importlib
 import json
 
-from importlib_resources import files
-
+try:
+    from importlib.resources import files
+except ImportError:
+    # Python < 3.9 doesn't have the 
+    #   same files(...) method.
+    # Instead, we use the one provided
+    # by the importlib_resources library
+    from importlib_resources import files
 
 class _Registry:
     def __init__(self) -> None:
@@ -18,11 +24,15 @@ class _Registry:
 
         self._reg['global'] = dict()
         global_prefix = 'aibox.nlp.'
-        for key, prefix in zip(['features', 'vectorizers',
-                                'estimators', 'metrics',
+        for key, prefix in zip(['features_br',
+                                'vectorizers',
+                                'estimators',
+                                'metrics',
                                 'datasets'],
-                               ['features.{0}', 'vectorizers.{0}',
-                                'estimators.{0}', 'metrics.{0}',
+                               ['features.portuguese.{0}',
+                                'vectorizers.{0}',
+                                'estimators.{0}',
+                                'metrics.{0}',
                                 'data.datasets.{0}']):
             # k é o ID da classe
             # v é o caminho relativo

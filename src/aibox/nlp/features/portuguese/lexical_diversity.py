@@ -4,7 +4,6 @@ léxica.
 from __future__ import annotations
 
 import re
-import typing
 from collections import Counter
 from dataclasses import dataclass
 
@@ -15,8 +14,7 @@ from lexical_diversity import lex_div as ld
 from spacy.tokens import Doc, Span
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

@@ -9,9 +9,8 @@ from dataclasses import dataclass
 import spacy
 
 from aibox.nlp.core import FeatureExtractor
+from aibox.nlp.features.utils import DataclassFeatureSet
 from aibox.nlp.lazy_loading import lazy_import
-
-from .utils import DataclassFeatureSet
 
 cogroo4py = lazy_import('cogroo4py.cogroo')
 langtool = lazy_import('language_tool_python')

@@ -1,5 +1,5 @@
 {
-    "features": {
+    "features_br": {
         "agreementBR": "agreement.AgreementExtractor",
         "bertSimilarityBR": "bert_similarity.BERTSimilarityExtractor",
         "cohmetrixBR": "cohmetrix.CohMetrixExtractor",
@@ -25,6 +25,7 @@
         "wordMorphosyntacticInformationBR": "word_morphosyntactic_information.WordMorphosyntacticInformationExtractor",
         "wordSegmentationBR": "word_segmentation.WordSegmentationExtractor"
     },
+    "features_en": {},
     "vectorizers": {
         "tfidfVectorizer": "tfidf_vectorizer.TFIDFVectorizer",
         "bertVectorizer": "bert_vectorizer.BertVectorizer",

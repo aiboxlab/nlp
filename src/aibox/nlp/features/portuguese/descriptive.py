@@ -11,8 +11,7 @@ from pyphen import Pyphen
 from spacy import tokens
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

@@ -17,7 +17,7 @@ from aibox.nlp.factory import class_registry
 _REGISTRIES = [
     class_registry._registry.get_registry_for('datasets'),
     class_registry._registry.get_registry_for('estimators'),
-    class_registry._registry.get_registry_for('features'),
+    class_registry._registry.get_registry_for('features_br'),
     class_registry._registry.get_registry_for('metrics'),
     class_registry._registry.get_registry_for('vectorizers')
 ]

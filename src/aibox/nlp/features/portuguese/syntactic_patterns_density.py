@@ -10,8 +10,7 @@ import numpy as np
 import spacy
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

@@ -4,12 +4,10 @@ para as características do CohMetrix.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import NamedTuple
 
 from aibox.nlp.core.feature_extractor import FeatureExtractor
+from aibox.nlp.features.utils import DataclassFeatureSet
 from aibox.nlp.lazy_loading import lazy_import
-
-from .utils import DataclassFeatureSet
 
 cohmetrixBR = lazy_import('cohmetrixBR.features')
 

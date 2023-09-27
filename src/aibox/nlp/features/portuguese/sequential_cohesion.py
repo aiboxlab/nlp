@@ -10,8 +10,7 @@ from spacy.tokens.doc import Doc
 from TRUNAJOD.entity_grid import EntityGrid, get_local_coherence
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)
