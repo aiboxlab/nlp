@@ -192,30 +192,15 @@ class SimpleExperiment(Experiment):
                     run_duration,
                     best_pipeline.name)
 
-        # Construindo os dados de features que foram
-        #   cacheados.
-        features_data = dict(text=[])
-        memory_dict = self._feature_cache.as_dict()
-        for i, (k, v) in enumerate(memory_dict.items()):
-            v = v.as_dict()
-
-            if i == 0:
-                features_data['text'] = [k]
-                for k1, v1 in v.items():
-                    features_data[k1] = [v1]
-            else:
-                features_data['text'].append(k)
-                for k1, v1 in v.items():
-                    features_data[k1].append(v1)
-
-        # Construindo DataFrame
-        df_features = pd.DataFrame(features_data)
-        assert df_features.notna().all().all()
+        # Obtendo DataFrame das features
+        #   extraídas.
+        df_features = self._features_df()
 
         # Criando o objeto usado em "extras"
         extras = SimpleExperimentExtras(df_features=df_features,
                                         run_duration=run_duration)
 
+        # Retornando resultados
         return ExperimentResult(
             best_pipeline=best_pipeline,
             best_metrics=best_metrics,
@@ -274,3 +259,28 @@ class SimpleExperiment(Experiment):
         # Do contrário, retornamos a pipeline
         #   passada como argumento.
         return pipeline
+
+    def _features_df(self) -> pd.DataFrame | None:
+        # Inicializando variável
+        df = None
+
+        # Construindo os dados de features que foram
+        #   cacheados.
+        features_data = []
+        memory_dict = self._feature_cache.as_dict()
+        for k, v in memory_dict.items():
+            features_data.append({
+                'text': k,
+                **v.as_dict()
+            })
+
+        # Caso existam dados
+        if features_data:
+            # Construindo DataFrame
+            df = pd.DataFrame(features_data)
+
+            # Removendo colunas que não possuem valor
+            #   para todos os textos
+            df = df.dropna(axis=1)
+
+        return df
