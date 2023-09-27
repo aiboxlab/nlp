@@ -5,7 +5,7 @@ name: Tests with pytest
 on:
   pull_request:
     paths:
-      - 'nlpbox/**'
+      - 'aibox-nlp/**'
       - 'tests/**'
       - '.github/**'
 
