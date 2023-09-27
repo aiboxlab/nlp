@@ -32,7 +32,7 @@
 
 ## Quick Start
 
-A biblioteca `nlpbox` se baseia em 3 entidades básicas:
+A biblioteca se baseia em 3 entidades básicas:
 
 * **Dataset**
   * Um dataset representa um conjunto de pares de **textos** e **targets** (classes, ou valores), que devem ser utilizados para resolver um problema de classificação ou regressão.
@@ -52,7 +52,7 @@ A biblioteca `nlpbox` se baseia em 3 entidades básicas:
        * Estratégia aplicada após a predição pelo estimador. 
        * Pode ser utilizada para garantir os limites da saída, ou conversão de regressão para classificação.
 
-Um **Experimento** permite comparar múltiplas **Pipelines** com as **Métricas** escolhidas em um dado **Dataset**. Para construir um experimento, é possível utilizar as classes presentes em `nlpbox.experiments` ou utilizar os padrões factory/builder presentes em `nlpbox.factory`. Um exemplo básico pode ser encontrado abaixo:
+Um **Experimento** permite comparar múltiplas **Pipelines** com as **Métricas** escolhidas em um dado **Dataset**. Para construir um experimento, é possível utilizar as classes presentes em `aibox.nlp.experiments` ou utilizar os padrões factory/builder presentes em `aibox.nlp.factory`. Um exemplo básico pode ser encontrado abaixo:
 
 ```python
 from aibox.nlp.factory.experiment import SimpleExperimentBuilder
