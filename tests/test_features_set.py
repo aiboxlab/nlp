@@ -7,12 +7,12 @@ import inspect
 import pkgutil
 from dataclasses import fields
 
-import nlpbox.features
-from nlpbox.core import FeatureSet
-from nlpbox.features.utils import DataclassFeatureSet
+import aibox.nlp.features
+from aibox.nlp.core import FeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 _UTILITY_FEATURE_SETS = {DataclassFeatureSet}
-_SKIP_MODULES = {'utils'}
+_SKIP_MODULES = {'utils'}  
 
 
 def test_no_duplicated_features():
@@ -31,7 +31,8 @@ def test_no_duplicated_features():
     #   non_feature.py
     # feature4.py
     # ....
-    modules_info = [m for m in pkgutil.walk_packages(nlpbox.features.__path__)]
+    modules_info = [m for m in pkgutil.walk_packages(
+        aibox.nlp.features.__path__)]
 
     for module_info in modules_info:
         name = module_info.name
@@ -40,9 +41,9 @@ def test_no_duplicated_features():
             continue
 
         # Importanto módulo
-        module = importlib.import_module(f'nlpbox.features.{name}')
+        module = importlib.import_module(f'aibox.nlp.features.{name}')
 
-        # Colentado todas as classes presentes nesse módulo
+        # Coletando todas as classes presentes nesse módulo
         classes = [m for _, m in inspect.getmembers(module,
                                                     predicate=inspect.isclass)]
 

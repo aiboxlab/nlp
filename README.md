@@ -2,7 +2,7 @@
   <br>
   <a href="https://aiboxlab.org/en/"><img src="https://aiboxlab.org/img/logo-aibox.png" alt="AiBox Lab" width="200"></a>
   <br>
-  nlpbox
+  aibox-nlp
   <br>
 </h1>
 
@@ -55,7 +55,7 @@ A biblioteca `nlpbox` se baseia em 3 entidades básicas:
 Um **Experimento** permite comparar múltiplas **Pipelines** com as **Métricas** escolhidas em um dado **Dataset**. Para construir um experimento, é possível utilizar as classes presentes em `nlpbox.experiments` ou utilizar os padrões factory/builder presentes em `nlpbox.factory`. Um exemplo básico pode ser encontrado abaixo:
 
 ```python
-from nlpbox.factory.experiment import SimpleExperimentBuilder
+from aibox.nlp.factory.experiment import SimpleExperimentBuilder
 
 # === Construindo um experimento para classificação no Essay-BR ===
 # Por simplicidade, vamos instanciar um experimento
@@ -143,25 +143,31 @@ Primeiro, realiza a instalação da biblioteca via `pip` ou através do `git clo
 # ...
 
 # Instalar através do pip
-$ pip install aibox-nlpbox
+$ pip install aibox-nlp
 
-# Adicionalmente, instalar dependências opcionais
-$ pip install aibox-nlpbox[BR]
-$ pip install aibox-nlpbox[trees]
-$ pip install aibox-nlpbox[embeddings]
+# Adicionalmente, instalar dependências opcionais:
+
+# BR contém características para PT-BR
+$ pip install aibox-nlp[BR]
+
+# trees contém estimadores baseados em árvore
+$ pip install aibox-nlp[trees]
+
+# embeddings contém vetorizadores baseados em modelos
+$ pip install aibox-nlp[embeddings]
 
 # Ou, instalar todas:
-$ pip install aibox-nlpbox[all]
+$ pip install aibox-nlp[all]
 ```
 
 ### 2. Instalando localmente
 
 ```bash
 # Clonar repositório
-$ git clone https://github.com/aiboxlab/nlpbox
+$ git clone https://github.com/aiboxlab/nlp
 
 # Acessar diretório
-$ cd nlpbox
+$ cd nlp
 
 # Configurar ambiente virtual
 # ...

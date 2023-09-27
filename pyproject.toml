@@ -3,14 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nlpbox"
+name = "aibox-nlp"
 version = "0.0.0"
-description = "NLP Library Focused on Classic ML Algorithms"
+description = "AiBox Natural Language Processing Toolkit."
 readme = "README.md"
-classifiers = [
-    "Python :: 3.10",
-    "Python :: 3.11",
-]
+classifiers = ["Python :: 3.10", "Python :: 3.11"]
 dependencies = [
     "scikit-learn~=1.2.2",
     "torch~=2.0.1",
@@ -21,16 +18,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-trees = [
-    "lightgbm~=4.0.0",
-    "catboost~=1.2",
-    "xgboost~=1.7.6"
-]
-
-embeddings = [
-    "fasttext-wheel~=0.9.2"
-]
-
+trees = ["lightgbm~=4.0.0", "catboost~=1.2", "xgboost~=1.7.6"]
+embeddings = ["fasttext-wheel~=0.9.2"]
 BR = [
     "pyspellchecker~=0.7.2",
     "spacy~=3.2.6",
@@ -51,11 +40,11 @@ BR = [
     "scipy~=1.10.1",
     "kenlm~=0.1",
     "gensim~=4.3.2",
-    "nltk~=3.8.1"
+    "nltk~=3.8.1",
 ]
+all = ["nlpbox[BR]", "nlpbox[trees]", "nlpbox[embeddings]"]
 
-all = [
-    "nlpbox[BR]",
-    "nlpbox[trees]",
-    "nlpbox[embeddings]"
-]
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["aibox*"]
+namespaces = true
