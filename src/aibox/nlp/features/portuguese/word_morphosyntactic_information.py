@@ -11,9 +11,8 @@ import spacy
 from spacy.tokens import Doc
 
 from aibox.nlp.core import FeatureExtractor
+from aibox.nlp.features.utils import DataclassFeatureSet
 from aibox.nlp.features.utils.clauses_parser import extract_clauses_by_verbs
-
-from .utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

@@ -8,11 +8,9 @@ from dataclasses import dataclass
 
 import spacy
 
-from aibox.nlp import resources
 from aibox.nlp.core import FeatureExtractor
+from aibox.nlp.features.utils import DataclassFeatureSet
 from aibox.nlp.lazy_loading import lazy_import
-
-from .utils import DataclassFeatureSet
 
 langtool = lazy_import('language_tool_python')
 

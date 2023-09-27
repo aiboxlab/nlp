@@ -5,103 +5,77 @@ sejam armazenados como uma string.
 from __future__ import annotations
 
 import importlib
+import json
 
-_registry_features = {
-    'agreementBR': 'agreement.AgreementExtractor',
-    'bertSimilarityBR': 'bert_similarity.BERTSimilarityExtractor',
-    'cohmetrixBR': 'cohmetrix.CohMetrixExtractor',
-    'conjugationBR': 'conjugation.ConjugationExtractor',
-    'connectivesV1BR': 'connectives_v1.ConnectivesExtractorV1',
-    'connectivesV2BR': 'connectives_v2.ConnectivesExtractorV2',
-    'descriptiveBR': 'descriptive.DescriptiveExtractor',
-    'fuzzySimilarity': ('fuzzy_search_similarity.'
-                        'FuzzySearchSimilarityExtractor'),
-    'lexicalDiversityBR': 'lexical_diversity.LexicalDiversityExtractor',
-    'liwcBR': 'liwc.LiwcExtractor',
-    'nilcSimilarityBR': 'nilc_similarity.NILCSimilarityExtractor',
-    'orthographyBR': 'orthography.OrthographyExtractor',
-    'overlapBR': 'overlap.OverlapExtractor',
-    'readabilityBR': 'readability.ReadabilityExtractor',
-    'referentialCohesionBR': ('referential_cohesion.'
-                              'ReferentialCohesionExtractor'),
-    'regencyBR': 'regency.RegencyExtractor',
-    'semanticCohesionTransformersBR': ('semantic_cohesion_transformers.'
-                                       'SemanticExtractorTransformers'),
-    'semanticCohesionBR': 'semantic_cohesion.SemanticExtractor',
-    'sequentialCohesionBR': ('sequential_cohesion.Sequential'
-                             'CohesionExtractor'),
-    'syntacticComplexityBR': ('syntactic_complexity.'
-                              'SyntacticComplexityExtractor'),
-    'textualSimplicityBR': 'textual_simplicity.TextualSimplicityExtractor',
-    'tfidfSimilarity': 'tfidf_similarity.TFIDFSimilarityExtractor',
-    'wordMorphosyntacticInformationBR': ('word_morphosyntactic_information.'
-                                         'WordMorphosyntacticInformation'
-                                         'Extractor'),
-    'wordSegmentationBR': 'word_segmentation.WordSegmentationExtractor',
-}
+try:
+    from importlib.resources import files
+except ImportError:
+    # Python < 3.9 doesn't have the 
+    #   same files(...) method.
+    # Instead, we use the one provided
+    # by the importlib_resources library
+    from importlib_resources import files
 
-_registry_vectorizers = {
-    'tfidfVectorizer': 'tfidf_vectorizer.TFIDFVectorizer',
-    'bertVectorizer': 'bert_vectorizer.BertVectorizer',
-    'fasttextWordVectorizer': ('fasttext_word_vectorizer'
-                               '.FasttextWordVectorizer'),
-}
+class _Registry:
+    def __init__(self) -> None:
+        p = files('aibox.nlp.factory').joinpath("registry.json")
+        with p.open('r', encoding='utf-8') as f:
+            self._reg = json.load(f)
 
-_registry_metrics = {
-    'R2': 'errors.R2',
-    'MAE': 'errors.MAE',
-    'MSE': 'errors.MSE',
-    'RMSE': 'errors.RMSE',
-    'kappa': 'kappa.CohensKappaScore',
-    'neighborKappa': 'kappa.NeighborCohensKappaScore',
-    'precision': 'precision.Precision',
-    'recall': 'recall.Recall',
-    'f1': 'f1_score.F1Score'
-}
+        self._reg['global'] = dict()
+        global_prefix = 'aibox.nlp.'
+        for key, prefix in zip(['features_br',
+                                'vectorizers',
+                                'estimators',
+                                'metrics',
+                                'datasets'],
+                               ['features.portuguese.{0}',
+                                'vectorizers.{0}',
+                                'estimators.{0}',
+                                'metrics.{0}',
+                                'data.datasets.{0}']):
+            # k é o ID da classe
+            # v é o caminho relativo
+            for k, v in self._reg[key].items():
+                # full_v contém o caminho completo desde
+                #   a raiz do pacote até a classe.
+                full_v = global_prefix + prefix.format(v)
 
-_registry_estimators = {
-    'svm': 'classification.svm.SVM',
-    'catboostClf': 'classification.catboost_classifier.CatBoostClassifier',
-    'catboosetReg': 'regression.catboost_regressor.CatBoostRegressor',
-    'etreesClf': 'classification.extra_trees_classifier.ExtraTreesClassifier',
-    'etreesReg': 'regression.extra_trees_regressor.ExtraTreesRegressor',
-    'lgbmClf': 'classification.lgbm_classifier.LGBMClassifier',
-    'lgbmReg': 'regression.lgbm_regressor.LGBMRegressor',
-    'lstmClf': 'classification.lstm_classifier.LSTMClassifier',
-    'lstmReg': 'regression.lstm_regressor.LSTMClassifier',
-    'rfClf': 'classification.random_forest_classifier.RandomForestClassifier',
-    'rfReg': 'regression.random_forest_regressor.RandomForestRegressor',
-    'xgbClf': 'classification.xgboost_classifier.XGBoostClassifier',
-    'xgbReg': 'regression.xgboost_regressor.XGBoostRegressor',
+                # Garantindo que essa chave é única
+                assert k not in self._reg['global']
 
-}
+                # Adicionamos esse novo caminho na chave global
+                #   do registro.
+                self._reg['global'][k] = full_v
 
-_registry_datasets = {
-    'essayBR': 'essay_br.DatasetEssayBR',
-    'efBR': 'mec_ef.DatasetMecEf'
-}
+    def get_registry_for(self, kind: str) -> dict[str, str]:
+        """Retorna as entradas do registro para
+        um dado tipo.
 
-_registry: dict[str, str] = dict()
-_registry.update({
-    k: f'features.{v}'
-    for k, v in _registry_features.items()
-})
-_registry.update({
-    k: f'estimators.{v}'
-    for k, v in _registry_estimators.items()
-})
-_registry.update({
-    k: f'data.datasets.{v}'
-    for k, v in _registry_datasets.items()
-})
-_registry.update({
-    k: f'metrics.{v}'
-    for k, v in _registry_metrics.items()
-})
-_registry.update({
-    k: f'vectorizers.{v}'
-    for k, v in _registry_vectorizers.items()
-})
+        Args:
+            kind (str): tipo das entradas.
+
+        Returns:
+            dict[str, str]: registro para esse tipo.
+        """
+        return self._reg[kind]
+
+    def get_path(self, identifier: str) -> str:
+        """Dado um identificador para uma classe,
+        retorna o caminho até essa classe seguindo
+        o padrão de import de Python (e.g., 
+        package_a.package_b.module_c.ClassD)
+
+        Args:
+            identifier (str): identificador.
+
+        Returns:
+            caminho até a classe.
+        """
+        return self._reg['global'][identifier]
+
+
+_registry = _Registry()
 
 
 def get_class(key: str) -> type:
@@ -115,9 +89,9 @@ def get_class(key: str) -> type:
         Classe.
     """
     # Obtendo nome do pacote e classe
-    class_path = _registry[key]
+    class_path = _registry.get_path(key)
     splits = class_path.rsplit('.', 1)
-    module_name = f'aibox.nlp.{splits[0]}'
+    module_name = splits[0]
     class_name = splits[1]
 
     # Carregando módulo

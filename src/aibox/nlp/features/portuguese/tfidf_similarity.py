@@ -7,12 +7,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import polyfuzz
-import spacy
 from polyfuzz.models import TFIDF, RapidFuzz
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

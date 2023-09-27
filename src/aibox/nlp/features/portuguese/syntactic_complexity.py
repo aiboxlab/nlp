@@ -10,9 +10,8 @@ import spacy
 from spacy.tokens.doc import Doc
 
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
-from .utils.clauses_parser import extract_clauses_by_verbs
+from aibox.nlp.features.utils import DataclassFeatureSet
+from aibox.nlp.features.utils.clauses_parser import extract_clauses_by_verbs
 
 
 @dataclass(frozen=True)

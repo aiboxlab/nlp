@@ -3,7 +3,6 @@ de simplicidade textual.
 """
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass
 
@@ -12,8 +11,7 @@ from spacy.tokens.doc import Doc
 
 from aibox.nlp import resources
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

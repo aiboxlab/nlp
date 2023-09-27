@@ -11,8 +11,8 @@ from unidecode import unidecode
 
 from aibox.nlp import resources
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet, patterns, sentencizers
+from aibox.nlp.features.utils import (DataclassFeatureSet, patterns,
+                                      sentencizers)
 
 
 @dataclass(frozen=True)

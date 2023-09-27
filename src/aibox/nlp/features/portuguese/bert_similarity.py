@@ -6,14 +6,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import spacy
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
-from aibox.nlp import resources
 from aibox.nlp.core import FeatureExtractor
-
-from .utils import DataclassFeatureSet
+from aibox.nlp.features.utils import DataclassFeatureSet
 
 
 @dataclass(frozen=True)

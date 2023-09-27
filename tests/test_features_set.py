@@ -7,7 +7,7 @@ import inspect
 import pkgutil
 from dataclasses import fields
 
-import aibox.nlp.features
+import aibox.nlp.features.portuguese
 from aibox.nlp.core import FeatureSet
 from aibox.nlp.features.utils import DataclassFeatureSet
 
@@ -22,7 +22,7 @@ def test_no_duplicated_features():
     """
     global_ids = []
 
-    # Supõem que a estrutura do pacote `nlpbox.features` é:
+    # Supõem que a estrutura do pacote `nlpbox.features.portuguese` é:
     # __init__.py
     # feature1.py
     # feature2.py
@@ -32,7 +32,7 @@ def test_no_duplicated_features():
     # feature4.py
     # ....
     modules_info = [m for m in pkgutil.walk_packages(
-        aibox.nlp.features.__path__)]
+        aibox.nlp.features.portuguese.__path__)]
 
     for module_info in modules_info:
         name = module_info.name
@@ -40,8 +40,8 @@ def test_no_duplicated_features():
             # Alguns módulos não devem ser checados
             continue
 
-        # Importanto módulo
-        module = importlib.import_module(f'aibox.nlp.features.{name}')
+        # Importando módulo
+        module = importlib.import_module(f'aibox.nlp.features.portuguese.{name}')
 
         # Coletando todas as classes presentes nesse módulo
         classes = [m for _, m in inspect.getmembers(module,

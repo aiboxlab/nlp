@@ -14,17 +14,21 @@ from aibox.nlp.core import (Dataset, Estimator, FeatureExtractor, Metric,
                             Vectorizer)
 from aibox.nlp.factory import class_registry
 
-_REGISTRIES = [class_registry._registry_datasets,
-               class_registry._registry_estimators,
-               class_registry._registry_features,
-               class_registry._registry_metrics,
-               class_registry._registry_vectorizers]
+_REGISTRIES = [
+    class_registry._registry.get_registry_for('datasets'),
+    class_registry._registry.get_registry_for('estimators'),
+    class_registry._registry.get_registry_for('features_br'),
+    class_registry._registry.get_registry_for('metrics'),
+    class_registry._registry.get_registry_for('vectorizers')
+]
 
-_TARGET_CLS = [Dataset,
-               Estimator,
-               FeatureExtractor,
-               Metric,
-               Vectorizer]
+_TARGET_CLS = [
+    Dataset,
+    Estimator,
+    FeatureExtractor,
+    Metric,
+    Vectorizer
+]
 
 
 @pytest.mark.parametrize("registry,parent_class",
@@ -68,9 +72,10 @@ def test_no_duplicated_keys():
     de registro de classes.
     """
     # Coletando o total de chaves presente
-    #   no registro final
-    complete_registry = class_registry._registry
-    total_keys = len(complete_registry)
+    #   no registro global
+    global_reg = class_registry._registry
+    global_reg = global_reg.get_registry_for('global')
+    total_keys = len(global_reg)
 
     # Coletando o total de chaves presentes
     #   nos registros de classes individuais
