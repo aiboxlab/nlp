@@ -11,7 +11,8 @@ import numpy as np
 import pandas as pd
 
 from aibox.nlp.core import (Dataset, Experiment, ExperimentConfiguration,
-                         ExperimentResult, FeatureExtractor, Metric, Pipeline)
+                            ExperimentResult, FeatureExtractor, Metric,
+                            Pipeline)
 from aibox.nlp.experiments.cache.mixed_feature_cache import MixedFeatureCache
 from aibox.nlp.features.utils.aggregator import AggregatedFeatureExtractor
 from aibox.nlp.features.utils.cache import CachedExtractor
@@ -87,8 +88,7 @@ class SimpleExperiment(Experiment):
         # Instanciando e fazendo sort das pipelines
         self._pipelines = pipelines
         self._pipelines = sorted(self._pipelines,
-                                 key=_pipeline_priority,
-                                 reverse=True)
+                                 key=_pipeline_priority)
 
         # Variáveis auxiliares
         self._seed = seed
@@ -115,7 +115,7 @@ class SimpleExperiment(Experiment):
         best_metrics = None
         best_test_predictions = None
         metrics_history = dict()
-        pipeline_history = None
+        pipeline_history = dict()
         rng = np.random.default_rng(self._seed)
 
         logger.info('Obtaining train and test split...')
@@ -142,62 +142,49 @@ class SimpleExperiment(Experiment):
         logger.info('Run started.')
         run_start = time.perf_counter()
         i = 0
+        n_pipelines = len(self._pipelines)
 
-        for pipeline in self._pipelines:
+        while self._pipelines:
             i += 1
+
+            # Obtendo pipeline
+            pipeline = self._pipelines.pop()
+            name = pipeline.name
             logger.info('Started pipeline "%s" (%d/%d)',
-                        pipeline.name, i, len(self._pipelines))
+                        name, i, n_pipelines)
 
-            # Caso seja um extrator de características,
-            #   atualizamos para utilizar uma versão cacheada.
-            if isinstance(pipeline.vectorizer, FeatureExtractor):
-                # Coletando informações sobre quais features são
-                #   extraídas pelo vetorizador
-                sample_features = pipeline.vectorizer.extract(
-                    'Texto de exemplo.')
-
-                # Atualizar a memória para retornar
-                #   apenas essas características.
-                self._feature_cache.target_features = set(
-                    sample_features.as_dict().keys())
-
-                # Instanciando um novo extrator com cache.
-                cached_extractor = CachedExtractor(pipeline.vectorizer,
-                                                   self._feature_cache)
-
-                # Atualizando a variável local para apontar para uma
-                #   nova pipeline que **compartilha** o mesmo estimador,
-                #   vetorizador e pós-processamento que a original.
-                pipeline = Pipeline(vectorizer=cached_extractor,
-                                    estimator=pipeline.estimator,
-                                    postprocessing=pipeline.postprocessing,
-                                    name=pipeline.name)
+            # Obtendo pipeline a ser treinada
+            maybe_cached_pipeline = self._maybe_cached_pipeline(pipeline)
 
             # Treinamento da pipeline
-            pipeline.fit(X_train, y_train)
+            maybe_cached_pipeline.fit(X_train, y_train)
 
             # Predições
-            preds = pipeline.predict(X_test)
+            predictions = maybe_cached_pipeline.predict(X_test)
 
             # Cálculo das métricas
-            r = {m.name(): m.compute(y_true=y_test,
-                                     y_pred=preds)
-                 for m in self._metrics}
+            metrics_result = {
+                m.name(): m.compute(y_true=y_test,
+                                    y_pred=predictions)
+                for m in self._metrics
+            }
 
             # Calculando melhor pipeline
-            c = self._best_criteria.name()
-            if best_pipeline is None or r[c] > best_metrics[c]:
+            criteria = self._best_criteria.name()
+            if best_pipeline is None or \
+                    metrics_result[criteria] > best_metrics[criteria]:
                 _update_best(pipeline,
-                             r,
-                             preds)
+                             metrics_result,
+                             predictions)
 
-            # Armazenando no histórico
-            metrics_history[pipeline.name] = r
+            # Armazenando resultados das métricas
+            #   no histórico.
+            metrics_history[name] = metrics_result
 
+            # Caso a pipeline deva ser guardada no
+            #   histórico, salvamos ela.
             if self._keep_all_pipelines:
-                if pipeline_history is None:
-                    pipeline_history = dict()
-                pipeline_history[pipeline.name] = pipeline
+                pipeline_history[name] = pipeline
 
         run_duration = time.perf_counter() - run_start
         logger.info('Run finished in %.2f seconds.\n'
@@ -258,3 +245,32 @@ class SimpleExperiment(Experiment):
         # Não podem existir métricas duplicadas
         metrics_names = list(m.name() for m in self._metrics)
         assert len(metrics_names) == len(set(metrics_names))
+
+    def _maybe_cached_pipeline(self, pipeline: Pipeline) -> Pipeline:
+        # Caso seja um extrator de características,
+        #   atualizamos para utilizar uma versão cacheada.
+        if isinstance(pipeline.vectorizer, FeatureExtractor):
+            # Coletando informações sobre quais features são
+            #   extraídas pelo vetorizador
+            sample_features = pipeline.vectorizer.extract(
+                'Texto de exemplo.')
+
+            # Atualizar a memória para retornar
+            #   apenas essas características.
+            self._feature_cache.target_features = set(
+                sample_features.as_dict().keys())
+
+            # Instanciando um novo extrator com cache.
+            cached_extractor = CachedExtractor(pipeline.vectorizer,
+                                               self._feature_cache)
+
+            # Nova pipeline que compartilha o mesmo estimador,
+            #   vetorizador e pós-processamento que a original.
+            return Pipeline(vectorizer=cached_extractor,
+                            estimator=pipeline.estimator,
+                            postprocessing=pipeline.postprocessing,
+                            name=pipeline.name)
+
+        # Do contrário, retornamos a pipeline
+        #   passada como argumento.
+        return pipeline

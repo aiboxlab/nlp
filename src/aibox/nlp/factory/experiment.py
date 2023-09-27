@@ -240,20 +240,32 @@ class SimpleExperimentBuilder:
 
     def build(self, **kwargs) -> Experiment:
         """Constrói o experimento com as informações
-        coletadas.
+        coletadas e limpa as informações coletadas.
 
         Returns:
             Experiment: experimento.
         """
+        # Construção do experimento
+        experiment = SimpleExperiment(pipelines=self._pipelines,
+                                      dataset=self._ds,
+                                      criteria_best=self._criteria,
+                                      metrics=self._metrics,
+                                      seed=self._seed,
+                                      keep_all_pipelines=False,
+                                      problem=self._problem,
+                                      **kwargs)
 
-        return SimpleExperiment(pipelines=self._pipelines,
-                                dataset=self._ds,
-                                criteria_best=self._criteria,
-                                metrics=self._metrics,
-                                seed=self._seed,
-                                keep_all_pipelines=False,
-                                problem=self._problem,
-                                **kwargs)
+        # Reset do estado do builder
+        self._ds: Dataset = None
+        self._criteria: Metric = None
+        self._pipelines: list[Pipeline] = []
+        self._metrics: list[Metric] = []
+        self._seed = None
+        self._rng = None
+        self._problem = None
+
+        # Retornando o experimento
+        return experiment
 
     def _maybe_convert_to_list(self, obj) -> list:
         if not isinstance(obj, list):
