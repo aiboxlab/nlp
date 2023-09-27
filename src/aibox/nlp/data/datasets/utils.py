@@ -12,7 +12,7 @@ def train_test_clf(df: pd.DataFrame,
                    seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Retorna uma tupla com os DataFrames de treino
     e teste para o dataset de classificação recebido. Ambos splits
-    são estratitifcados com relação a distribuição das classes.
+    são estratificados com relação a distribuição das classes.
 
     Args:
         df (pd.DataFrame): dataset.
@@ -202,11 +202,10 @@ def splits(df: pd.DataFrame,
 
     # Auxiliares
     col_text = 'text'
-    col_classes = 'target'
     df_ = df
 
     # Criação dos folds (exceto último)
-    for i in range(k - 1):
+    for _ in range(k - 1):
         # Selecionamos uma seed randômica para obter o sample
         rand = rng.integers(0,
                             int(1e6),

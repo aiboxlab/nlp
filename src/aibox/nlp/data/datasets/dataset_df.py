@@ -69,13 +69,10 @@ class DatasetDF(Dataset):
     def cv_splits(self, k: int,
                   stratified: bool,
                   seed: int) -> list[pd.DataFrame]:
-        if stratified:
-            if self._is_classification():
-                return utils.stratified_splits_clf(df=self._df,
-                                                   k=k,
-                                                   seed=seed)
-            raise NotImplementedError('Classe não possui suporte para '
-                                      'splits estratificados de regressão.')
+        if stratified and self._is_classification():
+            return utils.stratified_splits_clf(df=self._df,
+                                               k=k,
+                                               seed=seed)
 
         return utils.splits(df=self._df,
                             k=k,
@@ -85,14 +82,10 @@ class DatasetDF(Dataset):
                          frac_train: float,
                          stratified: bool,
                          seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-        if stratified:
-            if self._is_classification():
-                return utils.train_test_clf(df=self._df,
-                                            frac_train=frac_train,
-                                            seed=seed)
-
-            raise NotImplementedError('Classe não possui suporte para '
-                                      'splits estratificados de regressão.')
+        if stratified and self._is_classification():
+            return utils.train_test_clf(df=self._df,
+                                        frac_train=frac_train,
+                                        seed=seed)
 
         return utils.train_test(df=self._df,
                                 frac_train=frac_train,
