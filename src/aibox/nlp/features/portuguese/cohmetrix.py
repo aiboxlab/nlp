@@ -5,12 +5,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from cohmetrixBR import features
+
 from aibox.nlp.core.feature_extractor import FeatureExtractor
 from aibox.nlp.features.utils import DataclassFeatureSet
-from aibox.nlp.lazy_loading import lazy_import
-
-cohmetrixBR = lazy_import('cohmetrixBR.features')
-
 
 @dataclass(frozen=True)
 class CohMetrixFeatures(DataclassFeatureSet):
@@ -114,4 +112,4 @@ class CohMetrixExtractor(FeatureExtractor):
         del kwargs
 
         return CohMetrixFeatures(**{f.__name__.lower(): float(f(text))
-                                    for f in cohmetrixBR.FEATURES})
+                                    for f in features.FEATURES})
