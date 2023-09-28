@@ -1,5 +1,4 @@
 # Esse Workflow é responsável pela execução dos testes unitários da biblioteca.
-
 name: Tests with pytest
 
 on:
@@ -13,7 +12,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python: ["3.10"]
+        python: ["3.8", "3.9", "3.10"]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to source branch
@@ -24,18 +23,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }} 
 
-      - name: Authenticate to Google Cloud
-        id: 'auth'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-
       - name: Install dependencies and prepare environment
         run: |
           python -m pip install --upgrade pip
-          python -m pip install keyring keyrings.google-artifactregistry-auth
           python -m pip install pytest
-          python -m pip install -e .[all] --extra-index-url ${{ secrets.ARTIFACT_REGISTRY_URL }}/simple/
+          python -m pip install -e .[all]
 
   
       - name: Run tests with pytest
