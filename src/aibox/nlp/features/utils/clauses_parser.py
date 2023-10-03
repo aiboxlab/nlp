@@ -1,5 +1,5 @@
 """Módulo utilitário com funcionalidades
-para extração de cláusalas.
+para extração de cláusulas.
 """
 
 

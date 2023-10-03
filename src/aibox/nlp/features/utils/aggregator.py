@@ -3,7 +3,6 @@ de múltiplas features/extratores.
 """
 from __future__ import annotations
 
-from multiprocessing import Pool
 from typing import Iterable
 
 from aibox.nlp.core import FeatureExtractor, FeatureSet

@@ -10,12 +10,14 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from aibox.nlp.cache.features import CachedExtractor
+from aibox.nlp.cache.mixed_feature_cache import MixedFeatureCache
+from aibox.nlp.cache.vectorizers import (CachedVectorizer, DictVectorizerCache,
+                                         TrainableCachedVectorizer)
 from aibox.nlp.core import (Dataset, Experiment, ExperimentConfiguration,
                             ExperimentResult, FeatureExtractor, Metric,
-                            Pipeline)
-from aibox.nlp.experiments.cache.mixed_feature_cache import MixedFeatureCache
+                            Pipeline, TrainableVectorizer, Vectorizer)
 from aibox.nlp.features.utils.aggregator import AggregatedFeatureExtractor
-from aibox.nlp.features.utils.cache import CachedExtractor
 from aibox.nlp.lazy_loading import lazy_import
 
 pandas_types = lazy_import('pandas.api.types')
@@ -36,14 +38,20 @@ class SimpleExperiment(Experiment):
                  metrics: list[Metric],
                  criteria_best: Metric,
                  seed: int = 8990,
+                 frac_train: float = 0.8,
                  keep_all_pipelines: bool = False,
+                 cache_limit: int | None = 0,
                  problem: str | None = None,
                  features_df: pd.DataFrame | None = None,
                  stratified_ds: bool = True):
         """Classe para experimentos simples, onde
         as pipelines testadas são escolhidas pelo
-        usuário e hold-out evaluation (80/20) é
-        utilizado.
+        usuário e uma avaliação hold-out é
+        utilizada.
+
+        Essa classe implementa um sistema de 
+        cacheamento de vetorização, permitindo o
+        aproveitamento das saídas de um vetorizador.
 
         Args:
             pipelines (list[Pipeline]): pipelines que devem
@@ -56,6 +64,11 @@ class SimpleExperiment(Experiment):
             seed (int): seed randômica utilizada (default=8990).
             keep_all_pipelines (bool): se todas pipelines
                 devem ser guardadas (default=False).
+            cache_limit (int): permite realizar o cacheamento
+                da vetorização entre as diferentes pipelines. Se
+                <= 0, todos os textos são cacheados. Se >0, apenas
+                `cache_limit` textos serão cacheados. Se for None,
+                nenhum cacheamento é aplicado. (default=0)
             problem (str): 'classification', 'regression' ou
                 None. Caso None, inferir do dataset (default=None).
             features_df (pd.DataFrame): DataFrame com características
@@ -71,12 +84,6 @@ class SimpleExperiment(Experiment):
             problem = 'classification' if pandas_types.is_integer_dtype(
                 dtype) else 'regression'
 
-        initial_cache = dict()
-        if features_df is not None:
-            keys = features_df.text.to_list()
-            values = features_df.drop(columns='text').to_dict(orient='records')
-            initial_cache = dict(zip(keys, values))
-
         def _pipeline_priority(p: Pipeline) -> int:
             vectorizer = p.vectorizer
 
@@ -84,6 +91,9 @@ class SimpleExperiment(Experiment):
                 return len(vectorizer.extractors)
 
             return 1
+
+        # Obtendo as caches iniciais
+        initial_features = self._df_to_dict(features_df)
 
         # Instanciando e fazendo sort das pipelines
         self._pipelines = pipelines
@@ -97,8 +107,12 @@ class SimpleExperiment(Experiment):
         self._metrics = metrics
         self._best_criteria = criteria_best
         self._problem = problem
+        self._cache_limit = cache_limit
+        self._frac_train = frac_train
         self._feature_cache = MixedFeatureCache(target_features=None,
-                                                initial_cache=initial_cache)
+                                                initial_cache=initial_features,
+                                                max_limit=self._cache_limit)
+        self._generic_cache = dict()
         self._stratified = stratified_ds
         self._validate()
 
@@ -121,7 +135,7 @@ class SimpleExperiment(Experiment):
         logger.info('Obtaining train and test split...')
         seed_splits = rng.integers(low=0, high=9999, endpoint=True)
         train, test = self._dataset.train_test_split(
-            frac_train=0.8,
+            frac_train=self._frac_train,
             seed=seed_splits,
             stratified=self._stratified)
         X_train, y_train = train.text.to_numpy(), train.target.to_numpy()
@@ -217,7 +231,10 @@ class SimpleExperiment(Experiment):
             metrics=self._metrics,
             best_criteria=self._best_criteria,
             extras=dict(problem=self._problem,
-                        keep_all_pipelines=self._keep_all_pipelines))
+                        keep_all_pipelines=self._keep_all_pipelines,
+                        fraction_train=self._frac_train,
+                        stratified_ds=self._stratified,
+                        cache_limit=self._cache_limit))
 
     def _validate(self):
         """Realiza uma validação nos
@@ -257,8 +274,22 @@ class SimpleExperiment(Experiment):
                             name=pipeline.name)
 
         # Do contrário, retornamos a pipeline
-        #   passada como argumento.
-        return pipeline
+        #   com um cache genérico.
+        target_cls = CachedVectorizer
+        if isinstance(pipeline.vectorizer, TrainableVectorizer):
+            target_cls = TrainableCachedVectorizer
+
+        vec_id = self._vectorizer_id(pipeline.vectorizer)
+        if vec_id not in self._generic_cache:
+            self._generic_cache[vec_id] = DictVectorizerCache()
+
+        cached_vectorizer = target_cls(vectorizer=pipeline.vectorizer,
+                                       memory=self._generic_cache[vec_id])
+
+        return Pipeline(vectorizer=cached_vectorizer,
+                        estimator=pipeline.estimator,
+                        postprocessing=pipeline.postprocessing,
+                        name=pipeline.name)
 
     def _features_df(self) -> pd.DataFrame | None:
         # Inicializando variável
@@ -284,3 +315,15 @@ class SimpleExperiment(Experiment):
             df = df.dropna(axis=1)
 
         return df
+
+    def _vectorizer_id(self, v: Vectorizer) -> str:
+        cls_name = v.__class__.__name__
+        return f'{cls_name}: {id(v)}'
+
+    def _df_to_dict(self, df: pd.DataFrame | None) -> dict:
+        if df is not None:
+            keys = df.text.to_list()
+            values = df.drop(columns='text').to_dict(orient='records')
+            return dict(zip(keys, values))
+
+        return dict()

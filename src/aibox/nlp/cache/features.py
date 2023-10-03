@@ -54,7 +54,7 @@ class FeatureCache(ABC):
         """
 
 
-class DictCache(FeatureCache):
+class DictFeatureCache(FeatureCache):
     def __init__(self,
                  max_limit: int = -1):
         """Construtor. Pode ter um tamanho
@@ -71,7 +71,7 @@ class DictCache(FeatureCache):
         self._cache: dict[str, FeatureSet] = dict()
 
     def get(self, text: str) -> FeatureSet | None:
-        return self._cache.get(text, default=None)
+        return self._cache.get(text, None)
 
     def save(self,
              text: str,
