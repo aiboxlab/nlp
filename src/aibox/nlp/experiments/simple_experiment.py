@@ -281,7 +281,7 @@ class SimpleExperiment(Experiment):
 
         vec_id = self._vectorizer_id(pipeline.vectorizer)
         if vec_id not in self._generic_cache:
-            self._generic_cache[vec_id] = DictVectorizerCache()
+            self._generic_cache[vec_id] = DictVectorizerCache(self._cache_limit)
 
         cached_vectorizer = target_cls(vectorizer=pipeline.vectorizer,
                                        memory=self._generic_cache[vec_id])
