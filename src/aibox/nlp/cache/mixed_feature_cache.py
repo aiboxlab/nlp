@@ -5,19 +5,21 @@ FeatureSets.
 from __future__ import annotations
 
 from aibox.nlp.core import FeatureSet
-from aibox.nlp.features.utils.cache import FeatureCache
+from aibox.nlp.cache.features import FeatureCache
 from aibox.nlp.features.utils.dict_feature_set import DictFeatureSet
 
 
 class MixedFeatureCache(FeatureCache):
     def __init__(self,
                  target_features: set[str],
-                 initial_cache: dict[str, dict[str, float]] = None):
+                 initial_cache: dict[str, dict[str, float]] = None,
+                 max_limit: int = 0):
         if initial_cache is None:
             initial_cache = dict()
 
         self._features = target_features
         self._cache: dict[str, dict[str, float]] = initial_cache
+        self._max = max_limit
 
     @property
     def target_features(self) -> set[str]:
@@ -60,3 +62,15 @@ class MixedFeatureCache(FeatureCache):
 
     def as_dict(self) -> dict[str, FeatureSet]:
         return {k: DictFeatureSet(v) for k, v in self._cache.items()}
+
+    def _prune_to_limit(self):
+        mem_size = len(self._cache)
+
+        if self._max <= 0 or mem_size <= self._max:
+            return
+
+        keys = list(self._cache)
+        diff = mem_size - self._max
+
+        for k in keys[0:diff]:
+            del self._cache[k]
