@@ -143,3 +143,6 @@ catboost_info
 
 # CSV
 *.csv
+
+# Joblib
+*.joblib

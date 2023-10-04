@@ -240,9 +240,12 @@ class SimpleExperiment(Experiment):
         """Realiza uma validação nos
         componentes da classe.
         """
+        # Tem que existir pipelines
+        assert len(self._pipelines) > 0
+
         # Não podem existir pipelines duplicadas
         names = [p.name for p in self._pipelines]
-        assert len(names) == len(set(names))
+        assert len(names) == len(set(names)), names
 
         # Não podem existir métricas duplicadas
         metrics_names = list(m.name() for m in self._metrics)

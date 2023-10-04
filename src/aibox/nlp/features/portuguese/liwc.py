@@ -126,7 +126,7 @@ class LiwcExtractor(FeatureExtractor):
         del kwargs
 
         doc = self._nlp(text)
-        tokens = [t for t in doc
+        tokens = [t.text for t in doc
                   if t.pos_ not in {'PUNCT', 'SYM'}]
         liwc_dict = {v: 0 for v in self._indice_to_name.values()}
 
