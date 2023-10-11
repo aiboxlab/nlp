@@ -50,8 +50,7 @@ class Pipeline:
                 gera um nome aleatório.
         """
         if postprocessing is None:
-            def postprocessing(x):
-                return x
+            postprocessing = self._identity
 
         if name is None:
             name = self._generate_name(vectorizer, estimator)
@@ -139,6 +138,9 @@ class Pipeline:
                               ascii=False,
                               desc='Vetorização',
                               leave=False)]
+
+    def _identity(self, x):
+        return x
 
     @staticmethod
     def _generate_name(vectorizer: Vectorizer, estimator: Estimator) -> str:

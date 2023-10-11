@@ -10,13 +10,14 @@ import json
 try:
     from importlib.resources import files
 except ImportError:
-    # Python < 3.9 doesn't have the 
+    # Python < 3.9 doesn't have the
     #   same files(...) method.
     # Instead, we use the one provided
     # by the importlib_resources library
     from importlib_resources import files
 
-class _Registry:
+
+class Registry:
     def __init__(self) -> None:
         p = files('aibox.nlp.factory').joinpath("registry.json")
         with p.open('r', encoding='utf-8') as f:
@@ -48,6 +49,26 @@ class _Registry:
                 #   do registro.
                 self._reg['global'][k] = full_v
 
+    @property
+    def estimators(self) -> dict[str, str]:
+        return self.get_registry_for('estimators')
+
+    @property
+    def datasets(self) -> dict[str, str]:
+        return self.get_registry_for('datasets')
+
+    @property
+    def features_br(self) -> dict[str, str]:
+        return self.get_registry_for('features_br')
+
+    @property
+    def metrics(self) -> dict[str, str]:
+        return self.get_registry_for('metrics')
+
+    @property
+    def vectorizers(self) -> dict[str, str]:
+        return self.get_registry_for('vectorizers')
+
     def get_registry_for(self, kind: str) -> dict[str, str]:
         """Retorna as entradas do registro para
         um dado tipo.
@@ -75,7 +96,7 @@ class _Registry:
         return self._reg['global'][identifier]
 
 
-_registry = _Registry()
+registry = Registry()
 
 
 def get_class(key: str) -> type:
@@ -89,7 +110,7 @@ def get_class(key: str) -> type:
         Classe.
     """
     # Obtendo nome do pacote e classe
-    class_path = _registry.get_path(key)
+    class_path = registry.get_path(key)
     splits = class_path.rsplit('.', 1)
     module_name = splits[0]
     class_name = splits[1]

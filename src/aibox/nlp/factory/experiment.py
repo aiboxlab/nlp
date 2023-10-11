@@ -4,20 +4,26 @@ para construção e obtenção de experimentos
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from typing import Callable, ClassVar, Literal
 
 import numpy as np
 
 from aibox.nlp.core import Dataset, Experiment, Metric, Pipeline
 from aibox.nlp.experiments.simple_experiment import SimpleExperiment
+from aibox.nlp.pipelines import postprocessing as pp
 
-from .class_registry import get_class
+from .class_registry import get_class, registry
 from .feature_extractor import get_extractor
 
 logger = logging.getLogger(__name__)
 
 
 class SimpleExperimentBuilder:
+    _SKIP_ESTIMATOR: ClassVar[set[str]] = {
+        'lstmClf',
+        'lstmReg'
+    }
+
     def __init__(self) -> None:
         self._ds: Dataset = None
         self._criteria: Metric = None
@@ -215,7 +221,7 @@ class SimpleExperimentBuilder:
         self._problem = 'classification'
         return self
 
-    def regression(self) -> SimpleExperiment:
+    def regression(self) -> SimpleExperimentBuilder:
         """Define que esse é um experimento
         de regressão.
 
@@ -266,6 +272,85 @@ class SimpleExperimentBuilder:
 
         # Retornando o experimento
         return experiment
+
+    @classmethod
+    def features_experiment(cls,
+                            seed: int,
+                            problem: Literal['classification', 'regression'],
+                            include_reg_as_clf: bool = True) -> SimpleExperimentBuilder:
+        """Retorna uma instância pré-inicializada do builder com
+        todas as pipelines utilizando todas características disponíveis.
+
+        Args:
+            seed (int): seed randômica.
+            problem ('classification', 'regression'): tipo do problema.
+            include_reg_as_clf (bool, optional): Se estimadores voltados
+                à regressão devem ser adicionados para classificação
+                utilizando `np.round`. (default=True)
+
+        Returns:
+            SimpleExperimentBuilder: builder.
+        """
+        # Inicializando builder
+        builder = cls()
+        builder.seed(seed)
+
+        # Obtendo o nome de todas as características
+        features = [k
+                    for k in registry.features_br
+                    if 'similarity' not in k.lower()]
+
+        # Selecionando estimadores do tipo
+        #   esperado (i.e., clf ou reg)
+        target = f'{problem}.'
+        estimators = [k
+                      for k, v in registry.estimators.items()
+                      if target in v and
+                      k not in cls._SKIP_ESTIMATOR]
+        names = [f'all_features+{e}'
+                 for e in estimators]
+
+        # Adicionando esses estimadores no experimento
+        builder.add_feature_pipeline(features,
+                                     estimators,
+                                     names)
+
+        # Atualizando problema do builder
+        if problem == 'regression':
+            # Adicionando métricas de regressão
+            builder.add_metric('MAE')
+            builder.add_metric('RMSE')
+            builder.add_metric('R2')
+            builder.add_metric('MSE')
+            builder.regression()
+        else:
+            # Adicionando métricas de classificação
+            builder.add_metric('precision')
+            builder.add_metric('precision', average='weighted')
+            builder.add_metric('recall')
+            builder.add_metric('recall', average='weighted')
+            builder.add_metric('f1')
+            builder.add_metric('f1', average='weighted')
+            builder.add_metric('kappa')
+            builder.classification()
+
+            # Adicionando regressores para
+            #   classificação
+            if include_reg_as_clf:
+                estimators = [k
+                              for k, v in registry.estimators.items()
+                              if 'regression.' in v and
+                              k not in cls._SKIP_ESTIMATOR]
+                names = [f'all_features+{e}'
+                         for e in estimators]
+                postprocessing = [pp.round_to_integer]
+                postprocessing = postprocessing * len(estimators)
+                builder.add_feature_pipeline(features,
+                                             estimators,
+                                             names,
+                                             postprocessing)
+
+        return builder
 
     def _maybe_convert_to_list(self, obj) -> list:
         if not isinstance(obj, list):

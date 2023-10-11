@@ -15,11 +15,11 @@ from aibox.nlp.core import (Dataset, Estimator, FeatureExtractor, Metric,
 from aibox.nlp.factory import class_registry
 
 _REGISTRIES = [
-    class_registry._registry.get_registry_for('datasets'),
-    class_registry._registry.get_registry_for('estimators'),
-    class_registry._registry.get_registry_for('features_br'),
-    class_registry._registry.get_registry_for('metrics'),
-    class_registry._registry.get_registry_for('vectorizers')
+    class_registry.registry.datasets,
+    class_registry.registry.estimators,
+    class_registry.registry.features_br,
+    class_registry.registry.metrics,
+    class_registry.registry.vectorizers
 ]
 
 _TARGET_CLS = [
@@ -73,7 +73,7 @@ def test_no_duplicated_keys():
     """
     # Coletando o total de chaves presente
     #   no registro global
-    global_reg = class_registry._registry
+    global_reg = class_registry.registry
     global_reg = global_reg.get_registry_for('global')
     total_keys = len(global_reg)
 
