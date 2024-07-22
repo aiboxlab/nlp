@@ -7,7 +7,7 @@ name = "aibox-nlp"
 version = "0.0.0"
 description = "AiBox Natural Language Processing Toolkit."
 readme = "README.md"
-classifiers = ["Python :: 3.8", "Python :: 3.9", "Python :: 3.10", "Python :: 3.11"]
+classifiers = ["Programming Language :: Python :: 3.10", "Development Status :: 3 - Alpha"]
 dependencies = [
     "scikit-learn==1.2.2",
     "torch==2.0.1",
