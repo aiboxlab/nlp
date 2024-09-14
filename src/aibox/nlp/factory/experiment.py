@@ -1,6 +1,7 @@
 """Esse método contém funções utilitárias
 para construção e obtenção de experimentos
 """
+
 from __future__ import annotations
 
 import logging
@@ -19,10 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleExperimentBuilder:
-    _SKIP_ESTIMATOR: ClassVar[set[str]] = {
-        'lstmClf',
-        'lstmReg'
-    }
+    _SKIP_ESTIMATOR: ClassVar[set[str]] = {"lstmClf", "lstmReg"}
 
     def __init__(self) -> None:
         self._ds: Dataset = None
@@ -33,13 +31,15 @@ class SimpleExperimentBuilder:
         self._rng = None
         self._problem = None
 
-    def add_feature_pipeline(self,
-                             features: str | list[str],
-                             estimators: str | list[str],
-                             names: str | list[str],
-                             postprocessing: Callable | list[Callable] = None,
-                             features_configs: dict | list[dict] = None,
-                             estimators_configs: dict | list[dict] = None) -> SimpleExperimentBuilder:
+    def add_feature_pipeline(
+        self,
+        features: str | list[str],
+        estimators: str | list[str],
+        names: str | list[str],
+        postprocessing: Callable | list[Callable] = None,
+        features_configs: dict | list[dict] = None,
+        estimators_configs: dict | list[dict] = None,
+    ) -> SimpleExperimentBuilder:
         """Adiciona uma ou mais pipelines baseada em características. Se
         forem passados mais que um estimador, serão construídas pipelines
         com o mesmo conjunto de features mas com cada estimador.
@@ -54,7 +54,7 @@ class SimpleExperimentBuilder:
             SimpleExperimentBuilder: self.
         """
         if self._seed is None:
-            logger.info('Inicialize a seed randômica primeiro.')
+            logger.info("Inicialize a seed randômica primeiro.")
             return
 
         features = self._maybe_convert_to_list(features)
@@ -74,28 +74,30 @@ class SimpleExperimentBuilder:
         postprocessing = self._maybe_convert_to_list(postprocessing)
 
         assert len(estimators) == len(names)
-        extractor = get_extractor(features,
-                                  features_configs)
-        for name, e, c, p in zip(names,
-                                 estimators,
-                                 estimators_configs,
-                                 postprocessing):
+        extractor = get_extractor(features, features_configs)
+        for name, e, c, p in zip(names, estimators, estimators_configs, postprocessing):
             seed = self._estimator_seed()
             estimator = get_class(e)(**c, random_state=seed)
-            self._pipelines.append(Pipeline(vectorizer=extractor,
-                                            estimator=estimator,
-                                            postprocessing=p,
-                                            name=name))
+            self._pipelines.append(
+                Pipeline(
+                    vectorizer=extractor,
+                    estimator=estimator,
+                    postprocessing=p,
+                    name=name,
+                )
+            )
 
         return self
 
-    def add_vectorizer_pipeline(self,
-                                vectorizer: str,
-                                estimators: str | list[str],
-                                names: str | list[str],
-                                postprocessing: Callable | list[Callable] = None,
-                                vectorizer_config: dict = dict(),
-                                estimators_configs: dict | list[dict] = None) -> SimpleExperimentBuilder:
+    def add_vectorizer_pipeline(
+        self,
+        vectorizer: str,
+        estimators: str | list[str],
+        names: str | list[str],
+        postprocessing: Callable | list[Callable] = None,
+        vectorizer_config: dict = dict(),
+        estimators_configs: dict | list[dict] = None,
+    ) -> SimpleExperimentBuilder:
         """Adiciona uma ou mais pipelines baseadas no vetorizar. Se
         forem passados mais que um estimador, serão construídas pipelines
         com o mesmo vetorizador mas com cada estimador.
@@ -112,7 +114,7 @@ class SimpleExperimentBuilder:
             SimpleExperimentBuilder: self.
         """
         if self._seed is None:
-            logger.info('Inicialize a seed randômica primeiro.')
+            logger.info("Inicialize a seed randômica primeiro.")
             return
 
         estimators = self._maybe_convert_to_list(estimators)
@@ -129,21 +131,20 @@ class SimpleExperimentBuilder:
         assert len(estimators) == len(names)
         vectorizer = get_class(vectorizer)(**vectorizer_config)
 
-        for name, e, c, p in zip(names,
-                                 estimators,
-                                 estimators_configs,
-                                 postprocessing):
+        for name, e, c, p in zip(names, estimators, estimators_configs, postprocessing):
             seed = self._estimator_seed()
             estimator = get_class(e)(**c, random_state=seed)
-            self._pipelines.append(Pipeline(vectorizer=vectorizer,
-                                            estimator=estimator,
-                                            postprocessing=p,
-                                            name=name))
+            self._pipelines.append(
+                Pipeline(
+                    vectorizer=vectorizer,
+                    estimator=estimator,
+                    postprocessing=p,
+                    name=name,
+                )
+            )
         return self
 
-    def add_metric(self,
-                   metric: str,
-                   **metric_config) -> SimpleExperimentBuilder:
+    def add_metric(self, metric: str, **metric_config) -> SimpleExperimentBuilder:
         """Adiciona uma métrica para o experimento caso
         ela não tenha sido adicionada anteriormente.
 
@@ -159,9 +160,7 @@ class SimpleExperimentBuilder:
 
         return self
 
-    def best_criteria(self,
-                      metric: str,
-                      **metric_config) -> SimpleExperimentBuilder:
+    def best_criteria(self, metric: str, **metric_config) -> SimpleExperimentBuilder:
         """Define a métrica para selecionar
         a melhor pipeline.
 
@@ -177,9 +176,7 @@ class SimpleExperimentBuilder:
 
         return self
 
-    def dataset(self,
-                ds: str,
-                **ds_config) -> SimpleExperimentBuilder:
+    def dataset(self, ds: str, **ds_config) -> SimpleExperimentBuilder:
         """Define o dataset para
         os experimentos.
 
@@ -218,7 +215,7 @@ class SimpleExperimentBuilder:
         Returns:
             SimpleExperimentBuilder: self.
         """
-        self._problem = 'classification'
+        self._problem = "classification"
         return self
 
     def regression(self) -> SimpleExperimentBuilder:
@@ -228,11 +225,10 @@ class SimpleExperimentBuilder:
         Returns:
             SimpleExperimentBuilder: self.
         """
-        self._problem = 'regression'
+        self._problem = "regression"
         return self
 
-    def custom_dataset(self,
-                       ds: Dataset) -> SimpleExperimentBuilder:
+    def custom_dataset(self, ds: Dataset) -> SimpleExperimentBuilder:
         """Adiciona uma instância de um dataset.
 
         Args:
@@ -252,14 +248,16 @@ class SimpleExperimentBuilder:
             Experiment: experimento.
         """
         # Construção do experimento
-        experiment = SimpleExperiment(pipelines=self._pipelines,
-                                      dataset=self._ds,
-                                      criteria_best=self._criteria,
-                                      metrics=self._metrics,
-                                      seed=self._seed,
-                                      keep_all_pipelines=False,
-                                      problem=self._problem,
-                                      **kwargs)
+        experiment = SimpleExperiment(
+            pipelines=self._pipelines,
+            dataset=self._ds,
+            criteria_best=self._criteria,
+            metrics=self._metrics,
+            seed=self._seed,
+            keep_all_pipelines=False,
+            problem=self._problem,
+            **kwargs,
+        )
 
         # Reset do estado do builder
         self._ds: Dataset = None
@@ -274,10 +272,12 @@ class SimpleExperimentBuilder:
         return experiment
 
     @classmethod
-    def features_experiment(cls,
-                            seed: int,
-                            problem: Literal['classification', 'regression'],
-                            include_reg_as_clf: bool = True) -> SimpleExperimentBuilder:
+    def features_experiment(
+        cls,
+        seed: int,
+        problem: Literal["classification", "regression"],
+        include_reg_as_clf: bool = True,
+    ) -> SimpleExperimentBuilder:
         """Retorna uma instância pré-inicializada do builder com
         todas as pipelines utilizando todas características disponíveis.
 
@@ -296,59 +296,54 @@ class SimpleExperimentBuilder:
         builder.seed(seed)
 
         # Obtendo o nome de todas as características
-        features = [k
-                    for k in registry.features_br
-                    if 'similarity' not in k.lower()]
+        features = [k for k in registry.features_br if "similarity" not in k.lower()]
 
         # Selecionando estimadores do tipo
         #   esperado (i.e., clf ou reg)
-        target = f'{problem}.'
-        estimators = [k
-                      for k, v in registry.estimators.items()
-                      if target in v and
-                      k not in cls._SKIP_ESTIMATOR]
-        names = [f'all_features+{e}'
-                 for e in estimators]
+        target = f"{problem}."
+        estimators = [
+            k
+            for k, v in registry.estimators.items()
+            if target in v and k not in cls._SKIP_ESTIMATOR
+        ]
+        names = [f"all_features+{e}" for e in estimators]
 
         # Adicionando esses estimadores no experimento
-        builder.add_feature_pipeline(features,
-                                     estimators,
-                                     names)
+        builder.add_feature_pipeline(features, estimators, names)
 
         # Atualizando problema do builder
-        if problem == 'regression':
+        if problem == "regression":
             # Adicionando métricas de regressão
-            builder.add_metric('MAE')
-            builder.add_metric('RMSE')
-            builder.add_metric('R2')
-            builder.add_metric('MSE')
+            builder.add_metric("MAE")
+            builder.add_metric("RMSE")
+            builder.add_metric("R2")
+            builder.add_metric("MSE")
             builder.regression()
         else:
             # Adicionando métricas de classificação
-            builder.add_metric('precision')
-            builder.add_metric('precision', average='weighted')
-            builder.add_metric('recall')
-            builder.add_metric('recall', average='weighted')
-            builder.add_metric('f1')
-            builder.add_metric('f1', average='weighted')
-            builder.add_metric('kappa')
+            builder.add_metric("precision")
+            builder.add_metric("precision", average="weighted")
+            builder.add_metric("recall")
+            builder.add_metric("recall", average="weighted")
+            builder.add_metric("f1")
+            builder.add_metric("f1", average="weighted")
+            builder.add_metric("kappa")
             builder.classification()
 
             # Adicionando regressores para
             #   classificação
             if include_reg_as_clf:
-                estimators = [k
-                              for k, v in registry.estimators.items()
-                              if 'regression.' in v and
-                              k not in cls._SKIP_ESTIMATOR]
-                names = [f'all_features+{e}'
-                         for e in estimators]
+                estimators = [
+                    k
+                    for k, v in registry.estimators.items()
+                    if "regression." in v and k not in cls._SKIP_ESTIMATOR
+                ]
+                names = [f"all_features+{e}" for e in estimators]
                 postprocessing = [pp.round_to_integer]
                 postprocessing = postprocessing * len(estimators)
-                builder.add_feature_pipeline(features,
-                                             estimators,
-                                             names,
-                                             postprocessing)
+                builder.add_feature_pipeline(
+                    features, estimators, names, postprocessing
+                )
 
         return builder
 

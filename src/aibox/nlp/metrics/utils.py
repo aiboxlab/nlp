@@ -1,6 +1,7 @@
 """Módulo com funções utilitárias
 para o cálculo das métricas.
 """
+
 from __future__ import annotations
 
 from typing import Callable

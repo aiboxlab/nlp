@@ -1,6 +1,7 @@
 """Esse módulo contém características
 relacionadas com segmentação de palavras.
 """
+
 from __future__ import annotations
 
 import functools
@@ -39,40 +40,35 @@ class NorvigHypoSegmentaton:
         "Return a list of words that is the best segmentation of text."
         if not text:
             return []
-        candidates = ([first]+self.segment(rem)
-                      for first, rem in self.splits(text))
+        candidates = ([first] + self.segment(rem) for first, rem in self.splits(text))
         return max(candidates, key=self.Pwords)
 
     def splits(self, text: str, max_len: int = 30) -> list[tuple[str, str]]:
         "Return a list of all possible (first, rem) pairs, len(first)<=L."
-        return [(text[:i+1], text[i+1:])
-                for i in range(min(len(text), max_len))]
+        return [(text[: i + 1], text[i + 1 :]) for i in range(min(len(text), max_len))]
 
     def Pwords(self, words: list[str]) -> float:
         "The Naive Bayes probability of a sequence of words."
-        return functools.reduce(operator.mul,
-                                (self._dict.word_usage_frequency(w)
-                                 for w in words))
+        return functools.reduce(
+            operator.mul, (self._dict.word_usage_frequency(w) for w in words)
+        )
 
 
 class UspSpellChecker(SpellChecker):
-    def __init__(self,
-                 distance: int = 2,
-                 case_sensitive: bool = False) -> None:
-        path = resources.path('dictionary/usp-spell-wordfreq.v1')
-        path = path.joinpath('usp-spell-wordfreq.gz')
-        super().__init__(local_dictionary=str(path),
-                         distance=distance,
-                         case_sensitive=case_sensitive)
+    def __init__(self, distance: int = 2, case_sensitive: bool = False) -> None:
+        path = resources.path("dictionary/usp-spell-wordfreq.v1")
+        path = path.joinpath("usp-spell-wordfreq.gz")
+        super().__init__(
+            local_dictionary=str(path), distance=distance, case_sensitive=case_sensitive
+        )
 
 
 class WordSegmentationExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
-        self._dict = UspSpellChecker(distance=1,
-                                     case_sensitive=True)
+        self._dict = UspSpellChecker(distance=1, case_sensitive=True)
         self._nlp = nlp
         self._hypo_seg = NorvigHypoSegmentaton(self._dict)
 
@@ -90,12 +86,14 @@ class WordSegmentationExtractor(FeatureExtractor):
             score_hyper = 1.0 - (len(errors_hyper) / doc_size)
 
             # Calculando nota para hiposegmentação
-            errors_hypo = errors = sum(map(
-                lambda tok: len(self._fix_hypo(tok)) > 1, doc))
+            errors_hypo = errors = sum(
+                map(lambda tok: len(self._fix_hypo(tok)) > 1, doc)
+            )
             score_hypo = 1.0 - (errors_hypo / doc_size)
 
-        return WordSegmentationFeatures(hypo_segmentation_score=score_hypo,
-                                        hyper_segmentation_score=score_hyper)
+        return WordSegmentationFeatures(
+            hypo_segmentation_score=score_hypo, hyper_segmentation_score=score_hyper
+        )
 
     def _detect_hyper(self, span: tokens.Span) -> Literal[False] | str:
         """Detects and corrects a span of tokens in case of hypersegmentation
@@ -107,7 +105,7 @@ class WordSegmentationExtractor(FeatureExtractor):
         if all(tok.lower_ in self._dict.word_frequency for tok in span):
             return False
 
-        word = ''.join(tok.lower_ for tok in span)
+        word = "".join(tok.lower_ for tok in span)
 
         # se a concatenação estiver no vocabulário
         if word in self._dict:
@@ -122,8 +120,7 @@ class WordSegmentationExtractor(FeatureExtractor):
         # então era apenas um erro e não uma hipersegmentação
         return False
 
-    def _search_hyper(self,
-                      doc: tokens.Doc) -> Iterable[tuple[tokens.Span, str]]:
+    def _search_hyper(self, doc: tokens.Doc) -> Iterable[tuple[tokens.Span, str]]:
         """Search over the doc an find hypersegmentation of words
 
         returns: tuples with span and correction
@@ -147,9 +144,7 @@ class WordSegmentationExtractor(FeatureExtractor):
             if true, returns a doc with the splited words
         """
 
-        if token.lower_ in self._dict or \
-                not token.is_alpha or \
-                not token.is_oov:
+        if token.lower_ in self._dict or not token.is_alpha or not token.is_oov:
             return self._token_as_doc(token)
 
         words = self._hypo_seg(token.lower_)
@@ -160,15 +155,13 @@ class WordSegmentationExtractor(FeatureExtractor):
         if token.is_title:
             words[0] = words[0].capitalize()
 
-        spaces = [True]*(len(words) - 1) + [token.whitespace_]
-        return tokens.Doc(token.vocab,
-                          words=words,
-                          spaces=spaces)
+        spaces = [True] * (len(words) - 1) + [token.whitespace_]
+        return tokens.Doc(token.vocab, words=words, spaces=spaces)
 
     @staticmethod
-    def _ngrams(doc: tokens.Doc | list[str],
-                size: int = 2,
-                step: int = 1) -> Iterable[tokens.Span | list[str]]:
+    def _ngrams(
+        doc: tokens.Doc | list[str], size: int = 2, step: int = 1
+    ) -> Iterable[tokens.Span | list[str]]:
         """Iterate over the doc returning a window of tokens each time
         similar to nltk.ngrams
 
@@ -176,7 +169,7 @@ class WordSegmentationExtractor(FeatureExtractor):
         >>> tuple(ngrams('abcde', 3)) -> ('abc', 'bcd', 'cde')
         """
         for begin in range(0, len(doc) - size + 1, step):
-            yield doc[begin:begin+size]
+            yield doc[begin : begin + size]
 
     @staticmethod
     def _words_spaces(tokens: list[tokens.Token]) -> list[tuple[str, bool]]:
@@ -189,6 +182,4 @@ class WordSegmentationExtractor(FeatureExtractor):
 
     @staticmethod
     def _token_as_doc(token: tokens.Token) -> tokens.Doc:
-        return tokens.Doc(token.vocab,
-                          words=[token.orth],
-                          spaces=[token.whitespace_])
+        return tokens.Doc(token.vocab, words=[token.orth], spaces=[token.whitespace_])

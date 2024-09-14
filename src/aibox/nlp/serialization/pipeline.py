@@ -1,5 +1,6 @@
 """Módulo para serialização de pipelines.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,9 +11,9 @@ import joblib
 from aibox.nlp.core import Pipeline
 
 
-def save_pipeline(pipeline: Pipeline,
-                  save_path: str | Path,
-                  method: Literal['joblib'] = 'joblib'):
+def save_pipeline(
+    pipeline: Pipeline, save_path: str | Path, method: Literal["joblib"] = "joblib"
+):
     """Realiza o salvamento de uma pipeline
     para o disco.
 
@@ -20,7 +21,7 @@ def save_pipeline(pipeline: Pipeline,
         pipeline (Pipeline): instância da pipeline.
         save_path (str | Path): caminho de salvamento.
         method ('joblib', optional): método de serialização,
-            atualmente apenas o joblib é 
+            atualmente apenas o joblib é
             suportado. (default='joblib')
     """
     del method

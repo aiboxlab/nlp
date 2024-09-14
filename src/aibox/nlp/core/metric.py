@@ -2,6 +2,7 @@
 de uma interface básica para o cálculo
 de métricas.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -32,9 +33,7 @@ class Metric(ABC):
         """
 
     @abstractmethod
-    def compute(self,
-                y_true: np.ndarray,
-                y_pred: np.ndarray) -> np.ndarray[np.float32]:
+    def compute(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray[np.float32]:
         """Computa o valor dessa métrica para as
         entradas recebidas.
 

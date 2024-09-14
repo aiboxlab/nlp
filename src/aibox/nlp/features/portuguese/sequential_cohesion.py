@@ -1,6 +1,7 @@
 """Esse módulo contém as características
 relacionadas com Coesão Sequencial
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -27,7 +28,7 @@ class SequentialCohesionFeatures(DataclassFeatureSet):
 class SequentialCohesionExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
@@ -45,7 +46,8 @@ class SequentialCohesionExtractor(FeatureExtractor):
             local_coh_pu_dist=local_coherence[3],
             local_coh_pw_dist=local_coherence[4],
             local_coh_pacc_dist=local_coherence[5],
-            jaccard_adj_sentences=jaccard_adj_sentences)
+            jaccard_adj_sentences=jaccard_adj_sentences,
+        )
 
     def _compute_local_coherence(self, doc: Doc) -> list:
         """Método que computa as medidas de coerência local
@@ -74,10 +76,14 @@ class SequentialCohesionExtractor(FeatureExtractor):
         all_lemmatized_tokens = []
 
         for sentence in sentences:
-            tokens_sentences = [t.lemma_.lower()
-                                for t in sentence
-                                if not t.is_stop and t.pos_ != 'PUNCT' and
-                                t.pos_ != 'SYM' and t.text != '\n']
+            tokens_sentences = [
+                t.lemma_.lower()
+                for t in sentence
+                if not t.is_stop
+                and t.pos_ != "PUNCT"
+                and t.pos_ != "SYM"
+                and t.text != "\n"
+            ]
             all_lemmatized_tokens.append(tokens_sentences)
 
         mean_jaccard = 0.0
@@ -86,8 +92,9 @@ class SequentialCohesionExtractor(FeatureExtractor):
             set_next = set(all_lemmatized_tokens[i + 1])
             set_union = set_i.union(set_next)
             set_intersection = set_i.intersection(set_next)
-            mean_jaccard += len(set_intersection) / \
-                len(set_union) if len(set_union) > 0 else 0
+            mean_jaccard += (
+                len(set_intersection) / len(set_union) if len(set_union) > 0 else 0
+            )
 
         mean_jaccard /= total_sentences
         return mean_jaccard

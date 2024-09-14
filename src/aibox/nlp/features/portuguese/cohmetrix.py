@@ -1,6 +1,7 @@
 """Esse módulo contém um wrapper
 para as características do CohMetrix.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -10,11 +11,13 @@ from cohmetrixBR import features
 from aibox.nlp.core.feature_extractor import FeatureExtractor
 from aibox.nlp.features.utils import DataclassFeatureSet
 
+
 @dataclass(frozen=True)
 class CohMetrixFeatures(DataclassFeatureSet):
     """Essa classe possui todas as características
     disponibilizadas pelo CohMetrix BR.
     """
+
     despc: float
     despc2: float
     despl: float
@@ -111,5 +114,6 @@ class CohMetrixExtractor(FeatureExtractor):
         """
         del kwargs
 
-        return CohMetrixFeatures(**{f.__name__.lower(): float(f(text))
-                                    for f in features.FEATURES})
+        return CohMetrixFeatures(
+            **{f.__name__.lower(): float(f(text)) for f in features.FEATURES}
+        )

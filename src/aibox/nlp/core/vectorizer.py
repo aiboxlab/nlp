@@ -13,11 +13,9 @@ class Vectorizer(ABC):
     de um vetor/tensor.
     """
 
-    def vectorize(self,
-                  text: str,
-                  vector_type: str = 'numpy',
-                  device: str | None = None,
-                  **kwargs) -> np.ndarray | torch.Tensor:
+    def vectorize(
+        self, text: str, vector_type: str = "numpy", device: str | None = None, **kwargs
+    ) -> np.ndarray | torch.Tensor:
         """Método para vetorização de um texto.
 
         Args:
@@ -39,14 +37,14 @@ class Vectorizer(ABC):
             text_vector = np.array(text_vector, dtype=np.float32)
 
         # Caso seja necessário um tensor, convertemos
-        if (vector_type == 'torch') and not is_torch:
+        if (vector_type == "torch") and not is_torch:
             text_vector = torch.from_numpy(text_vector)
 
             if device is not None:
                 text_vector = text_vector.to(device)
 
         # Caso seja necessário uma ndarray, convertemos
-        if (vector_type == 'numpy') and is_torch:
+        if (vector_type == "numpy") and is_torch:
             text_vector = text_vector.numpy()
 
         return text_vector
@@ -70,10 +68,7 @@ class TrainableVectorizer(Vectorizer):
     treinável (e.g., TF-IDF, BERT).
     """
 
-    def fit(self,
-            X: ArrayLike,
-            y: ArrayLike | None = None,
-            **kwargs) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike | None = None, **kwargs) -> None:
         """Método para treinamento do vetorizador. O valor de `y`
         não é utilizado, só é mantido por consistência da interface
         `fit(X, y)`.

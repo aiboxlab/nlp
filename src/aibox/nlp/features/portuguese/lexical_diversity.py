@@ -1,6 +1,7 @@
 """Esse módulo contém características de diversidade
 léxica.
 """
+
 from __future__ import annotations
 
 import re
@@ -39,7 +40,7 @@ class LexicalDiversityFeatures(DataclassFeatureSet):
 class LexicalDiversityExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
@@ -47,10 +48,12 @@ class LexicalDiversityExtractor(FeatureExtractor):
         del kwargs
 
         doc = self._nlp(text)
-        tokens = [t.lower_
-                  for sent in doc.sents
-                  for t in sent
-                  if t.pos_ not in {'PUNCT', 'SYM'}]
+        tokens = [
+            t.lower_
+            for sent in doc.sents
+            for t in sent
+            if t.pos_ not in {"PUNCT", "SYM"}
+        ]
 
         yule_k = 0
         hapax_legomena = 0
@@ -60,14 +63,14 @@ class LexicalDiversityExtractor(FeatureExtractor):
         lexical_diversity_mtld = 0
         lexical_diversity = 0
         dict_ratio_pos = {
-            'verb': 0,
-            'noun': 0,
-            'propn': 0,
-            'adj': 0,
-            'adv': 0,
-            'adp': 0,
-            'aux': 0,
-            'det': 0
+            "verb": 0,
+            "noun": 0,
+            "propn": 0,
+            "adj": 0,
+            "adv": 0,
+            "adp": 0,
+            "aux": 0,
+            "det": 0,
         }
 
         if len(tokens) > 0:
@@ -80,23 +83,25 @@ class LexicalDiversityExtractor(FeatureExtractor):
             sum_frequencies = 0
 
             for freq, tokens_freq in freq_tokens.items():
-                sum_frequencies += freq ** 2 * len(tokens_freq)
+                sum_frequencies += freq**2 * len(tokens_freq)
 
             total_tokens = len(tokens)
             sum_frequencies -= total_tokens
-            yule_k = 10 ** 4 * (sum_frequencies / total_tokens ** 2)
-            content_tokens = [unidecode.unidecode(t.lemma_.lower())
-                              for t in doc
-                              if t.pos_ not in {'PUNCT', 'SYM', 'SPACE'}]
+            yule_k = 10**4 * (sum_frequencies / total_tokens**2)
+            content_tokens = [
+                unidecode.unidecode(t.lemma_.lower())
+                for t in doc
+                if t.pos_ not in {"PUNCT", "SYM", "SPACE"}
+            ]
             hapax_legomena = len(
-                [t for t in content_tokens if content_tokens.count(t) == 1])
+                [t for t in content_tokens if content_tokens.count(t) == 1]
+            )
             guiraud_index = len(set(content_tokens)) / len(content_tokens)
             pos_dissimilarity = self._compute_pos_dissimilarity(doc)
             lexical_density = self._compute_lexical_density(doc)
 
             try:
-                lexical_diversity_mtld = TRUNAJOD.ttr.lexical_diversity_mtld(
-                    doc)
+                lexical_diversity_mtld = TRUNAJOD.ttr.lexical_diversity_mtld(doc)
             except ZeroDivisionError:
                 lexical_diversity_mtld = 0
 
@@ -104,13 +109,13 @@ class LexicalDiversityExtractor(FeatureExtractor):
             dict_ratio_pos = self._compute_pos_dist(doc)
 
         dict_features = {
-            'yule_k': yule_k,
-            'hapax_legomena': hapax_legomena,
-            'guiraud_index': guiraud_index,
-            'pos_dissimilarity': pos_dissimilarity,
-            'lexical_density': lexical_density,
-            'lexical_diversity_mtld': lexical_diversity_mtld,
-            'lexical_diversity': lexical_diversity
+            "yule_k": yule_k,
+            "hapax_legomena": hapax_legomena,
+            "guiraud_index": guiraud_index,
+            "pos_dissimilarity": pos_dissimilarity,
+            "lexical_density": lexical_density,
+            "lexical_diversity_mtld": lexical_diversity_mtld,
+            "lexical_diversity": lexical_diversity,
         }
         dict_features.update(dict_ratio_pos)
 
@@ -118,7 +123,7 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
     @staticmethod
     def _compute_pos_dissimilarity(doc: Doc) -> float:
-        """ Método que computa a dissimilaridade do texto baseada na
+        """Método que computa a dissimilaridade do texto baseada na
         distribuição das classes gramaticais.
 
         Args:
@@ -144,7 +149,8 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
         for i in range(len(sent_pos_dist) - 1):
             common_adj_tags = set(sent_pos_dist[i].keys()) | set(
-                sent_pos_dist[i + 1].keys())
+                sent_pos_dist[i + 1].keys()
+            )
             difference = 0
             totals = 0
             for pos in common_adj_tags:
@@ -166,13 +172,12 @@ class LexicalDiversityExtractor(FeatureExtractor):
         Returns:
             float: densidade léxica.
         """
-        target = 'VERB|AUX|ADJ|NOUN|PROPN|ADV'
-        return LexicalDiversityExtractor._pos_ratio(doc,
-                                                    target)
+        target = "VERB|AUX|ADJ|NOUN|PROPN|ADV"
+        return LexicalDiversityExtractor._pos_ratio(doc, target)
 
     @staticmethod
     def _pos_distribution(sentence: Span) -> dict:
-        """ Método que computa a distribuição de classes gramáticas.
+        """Método que computa a distribuição de classes gramáticas.
 
         Args:
             sentence (Span): Span representando uma sentença.
@@ -188,7 +193,7 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
     @staticmethod
     def _pos_ratio(doc: Doc, pos_types: str) -> float:
-        """ Método que computa a proporção de classes gramaticais.
+        """Método que computa a proporção de classes gramaticais.
 
         Args:
             doc (Doc): Doc com o texto.
@@ -202,7 +207,7 @@ class LexicalDiversityExtractor(FeatureExtractor):
         total_words = 0
         total_pos_tags = 0
         for token in doc:
-            if token.pos_ not in {'PUNCT', 'SYM', 'SPACE'}:
+            if token.pos_ not in {"PUNCT", "SYM", "SPACE"}:
                 total_words += 1
                 if pos_regex.search(token.tag_):
                     total_pos_tags += 1
@@ -212,7 +217,7 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
     @staticmethod
     def _compute_lexical_diversity(doc: Doc) -> float:
-        """ Método que computa a diversidade léxica
+        """Método que computa a diversidade léxica
         com base na medida TTR e a proporção de alguns
         tipos de palavras.
 
@@ -238,7 +243,7 @@ class LexicalDiversityExtractor(FeatureExtractor):
 
     @staticmethod
     def _compute_pos_dist(doc: Doc) -> dict:
-        """ Método que gera um dicionário com a
+        """Método que gera um dicionário com a
         distribuição de classes gramaticais.
 
         Args:
@@ -257,14 +262,11 @@ class LexicalDiversityExtractor(FeatureExtractor):
                 vocab_size += 1
 
         ratio_pos_dict = {}
-        pos_tags = ['verb', 'noun', 'propn',
-                    'adj', 'adv', 'adp', 'aux',
-                    'det']
+        pos_tags = ["verb", "noun", "propn", "adj", "adv", "adp", "aux", "det"]
 
         for pos_tag in pos_tags:
             if pos_tag in pos_dict:
-                ratio_pos_dict['ratio_' +
-                               pos_tag] = pos_dict[pos_tag] / vocab_size
+                ratio_pos_dict["ratio_" + pos_tag] = pos_dict[pos_tag] / vocab_size
             else:
-                ratio_pos_dict['ratio_' + pos_tag] = 0
+                ratio_pos_dict["ratio_" + pos_tag] = 0
         return ratio_pos_dict

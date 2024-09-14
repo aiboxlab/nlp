@@ -1,6 +1,7 @@
 """Esse módulo contém a implementação
 de um vetorizador TF-IDF.
 """
+
 from __future__ import annotations
 
 from sklearn.feature_extraction.text import TfidfVectorizer as SklearnTFIDF

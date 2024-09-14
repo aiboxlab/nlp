@@ -1,6 +1,7 @@
 """Esse módulo contém a implementação
 de um SVM.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -11,21 +12,23 @@ from aibox.nlp.core import Estimator
 
 
 class SVM(Estimator):
-    def __init__(self,
-                 C=1.0,
-                 kernel='rbf',
-                 degree=3,
-                 gamma='scale',
-                 coef0=0.0,
-                 shrinking=True,
-                 probability=False,
-                 tol=0.001,
-                 cache_size=200,
-                 class_weight=None,
-                 max_iter=-1,
-                 decision_function_shape='ovr',
-                 break_ties=False,
-                 random_state: int | None = None):
+    def __init__(
+        self,
+        C=1.0,
+        kernel="rbf",
+        degree=3,
+        gamma="scale",
+        coef0=0.0,
+        shrinking=True,
+        probability=False,
+        tol=0.001,
+        cache_size=200,
+        class_weight=None,
+        max_iter=-1,
+        decision_function_shape="ovr",
+        break_ties=False,
+        random_state: int | None = None,
+    ):
         super().__init__(random_state=random_state)
         self._hyperparams = dict(
             C=C,
@@ -42,7 +45,8 @@ class SVM(Estimator):
             max_iter=max_iter,
             decision_function_shape=decision_function_shape,
             break_ties=break_ties,
-            random_state=self.random_state)
+            random_state=self.random_state,
+        )
 
         self._svc = _SVC(**self._hyperparams)
 
@@ -65,5 +69,4 @@ class SVM(Estimator):
     def params(self) -> dict:
         params = self._svc.get_params()
 
-        return {k: v for k, v in params.items()
-                if k not in self.hyperparameters}
+        return {k: v for k, v in params.items() if k not in self.hyperparameters}

@@ -1,6 +1,7 @@
 """Esse módulo contém a definição
 da interface para um experimento.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

@@ -1,6 +1,7 @@
 """Esse módulo contém a implementação
 da métrica de revocação.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -12,13 +13,11 @@ from . import utils
 
 
 class Recall(Metric):
-    """Métrica para cálculo da Revocação.
-    """
+    """Métrica para cálculo da Revocação."""
 
-    def __init__(self,
-                 labels: list[int] = None,
-                 average: str = None,
-                 zero_division: float = 0.0) -> None:
+    def __init__(
+        self, labels: list[int] = None, average: str = None, zero_division: float = 0.0
+    ) -> None:
         """Construtor. Essa métrica produz resultados diferentes
         dependendo das configurações.
 
@@ -47,9 +46,7 @@ class Recall(Metric):
         self._zero_div = zero_division
 
     @utils.to_float32_array
-    def compute(self,
-                y_true: np.ndarray,
-                y_pred: np.ndarray) -> np.ndarray[np.float32]:
+    def compute(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray[np.float32]:
         labels = self._labels
 
         if labels is None:
@@ -57,16 +54,18 @@ class Recall(Metric):
             #   de acordo com y_true.
             labels = np.unique(y_true)
 
-        return sklearn.metrics.recall_score(y_true=y_true,
-                                            y_pred=y_pred,
-                                            average=self._avg,
-                                            labels=labels,
-                                            zero_division=self._zero_div)
+        return sklearn.metrics.recall_score(
+            y_true=y_true,
+            y_pred=y_pred,
+            average=self._avg,
+            labels=labels,
+            zero_division=self._zero_div,
+        )
 
     def name(self) -> str:
-        prefix = 'Class '
+        prefix = "Class "
 
         if self._avg is not None:
-            prefix = self._avg + ' '
+            prefix = self._avg + " "
 
-        return prefix.capitalize() + 'Recall'
+        return prefix.capitalize() + "Recall"

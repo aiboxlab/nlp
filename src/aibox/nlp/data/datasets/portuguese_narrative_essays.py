@@ -1,13 +1,9 @@
 """Esse módulo contém o dataset
-Essay-BR (versão original e estendida)
-com redações do Ensino Médio.
+considerando as redações do Ensino Fundamental
+do projeto do MEC.
 """
 
 from __future__ import annotations
-
-import json
-from enum import Enum
-from typing import ClassVar
 
 import pandas as pd
 
@@ -17,46 +13,26 @@ from aibox.nlp.core import Dataset
 from . import utils
 
 
-class DatasetEssayBR(Dataset):
-    def __init__(self, extended: bool, target_competence: str):
+class DatasetPortugueseNarrativeEssays(Dataset):
+    def __init__(self, target_competence: str):
         """Construtor. Permite selecionar qual
-        competência deve ser utilizada pelo dataset
-        e qual versão deve ser utilizada (original
-        ou estendida).
+        competência deve ser utilizada pelo dataset.
 
-        As versões utilizadas pela biblioteca se encontram
-        disponíveis nos repositórios originais do GitHub:
-            - https://github.com/rafaelanchieta/essay/tree/master/essay-br
-                - Commit: da35364a0e213310ce83e55a613fbaa58d134bd3
-            - https://github.com/lplnufpi/essay-br/tree/main/extended-corpus
-                - Commit: fb6391a79cbb12dff877eb442c2a31caa7f00c77
-
-        São aplicados alguns pós-processamentos visto que os dados originais
-        possuem redações duplicadas e/ou faltantes.
+        A versão utilizada aqui é a unificação de todos splits
+        presentes em:
+            - https://www.kaggle.com/datasets/moesiof/portuguese-narrative-essays
 
         Args:
-            extender (bool): se devemos utilizar a versão estendida.
-            target_competence (str): competência ('C1', 'C2', 'C3',
-                'C4', 'C5' ou 'score').
+            target_competence (str): competência ('cohesion',
+                'thematic_coherence', 'formal_register', 'text_typology').
         """
-        target_resource = "essay-br-extended" if extended else "essay-br"
-        root_dir = resources.path(f"datasets/{target_resource}.v1")
+        # Carregamento do Dataset
+        root_dir = resources.path("datasets/portuguese-narrative-essays.v1")
         self._target = target_competence
-        self._df = pd.read_csv(root_dir.joinpath("dataset.csv"))
+        self._df = pd.concat([pd.read_csv(p) for p in root_dir.rglob("*.csv")])
 
-        # Garantindo que o DataFrame possui os dados
-        #   necessários.
-        assert self._target in self._df.columns
-        assert "text" in self._df.columns
-
-        # Pós-processamentos
-        # 1. Remoação de vazios (NaN, Nulls, etc)
-        self._df.dropna(ignore_index=True, inplace=True)
-
-        # 2. Remoção de redações duplicadas
-        self._df.drop_duplicates(subset="text", ignore_index=True, inplace=True)
-
-        # Adicionando nova coluna com o target
+        # Adicionando e renomeando colunas
+        self._df = self._df.rename(columns=dict(essay="text"))
         self._df["target"] = self._df[self._target]
 
         # Reorganizando a ordem do DataFrame: text, target

@@ -1,6 +1,7 @@
 """Esse módulo implementa
 um Lazy Loader para módulos.
 """
+
 import importlib.util
 import sys
 

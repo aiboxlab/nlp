@@ -1,3 +1,2 @@
 """Arquivo de inicialização.
 """
-

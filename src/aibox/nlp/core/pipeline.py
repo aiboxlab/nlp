@@ -1,6 +1,7 @@
 """Esse módulo contém a definição da
 interface básica para uma pipeline.
 """
+
 from __future__ import annotations
 
 from typing import Callable
@@ -31,19 +32,21 @@ class Pipeline:
             2. Calculamos o novo valor de `X = T.predict(X)`;
             3. Passamos o novo `X` e o mesmo `y`
                 para a próxima etapa treinável;
-        """
+    """
 
-    def __init__(self,
-                 vectorizer: Vectorizer,
-                 estimator: Estimator,
-                 postprocessing: Callable[[np.ndarray], np.ndarray] = None,
-                 name: str | None = None):
+    def __init__(
+        self,
+        vectorizer: Vectorizer,
+        estimator: Estimator,
+        postprocessing: Callable[[np.ndarray], np.ndarray] = None,
+        name: str | None = None,
+    ):
         """Construtor.
 
         Args:
             vectorizer (Vectorizer): vetorizador.
             estimator (Estimator): estimador.
-            postprocessing (Callable[[np.ndarray], 
+            postprocessing (Callable[[np.ndarray],
                                       np.ndarray],
                             optional): pós-processamento (default=None).
             name (str | None, optional): Nome da pipeline. Por padrão,
@@ -133,11 +136,10 @@ class Pipeline:
         return self._postprocessing(y)
 
     def _batch_vectorize(self, X):
-        return [self.vectorizer.vectorize(x)
-                for x in tqdm(X,
-                              ascii=False,
-                              desc='Vetorização',
-                              leave=False)]
+        return [
+            self.vectorizer.vectorize(x)
+            for x in tqdm(X, ascii=False, desc="Vetorização", leave=False)
+        ]
 
     def _identity(self, x):
         return x
@@ -149,23 +151,26 @@ class Pipeline:
 
         # Se for um agregado de features, obtemos o nome
         #   individual de cada uma
-        extractors = getattr(vectorizer,
-                             'extractors',
-                             None)
+        extractors = getattr(vectorizer, "extractors", None)
         if extractors:
-            vectorizer_name = '_'.join(v.__class__.__name__
-                                       for v in extractors)
+            vectorizer_name = "_".join(v.__class__.__name__ for v in extractors)
         else:
             vectorizer_name = vectorizer.__class__.__name__
 
         # Obtemos os parâmetros do estimador
-        estimator_params = '_'.join(str(v) for v in
-                                    estimator.hyperparameters.values()
-                                    if not isinstance(v, dict))
+        estimator_params = "_".join(
+            str(v)
+            for v in estimator.hyperparameters.values()
+            if not isinstance(v, dict)
+        )
 
         # Construímos o nome final da pipeline
-        name = '_'.join([vectorizer_name,
-                         estimator_name,
-                         estimator_params,
-                         f'seed_{estimator.random_state}'])
+        name = "_".join(
+            [
+                vectorizer_name,
+                estimator_name,
+                estimator_params,
+                f"seed_{estimator.random_state}",
+            ]
+        )
         return name

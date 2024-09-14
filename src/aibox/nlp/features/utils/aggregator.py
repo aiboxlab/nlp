@@ -1,6 +1,7 @@
 """Módulo com utilidades para agregação
 de múltiplas features/extratores.
 """
+
 from __future__ import annotations
 
 from typing import Iterable
@@ -13,11 +14,8 @@ class AggregatedFeatures(FeatureSet):
         self._features = features
 
     def as_dict(self) -> dict[str, float]:
-        combined_dict = {k: v
-                         for fs in self._features
-                         for k, v in fs.as_dict().items()}
-        sorted_dict = dict(sorted(combined_dict.items(),
-                                  key=lambda x: x[0]))
+        combined_dict = {k: v for fs in self._features for k, v in fs.as_dict().items()}
+        sorted_dict = dict(sorted(combined_dict.items(), key=lambda x: x[0]))
         return sorted_dict
 
     @property

@@ -6,7 +6,7 @@ para extração de cláusulas.
 def find_root_sentence(sentence):
     root_token = None
     for t in sentence:
-        if t.dep_ == 'ROOT':
+        if t.dep_ == "ROOT":
             root_token = t
     return root_token
 
@@ -17,8 +17,8 @@ def find_other_verbs(sentence, root_token):
     for t in sentence:
         ancestors = list(t.ancestors)
         ancestors = [a for a in ancestors if a not in excludes_verbs]
-        if (t.pos_ == 'VERB' or t.pos_ == 'AUX') and root_token in ancestors:
-            if t.dep_ == 'xcomp':
+        if (t.pos_ == "VERB" or t.pos_ == "AUX") and root_token in ancestors:
+            if t.dep_ == "xcomp":
                 excludes_verbs.append(t)
             else:
                 other_verbs.append(t)
@@ -42,7 +42,7 @@ def get_clause_token_span_for_verb(verb, all_verbs_):
     last_token_idx_ = verb.i
     this_verb_children = get_all_children(verb, all_verbs_)
     for child in this_verb_children:
-        if child not in all_verbs_ and child.pos_ != 'PUNCT':
+        if child not in all_verbs_ and child.pos_ != "PUNCT":
             if child.i < first_token_idx_:
                 first_token_idx_ = child.i
             if child.i > last_token_idx_:
@@ -59,7 +59,8 @@ def extract_clauses_by_verbs(sentence):
     all_verbs = [root_token] + other_verbs
     for other_verb in all_verbs:
         first_token_idx, last_token_idx = get_clause_token_span_for_verb(
-            other_verb, all_verbs)
+            other_verb, all_verbs
+        )
         token_spans.append((first_token_idx, last_token_idx))
     sentence_clauses = []
     token_spans = sorted(token_spans, key=lambda tup: tup[0])
@@ -86,7 +87,7 @@ def get_clause(sentence_, start_, end_):
             break
         elif start_ <= t.i < end_:
             clause_.append(t.text)
-    return ' '.join(clause_).strip()
+    return " ".join(clause_).strip()
 
 
 def split_clauses(clauses: list, delimiter: str) -> list:
@@ -94,9 +95,10 @@ def split_clauses(clauses: list, delimiter: str) -> list:
     for clause in clauses:
         if delimiter in clause:
             clauses_aux = clause.split(delimiter)
-            new_clauses.extend([c.lower().strip()
-                               for c in clauses_aux if len(c.strip()) > 1])
+            new_clauses.extend(
+                [c.lower().strip() for c in clauses_aux if len(c.strip()) > 1]
+            )
         else:
             new_clauses.append(clause.lower())
-    new_clauses = [c if len(c.split()) > 1 else c + ' ' for c in new_clauses]
+    new_clauses = [c if len(c.split()) > 1 else c + " " for c in new_clauses]
     return new_clauses

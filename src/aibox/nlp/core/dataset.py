@@ -1,6 +1,7 @@
 """Esse módulo contém a definição
 de uma interface básica para datasets.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -28,10 +29,7 @@ class Dataset(ABC):
         """
 
     @abstractmethod
-    def cv_splits(self,
-                  k: int,
-                  stratified: bool,
-                  seed: int) -> list[pd.DataFrame]:
+    def cv_splits(self, k: int, stratified: bool, seed: int) -> list[pd.DataFrame]:
         """Retorna splits para serem utilizados. Esse método
         particiona o dataset em `k` partes aleatórias de tamanho
         similar.
@@ -46,10 +44,9 @@ class Dataset(ABC):
         """
 
     @abstractmethod
-    def train_test_split(self,
-                         frac_train: float,
-                         stratified: bool,
-                         seed: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def train_test_split(
+        self, frac_train: float, stratified: bool, seed: int
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Obtém os conjuntos de treino e teste desse Dataset como
         DataFrames.
 

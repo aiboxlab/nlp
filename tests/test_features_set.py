@@ -2,6 +2,7 @@
 que os identificadores das features são
 únicos em toda a biblioteca.
 """
+
 import importlib
 import inspect
 import pkgutil
@@ -12,7 +13,7 @@ from aibox.nlp.core import FeatureSet
 from aibox.nlp.features.utils import DataclassFeatureSet
 
 _UTILITY_FEATURE_SETS = {DataclassFeatureSet}
-_SKIP_MODULES = {'utils'}  
+_SKIP_MODULES = {"utils"}
 
 
 def test_no_duplicated_features():
@@ -31,8 +32,9 @@ def test_no_duplicated_features():
     #   non_feature.py
     # feature4.py
     # ....
-    modules_info = [m for m in pkgutil.walk_packages(
-        aibox.nlp.features.portuguese.__path__)]
+    modules_info = [
+        m for m in pkgutil.walk_packages(aibox.nlp.features.portuguese.__path__)
+    ]
 
     for module_info in modules_info:
         name = module_info.name
@@ -41,11 +43,10 @@ def test_no_duplicated_features():
             continue
 
         # Importando módulo
-        module = importlib.import_module(f'aibox.nlp.features.portuguese.{name}')
+        module = importlib.import_module(f"aibox.nlp.features.portuguese.{name}")
 
         # Coletando todas as classes presentes nesse módulo
-        classes = [m for _, m in inspect.getmembers(module,
-                                                    predicate=inspect.isclass)]
+        classes = [m for _, m in inspect.getmembers(module, predicate=inspect.isclass)]
 
         # Caso esse módulo não possua classe,
         #   não precisamos testar.
@@ -55,12 +56,14 @@ def test_no_duplicated_features():
         # Coletando todas as classes que implementam um FeatureSet
         # OBS:. excluímos FeatureSet's utilitários que podem ter
         #   sido importados
-        feature_sets = [c for c in classes
-                        if (c not in _UTILITY_FEATURE_SETS)
-                        and issubclass(c, FeatureSet)]
+        feature_sets = [
+            c
+            for c in classes
+            if (c not in _UTILITY_FEATURE_SETS) and issubclass(c, FeatureSet)
+        ]
 
         # Condição da biblioteca: 1 módulo só pode ter 1 feature set
-        assert len(feature_sets) == 1, f'{name}, {feature_sets}'
+        assert len(feature_sets) == 1, f"{name}, {feature_sets}"
 
         # Obtemos o feature set
         fs = feature_sets[0]

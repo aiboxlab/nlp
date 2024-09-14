@@ -1,6 +1,7 @@
 """Esse móduglo contém características
 relacionadas com ortografia.
 """
+
 from __future__ import annotations
 
 import re
@@ -12,7 +13,7 @@ from aibox.nlp.core import FeatureExtractor
 from aibox.nlp.features.utils import DataclassFeatureSet
 from aibox.nlp.lazy_loading import lazy_import
 
-langtool = lazy_import('language_tool_python')
+langtool = lazy_import("language_tool_python")
 
 
 @dataclass(frozen=True)
@@ -21,7 +22,7 @@ class OrtographyFeatures(DataclassFeatureSet):
 
 
 class OrthographyExtractor(FeatureExtractor):
-    """ Classe que permite calcular uma nota/score para o aspecto
+    """Classe que permite calcular uma nota/score para o aspecto
     ortografia. Exemplo de uso:
 
     >>> scorer = LangToolOrthographyScorer()
@@ -30,7 +31,7 @@ class OrthographyExtractor(FeatureExtractor):
 
     def __init__(self, tool: langtool.LanguageTool = None):
         if tool is None:
-            tool = langtool.LanguageTool('pt-BR')
+            tool = langtool.LanguageTool("pt-BR")
 
         def cleaner(text: str):
             text = text.strip()
@@ -39,10 +40,10 @@ class OrthographyExtractor(FeatureExtractor):
             return text[0].upper() + text[1:]
 
         self._tool = tool
-        self._tokenizer_pattern = re.compile(r'\s+')
+        self._tokenizer_pattern = re.compile(r"\s+")
         self._tokenizer = spacy.tokenizer.Tokenizer(
-            spacy.blank('pt').vocab,
-            token_match=self._tokenizer_pattern.match)
+            spacy.blank("pt").vocab, token_match=self._tokenizer_pattern.match
+        )
         self._cleaner = cleaner
         self._rules = {
             "Encontrado possível erro de ortografia.",
@@ -51,7 +52,7 @@ class OrthographyExtractor(FeatureExtractor):
             "Femininos irregulares",
             "Erro ortográfico: Abreviaturas da internet",
             "Palavras raras facilmente confundidas",
-            "Palavras raras: Capitalização de nomes geográficos"
+            "Palavras raras: Capitalização de nomes geográficos",
         }
 
     def extract(self, text: str, **kwargs) -> OrtographyFeatures:
@@ -83,12 +84,12 @@ class OrthographyExtractor(FeatureExtractor):
             # Caso sejam encontrados erros de ortografia:
             if match.message in self._rules:
                 error_dict = {}
-                correct_token = ''
+                correct_token = ""
 
                 # Obter token/palavra original errôneo
                 offset = match.offset
                 length = match.errorLength
-                token = text[offset: offset + length]
+                token = text[offset : offset + length]
 
                 # Buscar se existe um candidato à substituição
                 if len(match.replacements) > 0:

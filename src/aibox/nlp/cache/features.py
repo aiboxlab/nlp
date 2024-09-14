@@ -2,6 +2,7 @@
 o cacheamento na extração de
 características.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -28,10 +29,7 @@ class FeatureCache(ABC):
         """
 
     @abstractmethod
-    def save(self,
-             text: str,
-             data: FeatureSet,
-             overwrite: bool = False) -> bool:
+    def save(self, text: str, data: FeatureSet, overwrite: bool = False) -> bool:
         """Adiciona uma entrada no cache.
 
         Args:
@@ -55,8 +53,7 @@ class FeatureCache(ABC):
 
 
 class DictFeatureCache(FeatureCache):
-    def __init__(self,
-                 max_limit: int = -1):
+    def __init__(self, max_limit: int = -1):
         """Construtor. Pode ter um tamanho
         máximo para a quantidade de entradas
         armazenadas no cache.
@@ -73,10 +70,7 @@ class DictFeatureCache(FeatureCache):
     def get(self, text: str) -> FeatureSet | None:
         return self._cache.get(text, None)
 
-    def save(self,
-             text: str,
-             data: FeatureSet,
-             overwrite: bool = False) -> bool:
+    def save(self, text: str, data: FeatureSet, overwrite: bool = False) -> bool:
         if not overwrite and text in self._cache:
             return False
 
@@ -101,9 +95,7 @@ class DictFeatureCache(FeatureCache):
 
 
 class CachedExtractor(FeatureExtractor):
-    def __init__(self,
-                 extractor: FeatureExtractor,
-                 memory: FeatureCache | None = None):
+    def __init__(self, extractor: FeatureExtractor, memory: FeatureCache | None = None):
         self._extractor = extractor
         self._memory = memory
 
