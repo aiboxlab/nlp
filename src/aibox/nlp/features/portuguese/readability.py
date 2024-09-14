@@ -1,6 +1,7 @@
 """Esse módulo extrai as features
 relacionadas à leiturabilidade.
 """
+
 from __future__ import annotations
 
 import math
@@ -29,13 +30,13 @@ class ReadabilityFeatures(DataclassFeatureSet):
 class ReadabilityExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
-        root_path = resources.path('dictionary/biderman-words.v1')
-        words_file = root_path.joinpath('words.txt')
+        root_path = resources.path("dictionary/biderman-words.v1")
+        words_file = root_path.joinpath("words.txt")
         self._biderman_words = self.read_words_file(words_file)
         self._nlp = nlp
-        self._dict = pyphen.Pyphen(lang='pt-BR')
+        self._dict = pyphen.Pyphen(lang="pt-BR")
 
     def extract(self, text: str, **kwargs) -> ReadabilityFeatures:
         del kwargs
@@ -44,34 +45,31 @@ class ReadabilityExtractor(FeatureExtractor):
         sentences = [sent.text for sent in doc.sents]
 
         features = {
-            'brunet_indice': 0.0,
-            'adapted_dalechall': 0.0,
-            'flesch_indice': 0.0,
-            'gunning_fox_indice': 0.0,
-            'honore_statistics': 0.0,
-            'readibility_indice': 0.0,
-            'token_var_idx': 0.0
+            "brunet_indice": 0.0,
+            "adapted_dalechall": 0.0,
+            "flesch_indice": 0.0,
+            "gunning_fox_indice": 0.0,
+            "honore_statistics": 0.0,
+            "readibility_indice": 0.0,
+            "token_var_idx": 0.0,
         }
 
         if len(sentences) > 1:
-            features['brunet_indice'] = self.compute_brunet_indice(doc)
-            features['adapted_dalechall'] = self.compute_adapted_dalechall(
-                doc)
-            features['flesch_indice'] = self.compute_flesch_indice(doc)
-            features['gunning_fox_indice'] = self.compute_gunning_fox_indice(
-                doc)
-            features['honore_statistics'] = self.compute_honore_statistics(doc)
-            features['readibility_indice'] = self.compute_readibility_indice(
-                doc)
-            features['token_var_idx'] = self.compute_token_var_idx(doc)
+            features["brunet_indice"] = self.compute_brunet_indice(doc)
+            features["adapted_dalechall"] = self.compute_adapted_dalechall(doc)
+            features["flesch_indice"] = self.compute_flesch_indice(doc)
+            features["gunning_fox_indice"] = self.compute_gunning_fox_indice(doc)
+            features["honore_statistics"] = self.compute_honore_statistics(doc)
+            features["readibility_indice"] = self.compute_readibility_indice(doc)
+            features["token_var_idx"] = self.compute_token_var_idx(doc)
 
         return ReadabilityFeatures(**features)
 
     def read_words_file(self, words_file: Path) -> set[str]:
-        with words_file.open('r', encoding='utf-8') as file:
-            list_biderman = file.read().split('\n')
+        with words_file.open("r", encoding="utf-8") as file:
+            list_biderman = file.read().split("\n")
 
-        list_biderman = [line.split(',')[0] for line in list_biderman]
+        list_biderman = [line.split(",")[0] for line in list_biderman]
         return set(list_biderman)
 
     def compute_brunet_indice(self, doc) -> float:
@@ -101,21 +99,24 @@ class ReadabilityExtractor(FeatureExtractor):
         if len(sentences) == 0:
             return 0
 
-        adp = ['no', 'na', 'nas', 'do', 'da', 'das']
-        tokens = [token.lemma_.lower()
-                  if token.lower_ not in adp
-                  else token.orth_ for token in doc
-                  if not token.is_punct]
+        adp = ["no", "na", "nas", "do", "da", "das"]
+        tokens = [
+            token.lemma_.lower() if token.lower_ not in adp else token.orth_
+            for token in doc
+            if not token.is_punct
+        ]
 
         if len(tokens) == 0:
             return 0
 
-        unfamiliar_words = [token for token in tokens
-                            if token not in self._biderman_words]
+        unfamiliar_words = [
+            token for token in tokens if token not in self._biderman_words
+        ]
         words_by_sentence_ratio = len(tokens) / len(sentences)
         unfamiliar_ratio = len(unfamiliar_words) / len(tokens)
-        adapted_dalechall = (0.1579 * unfamiliar_ratio) + \
-            (0.0496 * words_by_sentence_ratio) + 3.6365
+        adapted_dalechall = (
+            (0.1579 * unfamiliar_ratio) + (0.0496 * words_by_sentence_ratio) + 3.6365
+        )
 
         return adapted_dalechall
 
@@ -139,12 +140,13 @@ class ReadabilityExtractor(FeatureExtractor):
         mean_words_by_sentence = qtde_words / qtde_sentences
         total_syllables = 0
         for word in words:
-            syllables = self._dict.inserted(word).split('-')
+            syllables = self._dict.inserted(word).split("-")
             total_syllables += len(syllables)
 
         mean_syllables_words = total_syllables / qtde_words
-        flesch = 248.835 - (1.015 * mean_words_by_sentence) - \
-            (84.6 * mean_syllables_words)
+        flesch = (
+            248.835 - (1.015 * mean_words_by_sentence) - (84.6 * mean_syllables_words)
+        )
 
         return flesch
 
@@ -173,7 +175,7 @@ class ReadabilityExtractor(FeatureExtractor):
         total_difficult_words = 0
 
         for word in words:
-            syllables = self._dict.inserted(word).split('-')
+            syllables = self._dict.inserted(word).split("-")
             if len(syllables) > 2:
                 total_difficult_words += 1
 
@@ -196,8 +198,9 @@ class ReadabilityExtractor(FeatureExtractor):
         qtde_distinct_words = len(distinct_words)
 
         if qtde_words_freq_1 != qtde_distinct_words:
-            honore_statistics = (100 * math.log10(qtde_words)) / \
-                                (1 - (qtde_words_freq_1 / qtde_distinct_words))
+            honore_statistics = (100 * math.log10(qtde_words)) / (
+                1 - (qtde_words_freq_1 / qtde_distinct_words)
+            )
         else:
             honore_statistics = 0
 
@@ -218,8 +221,9 @@ class ReadabilityExtractor(FeatureExtractor):
         total_characters = sum([len(token) for token in tokens])
         mean_tokens_sentences = total_tokens / len(sentences)
         mean_characters_tokens = total_characters / total_tokens
-        readibility_idx = 0.5 * mean_tokens_sentences + \
-            4.71 * mean_characters_tokens - 21.43
+        readibility_idx = (
+            0.5 * mean_tokens_sentences + 4.71 * mean_characters_tokens - 21.43
+        )
 
         return readibility_idx
 
@@ -234,8 +238,7 @@ class ReadabilityExtractor(FeatureExtractor):
             return 0
 
         log_tokens = math.log(total_tokens)
-        factor = math.log(len(set(tokens))) / \
-            log_tokens if log_tokens > 0 else 0
+        factor = math.log(len(set(tokens))) / log_tokens if log_tokens > 0 else 0
         factor = math.log(2 - factor)
         token_var_idx = log_tokens / factor if factor > 0 else 0
 

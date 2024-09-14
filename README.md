@@ -11,7 +11,7 @@
 <p align="center">
   <a href="#funcionalidades">Funcionalidades</a> •
   <a href="#quick-start">Quick Start</a> •
-  <a href="#instalação">Instalação</a> 
+  <a href="#instalação">Instalação</a>
 </p>
 
 
@@ -41,7 +41,7 @@ A biblioteca se baseia em 3 entidades básicas:
   * Por exemplo, Precisão, Revocação e F1-score são métricas para avaliação.
   * Também existem outras métricas como o Kappa e Kappa Vizinho.
 * **Pipeline**
-  * Representam um conjunto de 3 componentes: 
+  * Representam um conjunto de 3 componentes:
     1. **Estratégia de Vetorização**
        * Converte um texto para sua representação numérica.
        * Alguns exemplos são extratores de características, extração de Embeddings (BERT, FastText, etc), ou TF-IDF.
@@ -49,7 +49,7 @@ A biblioteca se baseia em 3 entidades básicas:
        * Representam um algoritmo para classificação/regressão.
        * Alguns exemplos são SVM, SVR, Árvores de Decisão, Redes Neurais.
     3. **Pós-processamento**
-       * Estratégia aplicada após a predição pelo estimador. 
+       * Estratégia aplicada após a predição pelo estimador.
        * Pode ser utilizada para garantir os limites da saída, ou conversão de regressão para classificação.
 
 Um **Experimento** permite comparar múltiplas **Pipelines** com as **Métricas** escolhidas em um dado **Dataset**. Para construir um experimento, é possível utilizar as classes presentes em `aibox.nlp.experiments` ou utilizar os padrões factory/builder presentes em `aibox.nlp.factory`. Um exemplo básico pode ser encontrado abaixo:

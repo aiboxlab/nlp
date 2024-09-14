@@ -1,6 +1,7 @@
 """Esse módulo contém a implementação
 de métricas relacionadas com o Kappa.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -12,8 +13,7 @@ from . import utils
 
 
 class CohensKappaScore(Metric):
-    """Métrica para cálculo do Cohen's Kappa.
-    """
+    """Métrica para cálculo do Cohen's Kappa."""
 
     def __init__(self, weights: str = None) -> None:
         """Construtor.
@@ -24,20 +24,16 @@ class CohensKappaScore(Metric):
         """
         self._w = weights
 
-    def compute(self,
-                y_true: np.ndarray,
-                y_pred: np.ndarray) -> np.ndarray[np.float32]:
-        return _get_kappa_score(y_true,
-                                y_pred,
-                                weights=self._w)
+    def compute(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray[np.float32]:
+        return _get_kappa_score(y_true, y_pred, weights=self._w)
 
     def name(self) -> str:
-        prefix = ''
+        prefix = ""
 
         if self._w is not None:
-            prefix = self._w + ' '
+            prefix = self._w + " "
 
-        return prefix.capitalize() + 'Kappa'
+        return prefix.capitalize() + "Kappa"
 
 
 class NeighborCohensKappaScore(Metric):
@@ -46,9 +42,7 @@ class NeighborCohensKappaScore(Metric):
     para fins de cálculo.
     """
 
-    def __init__(self,
-                 neighbor_limit: int = 1,
-                 weights: str = None) -> None:
+    def __init__(self, neighbor_limit: int = 1, weights: str = None) -> None:
         """Construtor.
 
         Args:
@@ -62,27 +56,20 @@ class NeighborCohensKappaScore(Metric):
         self._w = weights
         self._neighbor_limit = neighbor_limit
 
-    def compute(self,
-                y_true: np.ndarray,
-                y_pred: np.ndarray) -> np.ndarray[np.float32]:
+    def compute(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray[np.float32]:
         vectorized = np.vectorize(self._get_target_if_neighbor)
-        y_pred_neighbor = vectorized(y_true,
-                                     y_pred)
-        return _get_kappa_score(y_true,
-                                y_pred_neighbor,
-                                weights=self._w)
+        y_pred_neighbor = vectorized(y_true, y_pred)
+        return _get_kappa_score(y_true, y_pred_neighbor, weights=self._w)
 
     def name(self) -> str:
-        prefix = ''
+        prefix = ""
 
         if self._w is not None:
-            prefix = self._w + ' '
+            prefix = self._w + " "
 
-        return prefix.capitalize() + 'Neighbor Kappa'
+        return prefix.capitalize() + "Neighbor Kappa"
 
-    def _get_target_if_neighbor(self,
-                                target: int,
-                                value: int) -> int:
+    def _get_target_if_neighbor(self, target: int, value: int) -> int:
         if abs(value - target) <= self._neighbor_limit:
             return target
 
@@ -90,9 +77,9 @@ class NeighborCohensKappaScore(Metric):
 
 
 @utils.to_float32_array
-def _get_kappa_score(y_true: np.ndarray,
-                     y_pred: np.ndarray,
-                     weights) -> np.ndarray[np.float32]:
+def _get_kappa_score(
+    y_true: np.ndarray, y_pred: np.ndarray, weights
+) -> np.ndarray[np.float32]:
 
     # Condições para cálculo do Kappa
     assert y_true.shape == y_pred.shape
@@ -101,6 +88,4 @@ def _get_kappa_score(y_true: np.ndarray,
     assert np.issubdtype(y_pred.dtype, np.integer)
 
     # Implementação atual usa o scikit
-    return sklearn.metrics.cohen_kappa_score(y_true,
-                                             y_pred,
-                                             weights=weights)
+    return sklearn.metrics.cohen_kappa_score(y_true, y_pred, weights=weights)

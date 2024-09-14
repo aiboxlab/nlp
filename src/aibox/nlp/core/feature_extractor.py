@@ -1,6 +1,7 @@
 """Esse módulo contém as entidades relativas
 à extração de características textuais.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -38,8 +39,7 @@ class FeatureSet(ABC):
             NumPy array de np.float32 representando
                 os valores das características.
         """
-        return np.array(list(self.as_dict().values()),
-                        dtype=np.float32)
+        return np.array(list(self.as_dict().values()), dtype=np.float32)
 
     def as_tensor(self, device: str | None = None) -> torch.Tensor:
         """Retorna as características como um

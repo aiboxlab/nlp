@@ -2,18 +2,21 @@
 que pode ser utilizado para diferentes
 FeatureSets.
 """
+
 from __future__ import annotations
 
-from aibox.nlp.core import FeatureSet
 from aibox.nlp.cache.features import FeatureCache
+from aibox.nlp.core import FeatureSet
 from aibox.nlp.features.utils.dict_feature_set import DictFeatureSet
 
 
 class MixedFeatureCache(FeatureCache):
-    def __init__(self,
-                 target_features: set[str],
-                 initial_cache: dict[str, dict[str, float]] = None,
-                 max_limit: int = 0):
+    def __init__(
+        self,
+        target_features: set[str],
+        initial_cache: dict[str, dict[str, float]] = None,
+        max_limit: int = 0,
+    ):
         if initial_cache is None:
             initial_cache = dict()
 
@@ -42,14 +45,9 @@ class MixedFeatureCache(FeatureCache):
             #   todas as features.
             return None
 
-        return DictFeatureSet({k: v
-                               for k, v in entry.items()
-                               if k in self._features})
+        return DictFeatureSet({k: v for k, v in entry.items() if k in self._features})
 
-    def save(self,
-             text: str,
-             data: FeatureSet,
-             overwrite: bool = False) -> bool:
+    def save(self, text: str, data: FeatureSet, overwrite: bool = False) -> bool:
         del overwrite
         data_dict = data.as_dict()
 

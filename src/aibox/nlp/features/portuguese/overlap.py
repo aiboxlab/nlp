@@ -1,6 +1,7 @@
 """Esse módulo contém características
 de sobreposição.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,7 +24,7 @@ class OverlapFeatures(DataclassFeatureSet):
 class OverlapExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
@@ -40,12 +41,14 @@ class OverlapExtractor(FeatureExtractor):
             overlap_unigrams_sents = self._adjacent_sents_rouge(sentences)
             cosine_sim_tfids_sents = self._adjacent_sents_cos_sim(sentences)
 
-        return OverlapFeatures(overlap_unigrams_sents=overlap_unigrams_sents,
-                               cosine_sim_tfids_sents=cosine_sim_tfids_sents)
+        return OverlapFeatures(
+            overlap_unigrams_sents=overlap_unigrams_sents,
+            cosine_sim_tfids_sents=cosine_sim_tfids_sents,
+        )
 
     @staticmethod
     def _adjacent_sents_rouge(sentences: list[str]) -> float:
-        """ Método que computa a sobreposição de unigramas usando a
+        """Método que computa a sobreposição de unigramas usando a
         medida do ROUGE-1 entre frases adjacentes.
 
         Args:
@@ -63,23 +66,24 @@ class OverlapExtractor(FeatureExtractor):
             if sentences_size >= 2:
                 sentences_size -= 1
 
-            evaluator = Rouge(metrics=['rouge-n', 'rouge-l'],
-                              max_n=2,
-                              limit_length=True,
-                              length_limit=300,
-                              length_limit_type='words',
-                              apply_avg=True,
-                              apply_best=False,
-                              alpha=0.5,
-                              weight_factor=1.2,
-                              stemming=False)
+            evaluator = Rouge(
+                metrics=["rouge-n", "rouge-l"],
+                max_n=2,
+                limit_length=True,
+                length_limit=300,
+                length_limit_type="words",
+                apply_avg=True,
+                apply_best=False,
+                alpha=0.5,
+                weight_factor=1.2,
+                stemming=False,
+            )
             mean_r1 = 0
 
             try:
                 for i in range(sentences_size):
-                    rouge_scores = evaluator.get_scores(sentences[i],
-                                                        sentences[i+1])
-                    mean_r1 += rouge_scores['rouge-1']['r']
+                    rouge_scores = evaluator.get_scores(sentences[i], sentences[i + 1])
+                    mean_r1 += rouge_scores["rouge-1"]["r"]
                 mean_r1 /= sentences_size
             except ZeroDivisionError:
                 pass
@@ -111,7 +115,7 @@ class OverlapExtractor(FeatureExtractor):
 
             for i in range(sentences_size):
                 v1 = sents_vect_tfidf[i]
-                v2 = sents_vect_tfidf[i+1]
+                v2 = sents_vect_tfidf[i + 1]
                 mean_sim_tfidf += cosine_similarity([v1], [v2])[0][0]
 
             mean_sim_tfidf /= sentences_size

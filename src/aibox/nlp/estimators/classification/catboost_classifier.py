@@ -1,6 +1,7 @@
 """Esse módulo contém um classificador
 do catboost.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -11,14 +12,18 @@ from aibox.nlp.core.estimator import Estimator
 
 
 class CatBoostClassifier(Estimator):
-    def __init__(self,
-                 n_estimators: int = 100,
-                 learning_rate: float = 0.01,
-                 random_state: int | None = None):
+    def __init__(
+        self,
+        n_estimators: int = 100,
+        learning_rate: float = 0.01,
+        random_state: int | None = None,
+    ):
         super().__init__(random_state=random_state)
-        self._hyperparams = dict(learning_rate=learning_rate,
-                                 n_estimators=n_estimators,
-                                 random_state=random_state)
+        self._hyperparams = dict(
+            learning_rate=learning_rate,
+            n_estimators=n_estimators,
+            random_state=random_state,
+        )
 
         self._catboost_classifier = _CatBoostClassifier(**self._hyperparams)
 
@@ -39,5 +44,4 @@ class CatBoostClassifier(Estimator):
     def params(self) -> dict:
         params = self._catboost_classifier.get_all_params()
 
-        return {k: v for k, v in params.items()
-                if k not in self.hyperparameters}
+        return {k: v for k, v in params.items() if k not in self.hyperparameters}

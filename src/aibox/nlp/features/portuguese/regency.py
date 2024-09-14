@@ -2,6 +2,7 @@
 relacionadas com regência verbal
 e nominal.
 """
+
 from __future__ import annotations
 
 import json
@@ -21,41 +22,44 @@ class RegencyFeatures(DataclassFeatureSet):
 
 
 class RegencyExtractor(FeatureExtractor):
-    def __init__(self,
-                 nlp: spacy.Language = None):
+    def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
-        root_dir = resources.path('dictionary/morph-checker.v1')
-        verbs_path = root_dir.joinpath('verb_pattern.txt')
-        regencies_path = root_dir.joinpath('vregence_dict.json')
+        root_dir = resources.path("dictionary/morph-checker.v1")
+        verbs_path = root_dir.joinpath("verb_pattern.txt")
+        regencies_path = root_dir.joinpath("vregence_dict.json")
 
         with verbs_path.open() as f1, regencies_path.open() as f2:
-            self._verbs = set(map(lambda line: str(line).replace('\n', ''),
-                                  f1.readlines()))
-            self._verb_regencies = {key: set(value)
-                                    for key, value in json.load(f2).items()}
+            self._verbs = set(
+                map(lambda line: str(line).replace("\n", ""), f1.readlines())
+            )
+            self._verb_regencies = {
+                key: set(value) for key, value in json.load(f2).items()
+            }
 
-        root_dir = resources.path('dictionary/nominal-regency.v1')
-        regencies_path = root_dir.joinpath('nominal_regency_dict.json')
+        root_dir = resources.path("dictionary/nominal-regency.v1")
+        regencies_path = root_dir.joinpath("nominal_regency_dict.json")
 
         with regencies_path.open() as f:
-            self._name_regencies = {key: set(value)
-                                    for key, value in json.load(f).items()}
+            self._name_regencies = {
+                key: set(value) for key, value in json.load(f).items()
+            }
             self._names = set(self._name_regencies.keys())
 
     def extract(self, text: str) -> RegencyFeatures:
         doc = self._nlp(text)
-        score_verb = self._score(*self._check_regency(doc,
-                                                      self._verbs,
-                                                      self._verb_regencies))
-        score_nominal = self._score(*self._check_regency(doc,
-                                                         self._names,
-                                                         self._name_regencies))
-        return RegencyFeatures(verb_regency_score=score_verb,
-                               nominal_regency_score=score_nominal)
+        score_verb = self._score(
+            *self._check_regency(doc, self._verbs, self._verb_regencies)
+        )
+        score_nominal = self._score(
+            *self._check_regency(doc, self._names, self._name_regencies)
+        )
+        return RegencyFeatures(
+            verb_regency_score=score_verb, nominal_regency_score=score_nominal
+        )
 
     @staticmethod
     def _score(hits, errors) -> float:
@@ -63,9 +67,7 @@ class RegencyExtractor(FeatureExtractor):
         return hits / total if total else 1.0
 
     @staticmethod
-    def _check_regency(doc: spacy.tokens.Doc,
-                       word_set,
-                       regencies) -> tuple[int, int]:
+    def _check_regency(doc: spacy.tokens.Doc, word_set, regencies) -> tuple[int, int]:
         errors = 0
         matches = 0
 

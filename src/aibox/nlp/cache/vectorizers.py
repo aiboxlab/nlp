@@ -2,6 +2,7 @@
 o cacheamento na vetorização de
 textos.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -18,9 +19,9 @@ class VectorizerCache(ABC):
     """
 
     @abstractmethod
-    def get(self,  text: str) -> np.ndarray | None:
+    def get(self, text: str) -> np.ndarray | None:
         """Obtém a representação numérica para
-        esse texto caso exista no cache, 
+        esse texto caso exista no cache,
         ou retorna None.
 
         Args:
@@ -31,10 +32,7 @@ class VectorizerCache(ABC):
         """
 
     @abstractmethod
-    def save(self,
-             text: str,
-             data: np.ndarray,
-             overwrite: bool = False) -> bool:
+    def save(self, text: str, data: np.ndarray, overwrite: bool = False) -> bool:
         """Adiciona uma entrada no cache.
 
         Args:
@@ -60,8 +58,7 @@ class VectorizerCache(ABC):
 
 
 class DictVectorizerCache(VectorizerCache):
-    def __init__(self,
-                 max_limit: int = -1):
+    def __init__(self, max_limit: int = -1):
         """Construtor. Pode ter um tamanho
         máximo para a quantidade de entradas
         armazenadas no cache.
@@ -78,10 +75,7 @@ class DictVectorizerCache(VectorizerCache):
     def get(self, text: str) -> np.ndarray | None:
         return self._cache.get(text, None)
 
-    def save(self,
-             text: str,
-             data: np.ndarray,
-             overwrite: bool = False) -> bool:
+    def save(self, text: str, data: np.ndarray, overwrite: bool = False) -> bool:
         if not overwrite and text in self._cache:
             return False
 
@@ -106,9 +100,7 @@ class DictVectorizerCache(VectorizerCache):
 
 
 class CachedVectorizer(Vectorizer):
-    def __init__(self,
-                 vectorizer: Vectorizer,
-                 memory: VectorizerCache | None = None):
+    def __init__(self, vectorizer: Vectorizer, memory: VectorizerCache | None = None):
         self._vectorizer = vectorizer
         self._memory = memory
 
@@ -126,12 +118,10 @@ class CachedVectorizer(Vectorizer):
         if arr is None:
             # Garantindo que não kwargs não contém
             #   chave duplicada
-            kwargs.pop('vector_type', None)
+            kwargs.pop("vector_type", None)
 
             # Realizando vetorização
-            arr = self._vectorizer.vectorize(text,
-                                             vector_type='numpy',
-                                             **kwargs)
+            arr = self._vectorizer.vectorize(text, vector_type="numpy", **kwargs)
 
             # Salvando na memória
             _ = self._memory.save(text, arr)
@@ -140,11 +130,10 @@ class CachedVectorizer(Vectorizer):
 
 
 class TrainableCachedVectorizer(TrainableVectorizer):
-    def __init__(self,
-                 vectorizer: TrainableVectorizer,
-                 memory: VectorizerCache | None = None) -> None:
-        self._cache = CachedVectorizer(vectorizer=vectorizer,
-                                       memory=memory)
+    def __init__(
+        self, vectorizer: TrainableVectorizer, memory: VectorizerCache | None = None
+    ) -> None:
+        self._cache = CachedVectorizer(vectorizer=vectorizer, memory=memory)
         self._trained = False
 
     @property
@@ -155,10 +144,7 @@ class TrainableCachedVectorizer(TrainableVectorizer):
     def vectorizer(self) -> Vectorizer:
         return self._cache.vectorizer
 
-    def fit(self,
-            X: ArrayLike,
-            y: ArrayLike | None = None,
-            **kwargs) -> None:
+    def fit(self, X: ArrayLike, y: ArrayLike | None = None, **kwargs) -> None:
         if not self._trained:
             self._cache.vectorizer.fit(X, y, **kwargs)
             self._trained = True

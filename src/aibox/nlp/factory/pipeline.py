@@ -1,6 +1,7 @@
 """Esse módulo contém funções utilitárias
 para a construção e obtenção de pipelines.
 """
+
 from __future__ import annotations
 
 from aibox.nlp.core import Estimator, Pipeline, Vectorizer
@@ -8,8 +9,7 @@ from aibox.nlp.core import Estimator, Pipeline, Vectorizer
 from .class_registry import get_class
 
 
-def get_pipeline(pipeline: str,
-                 pipeline_config: dict = dict()) -> Pipeline:
+def get_pipeline(pipeline: str, pipeline_config: dict = dict()) -> Pipeline:
     """Carrega uma pipeline com o nome passado.
 
     Args:
@@ -25,10 +25,12 @@ def get_pipeline(pipeline: str,
     return pipeline
 
 
-def make_pipeline(vectorizer: str,
-                  estimator: str,
-                  vectorizer_config: dict = dict(),
-                  estimator_config: dict = dict()) -> Pipeline:
+def make_pipeline(
+    vectorizer: str,
+    estimator: str,
+    vectorizer_config: dict = dict(),
+    estimator_config: dict = dict(),
+) -> Pipeline:
     """Constrói uma pipeline dado o vetorizador
     e estimador a serem utilizados.
 
@@ -49,5 +51,4 @@ def make_pipeline(vectorizer: str,
     assert isinstance(vectorizer, Vectorizer)
     assert isinstance(estimator, Estimator)
 
-    return Pipeline(vectorizer,
-                    estimator)
+    return Pipeline(vectorizer, estimator)

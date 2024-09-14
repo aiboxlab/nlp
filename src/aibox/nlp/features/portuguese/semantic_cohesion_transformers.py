@@ -33,15 +33,18 @@ class SemanticFeaturesTransformers(DataclassFeatureSet):
 
 
 class SemanticExtractorTransformers(FeatureExtractor):
-    def __init__(self, nlp: spacy.Language | None = None,
-                 model: SentenceTransformer = None,
-                 dims: int = None,
-                 device: str = 'cuda'):
+    def __init__(
+        self,
+        nlp: spacy.Language | None = None,
+        model: SentenceTransformer = None,
+        dims: int = None,
+        device: str = "cuda",
+    ):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         if model is None:
-            model_name = 'ricardo-filho/bert-base-portuguese-cased-nli-assin-2'
+            model_name = "ricardo-filho/bert-base-portuguese-cased-nli-assin-2"
             model = SentenceTransformer(model_name, device=device)
             dims = 768
 
@@ -57,43 +60,38 @@ class SemanticExtractorTransformers(FeatureExtractor):
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
         features = {
-            'lsa_adj_mean_embedding': 0,
-            'lsa_adj_std_embedding': 0,
-            'lsa_all_mean_embedding': 0,
-            'lsa_all_std_embedding': 0,
-            'lsa_givenness_mean_embedding': 0,
-            'lsa_givenness_std_embedding': 0,
-            'lsa_paragraph_mean_embedding': 0,
-            'lsa_paragraph_std_embedding': 0,
-            'lsa_span_mean_embedding': 0,
-            'lsa_span_std_embedding': 0
+            "lsa_adj_mean_embedding": 0,
+            "lsa_adj_std_embedding": 0,
+            "lsa_all_mean_embedding": 0,
+            "lsa_all_std_embedding": 0,
+            "lsa_givenness_mean_embedding": 0,
+            "lsa_givenness_std_embedding": 0,
+            "lsa_paragraph_mean_embedding": 0,
+            "lsa_paragraph_std_embedding": 0,
+            "lsa_span_mean_embedding": 0,
+            "lsa_span_std_embedding": 0,
         }
 
         if len(sentences) > 1:
-            adj_sent_mean, adj_sent_std = self._compute_adjacent_sentences(
-                sentences)
-            all_sent_mean, all_sent_std = self._compute_all_sentences(
-                sentences)
-            givenness_mean, givenness_std = self._compute_sentences_givenness(
-                sentences)
+            adj_sent_mean, adj_sent_std = self._compute_adjacent_sentences(sentences)
+            all_sent_mean, all_sent_std = self._compute_all_sentences(sentences)
+            givenness_mean, givenness_std = self._compute_sentences_givenness(sentences)
             paragraph_mean, paragraph_std = self._compute_paragraphs(doc)
             span_mean, span_std = self._compute_span(sentences)
-            features['lsa_adj_mean_embedding'] = adj_sent_mean
-            features['lsa_adj_std_embedding'] = adj_sent_std
-            features['lsa_all_mean_embedding'] = all_sent_mean
-            features['lsa_all_std_embedding'] = all_sent_std
-            features['lsa_givenness_mean_embedding'] = givenness_mean
-            features['lsa_givenness_std_embedding'] = givenness_std
-            features['lsa_paragraph_mean_embedding'] = paragraph_mean
-            features['lsa_paragraph_std_embedding'] = paragraph_std
-            features['lsa_span_mean_embedding'] = span_mean
-            features['lsa_span_std_embedding'] = span_std
+            features["lsa_adj_mean_embedding"] = adj_sent_mean
+            features["lsa_adj_std_embedding"] = adj_sent_std
+            features["lsa_all_mean_embedding"] = all_sent_mean
+            features["lsa_all_std_embedding"] = all_sent_std
+            features["lsa_givenness_mean_embedding"] = givenness_mean
+            features["lsa_givenness_std_embedding"] = givenness_std
+            features["lsa_paragraph_mean_embedding"] = paragraph_mean
+            features["lsa_paragraph_std_embedding"] = paragraph_std
+            features["lsa_span_mean_embedding"] = span_mean
+            features["lsa_span_std_embedding"] = span_std
 
         return SemanticFeaturesTransformers(**features)
 
-    def _compute_adjacent_sentences(self,
-                                    sentences: list[str]) -> tuple[float,
-                                                                   float]:
+    def _compute_adjacent_sentences(self, sentences: list[str]) -> tuple[float, float]:
         """Método que extrai a coesão local usando a
         similaridade entre pares adjacentes de sentenças no texto.
 
@@ -103,13 +101,11 @@ class SemanticExtractorTransformers(FeatureExtractor):
         Returns:
             média e desvio padrão da similaridade
         """
-        pairs = [(sentences[i], sentences[i + 1])
-                 for i in range(len(sentences) - 1)]
+        pairs = [(sentences[i], sentences[i + 1]) for i in range(len(sentences) - 1)]
         mean, std = self._compute_text(pairs)
         return mean, std
 
-    def _compute_all_sentences(self,
-                               sentences: list[str]) -> tuple[float, float]:
+    def _compute_all_sentences(self, sentences: list[str]) -> tuple[float, float]:
         """Método que extrai coesão global usando a similaridade
         de todos os pares possíveis de sentenças do texto.
 
@@ -123,9 +119,7 @@ class SemanticExtractorTransformers(FeatureExtractor):
         mean, std = self._compute_text(pairs)
         return mean, std
 
-    def _compute_sentences_givenness(self,
-                                     sentences: list[str]) -> tuple[float,
-                                                                    float]:
+    def _compute_sentences_givenness(self, sentences: list[str]) -> tuple[float, float]:
         """Método que extrai o quanto de informação dada existe
         em cada sentença de um texto, comparando com o
         conteúdo de informação anterior no texto.
@@ -136,8 +130,9 @@ class SemanticExtractorTransformers(FeatureExtractor):
         Returns:
             média e desvio padrão da similaridade
         """
-        pairs = [(sentences[i], ''.join(sentences[:i]))
-                 for i in range(1, len(sentences))]
+        pairs = [
+            (sentences[i], "".join(sentences[:i])) for i in range(1, len(sentences))
+        ]
         mean, std = self._compute_text(pairs)
         return mean, std
 
@@ -151,12 +146,12 @@ class SemanticExtractorTransformers(FeatureExtractor):
         Returns:
             média e desvio padrão da similaridade
         """
-        paragraphs = [line.strip() for line in doc.text.split('\n')
-                      if line and not line.isspace()]
+        paragraphs = [
+            line.strip() for line in doc.text.split("\n") if line and not line.isspace()
+        ]
         if len(paragraphs) <= 1:
             return 0, 0
-        pairs = [(paragraphs[i], paragraphs[i + 1])
-                 for i in range(len(paragraphs) - 1)]
+        pairs = [(paragraphs[i], paragraphs[i + 1]) for i in range(len(paragraphs) - 1)]
         mean, std = self._compute_text(pairs)
         return mean, std
 
@@ -183,40 +178,46 @@ class SemanticExtractorTransformers(FeatureExtractor):
             span_dimensions = len(past_sentences)
 
             if span_dimensions > self._dims - 1:
-                beginning = past_sentences[0:span_dimensions - self._dims]
+                beginning = past_sentences[0 : span_dimensions - self._dims]
                 past_sentences[0] = beginning
 
-            past_sentences_vectors = [sparse2full(self._get_vector(
-                sentence), self._dims) for sentence in past_sentences]
+            past_sentences_vectors = [
+                sparse2full(self._get_vector(sentence), self._dims)
+                for sentence in past_sentences
+            ]
 
             current_sentence_vector = sparse2full(
-                self._get_vector(sentences[i]), self._dims)
-            current_sentence_array = np.array(
-                current_sentence_vector).reshape(self._dims, 1)
+                self._get_vector(sentences[i]), self._dims
+            )
+            current_sentence_array = np.array(current_sentence_vector).reshape(
+                self._dims, 1
+            )
 
             past_sentences_vectors_trans = np.array(past_sentences_vectors).T
 
             projection_matrix = np.dot(
                 np.dot(
                     past_sentences_vectors_trans,
-                    pinv(np.dot(past_sentences_vectors_trans.T,
-                         past_sentences_vectors_trans))
+                    pinv(
+                        np.dot(
+                            past_sentences_vectors_trans.T, past_sentences_vectors_trans
+                        )
+                    ),
                 ),
-                past_sentences_vectors_trans.T
+                past_sentences_vectors_trans.T,
             )
 
-            projection = np.dot(projection_matrix,
-                                current_sentence_array).ravel()
+            projection = np.dot(projection_matrix, current_sentence_array).ravel()
 
-            spans[i - 1] = cossim(full2sparse(current_sentence_vector),
-                                  full2sparse(projection))
+            spans[i - 1] = cossim(
+                full2sparse(current_sentence_vector), full2sparse(projection)
+            )
 
         mean, std = self._get_mean_std(spans)
 
         return mean, std
 
-    def _compute_text(self,
-                      pairs: list[tuple[str, str]]) -> tuple[float, float]:
+    def _compute_text(self, pairs: list[tuple[str, str]]) -> tuple[float, float]:
         """Método usado para extrair similaridade
         entre os pares de sentenças.
 
@@ -226,8 +227,9 @@ class SemanticExtractorTransformers(FeatureExtractor):
         Returns:
             Média e desvio padrão das similaridades entre todos os pares
         """
-        similarities = [self._compute_similarity(
-            sent1, sent2) for sent1, sent2 in pairs]
+        similarities = [
+            self._compute_similarity(sent1, sent2) for sent1, sent2 in pairs
+        ]
         if len(similarities) == 0:
             return 0, 0
         mean, std = self._get_mean_std(similarities)

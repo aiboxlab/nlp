@@ -2,6 +2,7 @@
 de similaridade entre textos baseadas
 no TF-IDF.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,28 +25,30 @@ class TFIDFSimilarityFeatures(DataclassFeatureSet):
 
 
 class TFIDFSimilarityExtractor(FeatureExtractor):
-    """ Esse classe implementa um extrator de características
+    """Esse classe implementa um extrator de características
     de similaridade baseado no TF-IDF.
     """
 
     def __init__(self, reference_text: str) -> None:
         self._ref_text = reference_text
         self._models = {
-            'rapid_fuzz',
-            'tf_idf_ngram1',
-            'tf_idf_ngram2',
-            'tf_idf_ngram3',
-            'tf_idf_ngram4',
-            'tf_idf_ngram_all'
+            "rapid_fuzz",
+            "tf_idf_ngram1",
+            "tf_idf_ngram2",
+            "tf_idf_ngram3",
+            "tf_idf_ngram4",
+            "tf_idf_ngram_all",
         }
-        self._model = polyfuzz.PolyFuzz([
-            RapidFuzz(n_jobs=1, model_id='rapid_fuzz'),
-            TFIDF(n_gram_range=(1, 1), model_id='tf_idf_ngram1'),
-            TFIDF(n_gram_range=(2, 2), model_id='tf_idf_ngram2'),
-            TFIDF(n_gram_range=(3, 3), model_id='tf_idf_ngram3'),
-            TFIDF(n_gram_range=(4, 4), model_id='tf_idf_ngram4'),
-            TFIDF(n_gram_range=(1, 5), model_id='tf_idf_ngram_all'),
-        ])
+        self._model = polyfuzz.PolyFuzz(
+            [
+                RapidFuzz(n_jobs=1, model_id="rapid_fuzz"),
+                TFIDF(n_gram_range=(1, 1), model_id="tf_idf_ngram1"),
+                TFIDF(n_gram_range=(2, 2), model_id="tf_idf_ngram2"),
+                TFIDF(n_gram_range=(3, 3), model_id="tf_idf_ngram3"),
+                TFIDF(n_gram_range=(4, 4), model_id="tf_idf_ngram4"),
+                TFIDF(n_gram_range=(1, 5), model_id="tf_idf_ngram_all"),
+            ]
+        )
 
     @property
     def reference_text(self) -> str:
@@ -71,5 +74,6 @@ class TFIDFSimilarityExtractor(FeatureExtractor):
         self._model.match([text], [self._ref_text])
         matches = self._model.get_matches()
 
-        return TFIDFSimilarityFeatures(**{k: matches[k]['Similarity'].item()
-                                          for k in self._models})
+        return TFIDFSimilarityFeatures(
+            **{k: matches[k]["Similarity"].item() for k in self._models}
+        )

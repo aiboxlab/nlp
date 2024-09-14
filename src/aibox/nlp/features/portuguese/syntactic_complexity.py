@@ -1,6 +1,7 @@
 """Esse módulo contém características
 de complexidade sintática.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -37,7 +38,7 @@ class SyntacticComplexityFeatures(DataclassFeatureSet):
 class SyntacticComplexityExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
@@ -45,17 +46,13 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         del kwargs
 
         doc = self._nlp(text)
-        adverbs_before_main_verb_ratio = self._adverbs_before_main_verb_ratio(
-            doc)
-        infinite_subordinate_clauses = self._infinite_subordinate_clauses(
-            doc)
+        adverbs_before_main_verb_ratio = self._adverbs_before_main_verb_ratio(doc)
+        infinite_subordinate_clauses = self._infinite_subordinate_clauses(doc)
         words_before_main_verb = self._words_before_main_verb(doc)
         clauses_per_sentence = self._clauses_per_sentence(doc)
-        coord_conj_per_clauses = self._coord_conj_per_clauses(
-            doc)
+        coord_conj_per_clauses = self._coord_conj_per_clauses(doc)
         passive_ratio = self._passive_ratio(doc)
-        coord_conj_ratio, subord_conj_ratio = self._coord_subord_conj_ratio(
-            doc)
+        coord_conj_ratio, subord_conj_ratio = self._coord_subord_conj_ratio(doc)
         relative_clauses = self._relative_clauses(doc)
         sentences_with_n_clauses = self._sentences_with_n_clauses(doc)
         std_noun_phrase = self._std_noun_phrase(doc)
@@ -70,7 +67,8 @@ class SyntacticComplexityExtractor(FeatureExtractor):
             coord_conj_ratio=coord_conj_ratio,
             subord_conj_ratio=subord_conj_ratio,
             std_noun_phrase=std_noun_phrase,
-            **sentences_with_n_clauses)
+            **sentences_with_n_clauses,
+        )
 
     def _adverbs_before_main_verb_ratio(self, doc: Doc) -> float:
         """Método que computa a Proporção de orações
@@ -85,12 +83,13 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         all_adverbs = []
         all_verbs = []
         for sentence in sentences:
-            adverbs_sent = [adv for adv in sentence
-                            if adv.pos_ == 'ADV']
+            adverbs_sent = [adv for adv in sentence if adv.pos_ == "ADV"]
             all_adverbs.extend(adverbs_sent)
-            verbs_sent = [verb for verb in sentence
-                          if verb.pos_ == 'VERB' and
-                          verb.dep_ != 'xcomp']
+            verbs_sent = [
+                verb
+                for verb in sentence
+                if verb.pos_ == "VERB" and verb.dep_ != "xcomp"
+            ]
             all_verbs.extend(verbs_sent)
             clauses_sent = extract_clauses_by_verbs(sentence)
             if clauses_sent is not None:
@@ -102,9 +101,10 @@ class SyntacticComplexityExtractor(FeatureExtractor):
                 verb_index = all_clauses[i].find(str(all_verbs[j]))
                 if verb_index != -1:
                     for k in range(0, len(all_adverbs)):
-                        if all_clauses[i].find(str(all_adverbs[k]),
-                                               0,
-                                               verb_index) != -1:
+                        if (
+                            all_clauses[i].find(str(all_adverbs[k]), 0, verb_index)
+                            != -1
+                        ):
                             counter_adverbs += 1
                             break
 
@@ -115,12 +115,14 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         subordinadas reduzidas em relação à quantidade de
         orações do texto.
         """
-        infinite_forms = [['Ger'], ['Inf'], ['Part']]
-        verbs_tags = ['VERB', 'AUX']
+        infinite_forms = [["Ger"], ["Inf"], ["Part"]]
+        verbs_tags = ["VERB", "AUX"]
         verbs = [token.text for token in doc if token.pos_ in verbs_tags]
-        verbs_infinite = [token.text for token in doc
-                          if token.pos_ == 'VERB' and
-                          token.morph.get('VerbForm') in infinite_forms]
+        verbs_infinite = [
+            token.text
+            for token in doc
+            if token.pos_ == "VERB" and token.morph.get("VerbForm") in infinite_forms
+        ]
 
         return len(verbs_infinite) / len(verbs) if len(verbs) != 0 else 0
 
@@ -133,7 +135,7 @@ class SyntacticComplexityExtractor(FeatureExtractor):
 
         for token in doc:
             if not token.is_punct:
-                if token.dep_ != 'ROOT':
+                if token.dep_ != "ROOT":
                     number_of_words += 1
                 else:
                     break
@@ -144,7 +146,7 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         """Método que computa a média de
         orações por sentença.
         """
-        assert doc is not None, 'Error DOC is None'
+        assert doc is not None, "Error DOC is None"
         sentences = [sent for sent in doc.sents]
         if len(sentences) == 0:
             return 0
@@ -165,13 +167,12 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         if len(sentences) == 0:
             return 0
 
-        tag_conj = ['CCONJ']
+        tag_conj = ["CCONJ"]
         all_conjunctions = []
         all_clauses = []
 
         for sentence in sentences:
-            conjunctions_sent = [
-                token for token in sentence if token.pos_ in tag_conj]
+            conjunctions_sent = [token for token in sentence if token.pos_ in tag_conj]
             all_conjunctions.extend(conjunctions_sent)
             clauses_sent = extract_clauses_by_verbs(sentence)
             if clauses_sent is not None:
@@ -193,8 +194,9 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         if len(sentences) == 0:
             return 0
 
-        passives_verbs = [token.text for token in doc
-                          if token.morph.get('Voice') == ['Pass']]
+        passives_verbs = [
+            token.text for token in doc if token.morph.get("Voice") == ["Pass"]
+        ]
         all_clauses = []
         for sentence in sentences:
             clauses_sent = extract_clauses_by_verbs(sentence)
@@ -213,8 +215,8 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         coordenativas e subordinativas em relação ao total de
         conjunções do texto.
         """
-        tag_cconj = ['CCONJ']
-        tag_sconj = ['SCONJ']
+        tag_cconj = ["CCONJ"]
+        tag_sconj = ["SCONJ"]
         cconj = []
         sconj = []
 
@@ -238,8 +240,9 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         sentences = [sent for sent in doc.sents]
         if len(sentences) == 0:
             return 0
-        relative_clauses = [token.text for token in doc
-                            if token.morph.get('PronType') == ['Rel']]
+        relative_clauses = [
+            token.text for token in doc if token.morph.get("PronType") == ["Rel"]
+        ]
         all_clauses = []
         for sentence in sentences:
             clauses_sent = extract_clauses_by_verbs(sentence)
@@ -259,8 +262,7 @@ class SyntacticComplexityExtractor(FeatureExtractor):
         """
         sentences = [sent for sent in doc.sents]
         sentences_with_n_clauses = {
-            f'sentences_with_{i}_clauses': 0
-            for i in range(1, 8)
+            f"sentences_with_{i}_clauses": 0 for i in range(1, 8)
         }
 
         if len(sentences) == 0:
@@ -273,12 +275,17 @@ class SyntacticComplexityExtractor(FeatureExtractor):
                 all_clauses.append(len(clauses_sent))
 
         for i in range(1, 8):
-            key = f'sentences_with_{i}_clauses'
+            key = f"sentences_with_{i}_clauses"
 
             if i >= 7:
-                def cond(c): return c >= i
+
+                def cond(c):
+                    return c >= i
+
             else:
-                def cond(c): return c == i
+
+                def cond(c):
+                    return c == i
 
             n = len(tuple(filter(cond, all_clauses)))
             sentences_with_n_clauses[key] = n

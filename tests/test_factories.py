@@ -6,12 +6,12 @@ precisamos garantir que toda chave
 no _registry vira uma classe e que não
 existem identificadores duplicados.
 """
+
 from __future__ import annotations
 
 import pytest
 
-from aibox.nlp.core import (Dataset, Estimator, FeatureExtractor, Metric,
-                            Vectorizer)
+from aibox.nlp.core import Dataset, Estimator, FeatureExtractor, Metric, Vectorizer
 from aibox.nlp.factory import class_registry
 
 _REGISTRIES = [
@@ -19,22 +19,16 @@ _REGISTRIES = [
     class_registry.registry.estimators,
     class_registry.registry.features_br,
     class_registry.registry.metrics,
-    class_registry.registry.vectorizers
+    class_registry.registry.vectorizers,
 ]
 
-_TARGET_CLS = [
-    Dataset,
-    Estimator,
-    FeatureExtractor,
-    Metric,
-    Vectorizer
-]
+_TARGET_CLS = [Dataset, Estimator, FeatureExtractor, Metric, Vectorizer]
 
 
-@pytest.mark.parametrize("registry,parent_class",
-                         [e for e in zip(_REGISTRIES, _TARGET_CLS)])
-def test_names_for_factories(registry: dict[str, str],
-                             parent_class: type):
+@pytest.mark.parametrize(
+    "registry,parent_class", [e for e in zip(_REGISTRIES, _TARGET_CLS)]
+)
+def test_names_for_factories(registry: dict[str, str], parent_class: type):
     """Realiza o teste de todas chaves
     cadastradas em um dado registro de classes.
 
@@ -74,7 +68,7 @@ def test_no_duplicated_keys():
     # Coletando o total de chaves presente
     #   no registro global
     global_reg = class_registry.registry
-    global_reg = global_reg.get_registry_for('global')
+    global_reg = global_reg.get_registry_for("global")
     total_keys = len(global_reg)
 
     # Coletando o total de chaves presentes

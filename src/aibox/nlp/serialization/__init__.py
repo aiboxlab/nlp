@@ -1,3 +1,4 @@
 """Init file.
 """
-from .pipeline import save_pipeline, load_pipeline
+
+from .pipeline import load_pipeline, save_pipeline

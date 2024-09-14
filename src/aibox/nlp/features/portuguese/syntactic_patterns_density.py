@@ -2,6 +2,7 @@
 relacionadas à densidade de padrões
 sintáticos.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,30 +25,29 @@ class SyntacticPatternsDensityFeatures(DataclassFeatureSet):
 class SyntacticPatternsDensityExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
 
         self._nlp = nlp
 
-    def extract(self,  text: str, **kwargs) -> SyntacticPatternsDensityFeatures:
+    def extract(self, text: str, **kwargs) -> SyntacticPatternsDensityFeatures:
         del kwargs
 
         doc = self._nlp(text)
         sentences = [sent.text for sent in doc.sents]
         features = {
-            'gerund_verbs': 0.0,
-            'max_noun_phrase': 0.0,
-            'min_noun_phrase': 0.0,
-            'mean_noun_phrase': 0.0
+            "gerund_verbs": 0.0,
+            "max_noun_phrase": 0.0,
+            "min_noun_phrase": 0.0,
+            "mean_noun_phrase": 0.0,
         }
 
         if len(sentences) > 1:
             gerund_verbs = self.compute_gerund_verbs(doc)
-            minimum, maximum, mean = self.compute_min_max_mean_noun_phrases(
-                doc)
-            features['gerund_verbs'] = gerund_verbs
-            features['max_noun_phrase'] = maximum
-            features['min_noun_phrase'] = minimum
-            features['mean_noun_phrase'] = mean
+            minimum, maximum, mean = self.compute_min_max_mean_noun_phrases(doc)
+            features["gerund_verbs"] = gerund_verbs
+            features["max_noun_phrase"] = maximum
+            features["min_noun_phrase"] = minimum
+            features["mean_noun_phrase"] = mean
 
         return SyntacticPatternsDensityFeatures(**features)
 
@@ -55,13 +55,17 @@ class SyntacticPatternsDensityExtractor(FeatureExtractor):
         """Método que computa a proporção de verbos
         no gerúndio em relação a todos os verbos do texto.
         """
-        verbs = [token.text for token in doc if token.pos_ ==
-                 'VERB' or token.pos_ == 'AUX']
+        verbs = [
+            token.text for token in doc if token.pos_ == "VERB" or token.pos_ == "AUX"
+        ]
         if len(verbs) == 0:
             return 0
-        verbs_gerund = [token.text for token in doc
-                        if (token.pos_ == 'VERB' or token.pos_ == 'AUX')
-                        and 'Ger' in token.morph.get('VerbForm')]
+        verbs_gerund = [
+            token.text
+            for token in doc
+            if (token.pos_ == "VERB" or token.pos_ == "AUX")
+            and "Ger" in token.morph.get("VerbForm")
+        ]
         return len(verbs_gerund) / len(verbs)
 
     def compute_min_max_mean_noun_phrases(self, doc) -> [float, float, float]:

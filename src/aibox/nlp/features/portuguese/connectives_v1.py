@@ -1,6 +1,7 @@
 """Esse módulo contém características
 relacionadas com o uso de conectivos.
 """
+
 from __future__ import annotations
 
 import json
@@ -11,8 +12,7 @@ from unidecode import unidecode
 
 from aibox.nlp import resources
 from aibox.nlp.core import FeatureExtractor
-from aibox.nlp.features.utils import (DataclassFeatureSet, patterns,
-                                      sentencizers)
+from aibox.nlp.features.utils import DataclassFeatureSet, patterns, sentencizers
 
 
 @dataclass(frozen=True)
@@ -64,39 +64,38 @@ class ConnectivesExtractorV1(FeatureExtractor):
 
         overall_freq = 0.0
         connectives_scores = {k: 0.0 for k in self._connectives}
-        connectives_scores['sent_all_conn'] = 0.0
+        connectives_scores["sent_all_conn"] = 0.0
         sentences_size = len(sentences)
 
         if sentences_size > 0:
             for feature, connectives in self._connectives.items():
                 hits, _ = patterns.count_connectives_in_sentences(
-                    connectives,
-                    sentences)
+                    connectives, sentences
+                )
 
                 overall_freq += hits
                 frequency = hits / sentences_size
                 connectives_scores[feature] = frequency
 
             overall_freq /= sentences_size
-            connectives_scores['sent_all_conn'] = overall_freq
+            connectives_scores["sent_all_conn"] = overall_freq
 
         return ConnectivesFeaturesV1(**connectives_scores)
 
     def _load_connectives(self):
         def _class_to_feature_name(name: str) -> str:
             feature_name = name.lower()
-            feature_name = feature_name.replace(' ', '_')
+            feature_name = feature_name.replace(" ", "_")
             feature_name = unidecode(feature_name)
-            feature_name = f'sent_conn_{feature_name.strip()}'
+            feature_name = f"sent_conn_{feature_name.strip()}"
             return feature_name
 
-        resource_dir = resources.path('dictionary/connectives-list.v1')
-        resource = resource_dir.joinpath('connectives.json')
+        resource_dir = resources.path("dictionary/connectives-list.v1")
+        resource = resource_dir.joinpath("connectives.json")
 
-        with resource.open('r', encoding='utf-8') as f:
+        with resource.open("r", encoding="utf-8") as f:
             connectives = json.load(f)
 
         self._connectives = {
-            _class_to_feature_name(k): v
-            for k, v in connectives.items()
+            _class_to_feature_name(k): v for k, v in connectives.items()
         }

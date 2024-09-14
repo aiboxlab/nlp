@@ -1,6 +1,7 @@
 """Esse módulo contém um Wrapper
 para estimadores do scikit-learn.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -10,8 +11,7 @@ from aibox.nlp.core.estimator import Estimator
 
 
 class SklearnEstimator(Estimator):
-    """Wrapper para estimadores do scikit-learn.
-    """
+    """Wrapper para estimadores do scikit-learn."""
 
     def __init__(self, estimator) -> None:
         """Construtor. Recebe o estimador

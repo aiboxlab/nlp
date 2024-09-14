@@ -1,6 +1,7 @@
 """Esse módulo contém as características
 descritivas do texto.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -32,9 +33,9 @@ class DescriptiveFeatures(DataclassFeatureSet):
 class DescriptiveExtractor(FeatureExtractor):
     def __init__(self, nlp: spacy.Language | None = None):
         if nlp is None:
-            nlp = spacy.load('pt_core_news_md')
+            nlp = spacy.load("pt_core_news_md")
         self._nlp = nlp
-        self._dict_pyphen = Pyphen(lang='pt-BR')
+        self._dict_pyphen = Pyphen(lang="pt-BR")
 
     def extract(self, text: str, **kwargs) -> DescriptiveFeatures:
         del kwargs
@@ -43,11 +44,10 @@ class DescriptiveExtractor(FeatureExtractor):
         sentences = [sent for sent in doc.sents]
         words = [word.text for word in doc if not word.is_punct]
 
-        total_paragraphs = len(text.split('\n'))
+        total_paragraphs = len(text.split("\n"))
         total_sentences = len(sentences)
         sentences_per_paragraph = total_sentences / total_paragraphs
-        syllables_per_content_word = self._compute_syllables_per_content_word(
-            doc)
+        syllables_per_content_word = self._compute_syllables_per_content_word(doc)
         total_words = len(words)
         words_per_sentence = total_words / total_sentences
         sent_statistics = self._compute_sentence_length_max(sentences)
@@ -55,15 +55,15 @@ class DescriptiveExtractor(FeatureExtractor):
         stopwords_features = self._compute_stopwords_features(doc)
 
         features = {
-            'total_paragraphs': total_paragraphs,
-            'total_sentences': total_sentences,
-            'sentences_per_paragraph': sentences_per_paragraph,
-            'syllables_per_content_word': syllables_per_content_word,
-            'total_words': total_words,
-            'words_per_sentence': words_per_sentence,
-            'sentence_length_max': sent_len_max,
-            'sentence_length_min': sent_len_min,
-            'sentence_length_std': sent_len_std,
+            "total_paragraphs": total_paragraphs,
+            "total_sentences": total_sentences,
+            "sentences_per_paragraph": sentences_per_paragraph,
+            "syllables_per_content_word": syllables_per_content_word,
+            "total_words": total_words,
+            "words_per_sentence": words_per_sentence,
+            "sentence_length_max": sent_len_max,
+            "sentence_length_min": sent_len_min,
+            "sentence_length_std": sent_len_std,
         }
 
         features.update(stopwords_features)
@@ -77,18 +77,23 @@ class DescriptiveExtractor(FeatureExtractor):
         Args:
             doc: Objeto Doc com o texto
         """
-        content_pos_tags = {'PROPN', 'NOUN', 'VERB', 'ADV', 'ADJ'}
+        content_pos_tags = {"PROPN", "NOUN", "VERB", "ADV", "ADJ"}
         content_words = [
-            word.text for word in doc if not word.is_punct and word.pos_ in content_pos_tags]
+            word.text
+            for word in doc
+            if not word.is_punct and word.pos_ in content_pos_tags
+        ]
         if len(content_words) == 0:
             return 0
         total_syllables = 0
         for word in content_words:
-            syllables = self._dict_pyphen.inserted(word).split('-')
+            syllables = self._dict_pyphen.inserted(word).split("-")
             total_syllables += len(syllables)
         return total_syllables / len(content_words)
 
-    def _compute_sentence_length_max(self, sentences: list[tokens.Span]) -> tuple[int, int, float]:
+    def _compute_sentence_length_max(
+        self, sentences: list[tokens.Span]
+    ) -> tuple[int, int, float]:
         """
         Método que computa características relacionadas ao tamanho das sentenças do texto
 
@@ -114,16 +119,13 @@ class DescriptiveExtractor(FeatureExtractor):
 
         Returns: Dicionário com caracteríscias
         """
-        all_tokens = [token for token in doc if token.pos_ !=
-                      'PUNCT' and token.pos_ != 'SPACE']
-        stopwords_features = {
-            'total_stopwords': 0,
-            'stopwords_ratio': 0
-        }
+        all_tokens = [
+            token for token in doc if token.pos_ != "PUNCT" and token.pos_ != "SPACE"
+        ]
+        stopwords_features = {"total_stopwords": 0, "stopwords_ratio": 0}
         if len(all_tokens) == 0:
             return stopwords_features
         stopwords = [token for token in all_tokens if token.is_stop]
-        stopwords_features['total_stopwords'] = len(stopwords)
-        stopwords_features['stopwords_ratio'] = len(
-            stopwords) / len(all_tokens)
+        stopwords_features["total_stopwords"] = len(stopwords)
+        stopwords_features["stopwords_ratio"] = len(stopwords) / len(all_tokens)
         return stopwords_features

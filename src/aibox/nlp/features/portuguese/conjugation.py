@@ -1,6 +1,7 @@
 """Esse módulo contém características
 relacionadas com conjugação verbal.
 """
+
 from __future__ import annotations
 
 import enum
@@ -29,13 +30,14 @@ class Conjugation(enum.Enum):
     """Classe utilitária, armazena as 3 conjugações
     verbais da língua portuguesa.
     """
-    FIRST = 'ar'
-    SECOND = 'er'
-    THIRD = 'ir'
+
+    FIRST = "ar"
+    SECOND = "er"
+    THIRD = "ir"
 
     @staticmethod
     def from_verb(regular_verb_root: str) -> Conjugation:
-        """ Obtém a conjugação de um verbo regular a partir
+        """Obtém a conjugação de um verbo regular a partir
         de sua raiz (infinitivo).
 
         Args:
@@ -45,7 +47,7 @@ class Conjugation(enum.Enum):
         Returns:
             Conjugação desse verbo regular (1ª, 2ª ou 3ª).
         """
-        if regular_verb_root.lower() == 'pôr':
+        if regular_verb_root.lower() == "pôr":
             # Caso específico na língua portuguesa
             return Conjugation.SECOND
 
@@ -57,7 +59,7 @@ class Conjugation(enum.Enum):
 
     @staticmethod
     def from_desinencia(desinencia: str) -> Conjugation:
-        """ Obtém a conjugação de acordo com a desinência
+        """Obtém a conjugação de acordo com a desinência
         do verbo.
 
         Args:
@@ -82,13 +84,12 @@ class ConjugationExtractor(FeatureExtractor):
         self._matcher = matcher.Matcher(self._nlp.vocab)
         self._matcher.add("verb", [[{"POS": "VERB"}]])
 
-        root_dir = resources.path('dictionary/verb-conjugation.v1')
-        irregular_path = root_dir.joinpath('conjugation_irregular.json')
-        paradigms_path = root_dir.joinpath('conjugation_desinencias.json')
+        root_dir = resources.path("dictionary/verb-conjugation.v1")
+        irregular_path = root_dir.joinpath("conjugation_irregular.json")
+        paradigms_path = root_dir.joinpath("conjugation_desinencias.json")
 
-        with irregular_path.open('r') as f1, paradigms_path.open('r') as f2:
-            self._paradigms = {key: set(value)
-                               for key, value in json.load(f2).items()}
+        with irregular_path.open("r") as f1, paradigms_path.open("r") as f2:
+            self._paradigms = {key: set(value) for key, value in json.load(f2).items()}
             self._irregular = set(json.load(f1))
 
     def extract(self, text: str, **kwargs) -> ConjugationFeatures:
@@ -97,21 +98,19 @@ class ConjugationExtractor(FeatureExtractor):
         errors, hits, frequency = self._check(text)
         total_verbs = hits + errors
         score = 0.0
-        ratios = {f'conjugation_{k}_ratio': float(v)
-                  for k, v in frequency.items()}
+        ratios = {f"conjugation_{k}_ratio": float(v) for k, v in frequency.items()}
 
         if total_verbs > 0:
             score = hits / total_verbs
             ratios = {k: v / total_verbs for k, v in ratios.items()}
 
-        return ConjugationFeatures(conjugation_score=score,
-                                   **ratios)
+        return ConjugationFeatures(conjugation_score=score, **ratios)
 
     def _check(self, text: str) -> Tuple[int, int, dict[str, int]]:
         errors = 0
         hits = 0
         frequency = {k.name.lower(): 0 for k in Conjugation}
-        frequency.update({'irregular': 0})
+        frequency.update({"irregular": 0})
 
         doc = self._nlp(text)
 
@@ -126,7 +125,7 @@ class ConjugationExtractor(FeatureExtractor):
 
                 # E aumentamos a frequência de verbos
                 #   irregulares.
-                frequency['irregular'] += 1
+                frequency["irregular"] += 1
                 continue
 
             lemma = token.lemma_.lower()
@@ -145,8 +144,9 @@ class ConjugationExtractor(FeatureExtractor):
 
             # As desinências dos verbos paradigmas podem possuir
             #   de 2 a 7 caracteres.
-            desinencia = set([text[-2:], text[-3:], text[-4:],
-                             text[-5:], text[-6:], text[-7:]])
+            desinencia = set(
+                [text[-2:], text[-3:], text[-4:], text[-5:], text[-6:], text[-7:]]
+            )
 
             # Obtemos a lista de desinências para essa conjugação
             desinencias = self._get_desinencias(conjugation)
