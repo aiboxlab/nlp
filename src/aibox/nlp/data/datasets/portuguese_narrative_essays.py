@@ -5,10 +5,6 @@ do projeto do MEC.
 
 from __future__ import annotations
 
-import json
-from enum import Enum
-from typing import ClassVar
-
 import pandas as pd
 
 from aibox.nlp import resources
@@ -17,47 +13,34 @@ from aibox.nlp.core import Dataset
 from . import utils
 
 
-class DatasetMecEf(Dataset):
-    _COMPETENCES: ClassVar[set[str]] = {
-        "cohesion",
-        "thematic_coherence",
-        "formal_register",
-        "text_typology",
-    }
-    _KEY_MOTIV_SITUATION: ClassVar[str] = "motivating_situation"
-    _KEY_TEXT: ClassVar[str] = "text"
-    _KEY_COMPETENCES: ClassVar[str] = "consolidated_competences"
-
+class DatasetPortugueseNarrativeEssays(Dataset):
     def __init__(self, target_competence: str):
         """Construtor. Permite selecionar qual
         competência deve ser utilizada pelo dataset.
+
+        A versão utilizada aqui é a unificação de todos splits
+        presentes em:
+            - https://www.kaggle.com/datasets/moesiof/portuguese-narrative-essays
 
         Args:
             target_competence (str): competência ('cohesion',
                 'thematic_coherence', 'formal_register', 'text_typology').
         """
-        root_dir = resources.path("datasets/corpus-mec-ef.v1")
-        json_path = root_dir.joinpath("dataset.json")
-        with json_path.open("r", encoding="utf-8") as f:
-            json_data = json.load(f)
-
-        data = {self._KEY_TEXT: [], "target": [], self._KEY_MOTIV_SITUATION: []}
-
-        data.update({k: [] for k in self._COMPETENCES})
-        assert target_competence in self._COMPETENCES
-
-        for entry in json_data:
-            data[self._KEY_TEXT].append(entry[self._KEY_TEXT])
-            data[self._KEY_MOTIV_SITUATION].append(entry[self._KEY_MOTIV_SITUATION])
-            competences = entry[self._KEY_COMPETENCES]
-
-            for c in self._COMPETENCES:
-                data[c].append(competences[c])
-
-            data["target"].append(competences[target_competence])
-
+        # Carregamento do Dataset
+        root_dir = resources.path("datasets/portuguese-narrative-essays.v1")
         self._target = target_competence
-        self._df = pd.DataFrame(data)
+        self._df = pd.concat([pd.read_csv(p) for p in root_dir.rglob("*.csv")])
+
+        # Adicionando e renomeando colunas
+        self._df = self._df.rename(columns=dict(essay="text"))
+        self._df["target"] = self._df[self._target]
+
+        # Reorganizando a ordem do DataFrame: text, target
+        #   vem primeiro e depois as colunas faltantes.
+        cols = list(self._df.columns)
+        cols.remove("text")
+        cols.remove("target")
+        self._df = self._df[["text", "target"] + cols]
 
     @property
     def competence(self) -> str:

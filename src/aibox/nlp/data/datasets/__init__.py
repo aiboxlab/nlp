@@ -3,4 +3,4 @@
 
 from .dataset_df import DatasetDF
 from .essay_br import DatasetEssayBR
-from .mec_ef import DatasetMecEf
+from .portuguese_narrative_essays import DatasetPortugueseNarrativeEssays
