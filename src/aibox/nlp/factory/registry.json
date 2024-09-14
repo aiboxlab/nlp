@@ -59,6 +59,6 @@
     },
     "datasets": {
         "essayBR": "essay_br.DatasetEssayBR",
-        "efBR": "mec_ef.DatasetMecEf"
+        "narrativeEssaysBR": "portuguese_narrative_essays.DatasetPortugueseNarrativeEssays"
     }
 }
