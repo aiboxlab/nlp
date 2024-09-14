@@ -14,7 +14,7 @@ from . import utils
 
 
 class DatasetPortugueseNarrativeEssays(Dataset):
-    def __init__(self, target_competence: str):
+    def __init__(self, target_competence: str, clean_tags: bool = True):
         """Construtor. Permite selecionar qual
         competência deve ser utilizada pelo dataset.
 
@@ -25,6 +25,8 @@ class DatasetPortugueseNarrativeEssays(Dataset):
         Args:
             target_competence (str): competência ('cohesion',
                 'thematic_coherence', 'formal_register', 'text_typology').
+            clean_tags (bool, opcional): se devem ser removidas tags
+                de anotação.
         """
         # Carregamento do Dataset
         root_dir = resources.path("datasets/portuguese-narrative-essays.v1")
@@ -41,6 +43,10 @@ class DatasetPortugueseNarrativeEssays(Dataset):
         cols.remove("text")
         cols.remove("target")
         self._df = self._df[["text", "target"] + cols]
+
+        # Remoção de tags
+        if clean_tags:
+            self._df = self._remove_tags(self._df)
 
     @property
     def competence(self) -> str:
@@ -81,3 +87,31 @@ class DatasetPortugueseNarrativeEssays(Dataset):
         """
         del stratified
         return utils.train_test_clf(df=self._df, frac_train=frac_train, seed=seed)
+
+    def _remove_tags(self, df: pd.DataFrame, copy: bool = False) -> pd.DataFrame:
+        if copy:
+            df = df.copy()
+
+        # Well-formed tags with format [<LETTER_OR_SYMBOL>]
+        tag_regex = r"(\[[PpSsTtXx?]\])"
+
+        # Well-formed tags with format {<LETTER_OR_SYMBOL>}
+        tag_regex += r"|({[ptx?]})"
+
+        # Well-formed tags [LT] or [LC]
+        tag_regex += r"|(\[L[TC]\])"
+
+        # Well-formed tags with format [lt] or [lc]
+        tag_regex += r"|(\[l[tc]\])"
+
+        # Variant with a trailing space
+        tag_regex += r"|(\[ P\])"
+
+        # Mixed closing/opening symbol
+        tag_regex += r"|(\[[PX?]\})"
+        tag_regex += r"|(\{?\])"
+
+        # Remove tags
+        df.text = df.text.str.replace(tag_regex, "", regex=True)
+
+        return df
